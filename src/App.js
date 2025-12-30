@@ -802,6 +802,9 @@ function App() {
         {isAdmin && showAdminDashboard && (
         <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
+      
+      {/* PWA Install Prompt */}
+      <InstallPrompt />
     </div>
   );
 }
