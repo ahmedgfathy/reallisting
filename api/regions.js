@@ -18,19 +18,37 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Get unique regions
-    const { data, error } = await supabase
-      .from('messages')
-      .select('region')
-      .not('region', 'is', null);
+    // Fetch all regions in batches to get all unique values
+    const allRegions = new Set();
+    let offset = 0;
+    const batchSize = 1000;
+    let hasMore = true;
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ error: error.message });
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('region')
+        .not('region', 'is', null)
+        .range(offset, offset + batchSize - 1);
+
+      if (error) {
+        console.error('Supabase error:', error);
+        return res.status(500).json({ error: error.message });
+      }
+
+      if (!data || data.length === 0) {
+        hasMore = false;
+      } else {
+        data.forEach(row => allRegions.add(row.region));
+        offset += batchSize;
+        // Stop if we got less than batchSize (means we've reached the end)
+        if (data.length < batchSize) {
+          hasMore = false;
+        }
+      }
     }
 
-    // Get unique regions
-    const regions = [...new Set((data || []).map(row => row.region))];
+    const regions = [...allRegions];
     
     // Sort regions - put الحي numbers first, then مجاورة, then named areas, then أخرى at the end
     const sortedRegions = regions.sort((a, b) => {
