@@ -6,6 +6,8 @@ function AdminDashboard({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [deduplicating, setDeduplicating] = useState(false);
+  const [dedupeReport, setDedupeReport] = useState(null);
 
   const token = localStorage.getItem('token') || '';
 
@@ -77,6 +79,45 @@ function AdminDashboard({ onClose }) {
     }
   };
 
+  const handleDeduplicate = async () => {
+    if (!token) {
+      setError('لا يوجد تصريح صالح. الرجاء تسجيل الدخول مرة أخرى.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      'هل أنت متأكد من حذف الرسائل المكررة؟\n\nسيتم حذف الرسائل التي لها نفس:\n- اسم المرسل\n- رقم الموبايل\n- نص الرسالة\n\nهذا الإجراء لا يمكن التراجع عنه!'
+    );
+
+    if (!confirmed) return;
+
+    setDeduplicating(true);
+    setDedupeReport(null);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/admin/deduplicate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل في حذف المكررات');
+      }
+
+      setDedupeReport(result);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeduplicating(false);
+    }
+  };
+
   return (
     <div className="admin-dashboard-overlay" role="dialog" aria-modal="true">
       <div className="admin-dashboard">
@@ -91,7 +132,37 @@ function AdminDashboard({ onClose }) {
           <button type="button" className="admin-dashboard-refresh" onClick={loadUsers} disabled={loading}>
             🔄 تحديث القائمة
           </button>
+          <button 
+            type="button" 
+            className="admin-dedupe-btn" 
+            onClick={handleDeduplicate} 
+            disabled={deduplicating}
+          >
+            {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
+          </button>
         </div>
+
+        {dedupeReport && (
+          <div className="admin-dedupe-report">
+            <h3>📊 تقرير حذف المكررات</h3>
+            <div className="dedupe-stats">
+              <div className="dedupe-stat">
+                <span className="dedupe-label">العدد الأصلي:</span>
+                <span className="dedupe-value">{dedupeReport.originalCount?.toLocaleString('ar-EG')}</span>
+              </div>
+              <div className="dedupe-stat">
+                <span className="dedupe-label">المكررات المحذوفة:</span>
+                <span className="dedupe-value dedupe-removed">{dedupeReport.duplicatesRemoved?.toLocaleString('ar-EG')}</span>
+              </div>
+              <div className="dedupe-stat">
+                <span className="dedupe-label">العدد الجديد:</span>
+                <span className="dedupe-value dedupe-new">{dedupeReport.newTotalCount?.toLocaleString('ar-EG')}</span>
+              </div>
+            </div>
+            <p className="dedupe-message">✅ {dedupeReport.message}</p>
+            <button className="dedupe-close-btn" onClick={() => setDedupeReport(null)}>إغلاق التقرير</button>
+          </div>
+        )}
 
         {error && <div className="admin-dashboard-error">⚠️ {error}</div>}
 
