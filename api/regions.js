@@ -18,47 +18,25 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Fetch all regions in batches to get all unique values
-    const allRegions = new Set();
-    let offset = 0;
-    const batchSize = 1000;
-    let hasMore = true;
+    // Use the PostgreSQL function we created for efficient distinct regions
+    const { data, error } = await supabase.rpc('get_distinct_regions');
 
-    while (hasMore) {
-      const { data, error } = await supabase
-        .from('messages')
-        .select('region')
-        .not('region', 'is', null)
-        .range(offset, offset + batchSize - 1);
-
-      if (error) {
-        console.error('Supabase error:', error);
-        return res.status(500).json({ error: error.message });
-      }
-
-      if (!data || data.length === 0) {
-        hasMore = false;
-      } else {
-        data.forEach(row => allRegions.add(row.region));
-        offset += batchSize;
-        // Stop if we got less than batchSize (means we've reached the end)
-        if (data.length < batchSize) {
-          hasMore = false;
-        }
-      }
+    if (error) {
+      console.error('Supabase RPC error:', error);
+      return res.status(500).json({ error: error.message });
     }
 
-    const regions = [...allRegions];
-    
+    const regions = (data || []).map(r => r.region).filter(Boolean);
+
     // Sort regions - put الحي numbers first, then مجاورة, then named areas, then أخرى at the end
     const sortedRegions = regions.sort((a, b) => {
       if (a === 'أخرى') return 1;
       if (b === 'أخرى') return -1;
       
-      const aIsHayy = a.startsWith('الحي');
-      const bIsHayy = b.startsWith('الحي');
-      const aIsMug = a.startsWith('مجاورة');
-      const bIsMug = b.startsWith('مجاورة');
+      const aIsHayy = a && a.startsWith('الحي');
+      const bIsHayy = b && b.startsWith('الحي');
+      const aIsMug = a && a.startsWith('مجاورة');
+      const bIsMug = b && b.startsWith('مجاورة');
       
       if (aIsHayy && !bIsHayy) return -1;
       if (!aIsHayy && bIsHayy) return 1;
@@ -66,8 +44,21 @@ module.exports = async (req, res) => {
       if (!aIsMug && bIsMug) return 1;
       
       // Extract numbers for numeric sorting
-      const aNum = parseInt(a.match(/\d+/)?.[0] || '999');
-      const bNum = parseInt(b.match(/\d+/)?.[0] || '999');
+      const aNum = parseInt((a || '').match(/\d+/)?.[0] || '999');
+      const bNum = parseInt((b || '').match(/\d+/)?.[0] || '999');
+      
+      if (aIsHayy && bIsHayy) return aNum - bNum;
+      if (aIsMug && bIsMug) return aNum - bNum;
+      
+      return (a || '').localeCompare(b || '', 'ar');
+    });
+
+    res.status(200).json(sortedRegions);
+  } catch (error) {
+    console.error('API error:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
       
       if (aIsHayy && bIsHayy) return aNum - bNum;
       if (aIsMug && bIsMug) return aNum - bNum;
