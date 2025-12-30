@@ -611,7 +611,7 @@ function App() {
                             )}
                           </>
                         ) : (
-                          <span className="card-name">👤 اسم المرسل مخفي</span>
+                          <span className="card-name">👤 اسم الوسيط مخفي</span>
                         )}
                       </div>
                       <div className="card-date">

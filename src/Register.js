@@ -136,7 +136,8 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
           <div className="subscription-box">
             <div className="subscription-header">
               <h2>💎 اشتراك الوسيط</h2>
-              <p>رسوم الاشتراك السنوي</p>
+              <p>رسوم الاشتراك الشهري</p>
+              <p className="no-commission">بدون أي عمولات - حرية كاملة</p>
               <div className="price-tag">200 جنيه</div>
             </div>
 
