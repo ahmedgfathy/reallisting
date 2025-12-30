@@ -7,7 +7,6 @@ function Profile({ onClose }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   
-  const [name, setName] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,7 +34,6 @@ function Profile({ onClose }) {
         }
 
         setUser(data.user);
-        setName(data.user.name || '');
       } catch (err) {
         setError(err.message);
       } finally {
@@ -65,7 +63,6 @@ function Profile({ onClose }) {
 
     try {
       const body = {};
-      if (name !== (user.name || '')) body.name = name;
       if (newPassword) {
         body.currentPassword = currentPassword;
         body.newPassword = newPassword;
@@ -86,15 +83,10 @@ function Profile({ onClose }) {
         throw new Error(result.error || 'فشل التحديث');
       }
 
-      setSuccess('تم التحديث بنجاح');
+      setSuccess('تم تحديث كلمة المرور بنجاح');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
-      
-      // Update local user data
-      if (name !== user.name) {
-        setUser({ ...user, name });
-      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -128,17 +120,6 @@ function Profile({ onClose }) {
                 className="profile-input-disabled"
               />
               <small>لا يمكن تغيير رقم الموبايل</small>
-            </div>
-
-            <div className="profile-field">
-              <label>الاسم (اختياري)</label>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="أدخل اسمك"
-                className="profile-input"
-              />
             </div>
 
             <div className="profile-divider">

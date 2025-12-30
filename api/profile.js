@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('users')
-      .select('mobile, name, role, is_active, created_at')
+      .select('mobile, role, is_active, created_at')
       .eq('mobile', userMobile)
       .single();
 
@@ -28,16 +28,11 @@ module.exports = async (req, res) => {
     return res.status(200).json({ user: data });
   }
 
-  // PUT: Update user profile (name and/or password)
+  // PUT: Update user profile (password only)
   if (req.method === 'PUT') {
-    const { name, currentPassword, newPassword } = req.body || {};
+    const { currentPassword, newPassword } = req.body || {};
 
     const updates = {};
-
-    // Update name if provided
-    if (name !== undefined) {
-      updates.name = name.trim();
-    }
 
     // Update password if provided
     if (newPassword) {
