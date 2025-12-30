@@ -69,7 +69,7 @@ function App() {
       }
 
       try {
-        const response = await fetch('http://localhost:3001/api/auth/verify', {
+        const response = await fetch('/api/auth/verify', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -140,7 +140,7 @@ function App() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/stats');
+      const response = await fetch('/api/stats');
       const data = await response.json();
       setStats(data);
     } catch (err) {
@@ -150,7 +150,7 @@ function App() {
 
   const fetchRegions = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/regions');
+      const response = await fetch('/api/regions');
       const data = await response.json();
       setRegions(data);
     } catch (err) {
@@ -169,7 +169,7 @@ function App() {
 
       try {
         const response = await fetch(
-          `http://localhost:3001/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`
+          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`
         );
         const data = await response.json();
 
@@ -296,7 +296,7 @@ function App() {
 
   const handleRefresh = async () => {
     try {
-      await fetch('http://localhost:3001/api/refresh', { method: 'POST' });
+      await fetch('/api/refresh', { method: 'POST' });
       setMessages([]);
       setSelectedMessages(new Set());
       setHasMore(true);
@@ -336,7 +336,7 @@ function App() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('http://localhost:3001/api/messages/delete', {
+      const response = await fetch('/api/messages/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: Array.from(selectedMessages) })

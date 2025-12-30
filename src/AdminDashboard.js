@@ -19,7 +19,7 @@ function AdminDashboard({ onClose }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/users', {
+      const response = await fetch('/api/admin/users', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -51,7 +51,7 @@ function AdminDashboard({ onClose }) {
 
     setUpdatingId(userId);
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/users/${userId}/status`, {
+      const response = await fetch(`/api/admin/users/${userId}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
