@@ -31,18 +31,39 @@ module.exports = async (req, res) => {
   try {
     console.log('Starting deduplication process...');
 
-    // Step 1: Get all messages
-    const { data: allMessages, error: fetchError } = await supabase
-      .from('messages')
-      .select('id, name, mobile, message')
-      .order('created_at', { ascending: true }); // Keep oldest
+    // Step 1: Get ALL messages with pagination (Supabase default limit is 1000)
+    let allMessages = [];
+    let offset = 0;
+    const pageSize = 1000;
+    let hasMore = true;
 
-    if (fetchError) {
-      console.error('Error fetching messages:', fetchError);
-      return res.status(500).json({ error: fetchError.message });
+    while (hasMore) {
+      const { data: batch, error: fetchError } = await supabase
+        .from('messages')
+        .select('id, name, mobile, message')
+        .order('created_at', { ascending: true })
+        .range(offset, offset + pageSize - 1);
+
+      if (fetchError) {
+        console.error('Error fetching messages:', fetchError);
+        return res.status(500).json({ error: fetchError.message });
+      }
+
+      if (batch && batch.length > 0) {
+        allMessages = allMessages.concat(batch);
+        offset += pageSize;
+        console.log(`Fetched ${allMessages.length} messages so far...`);
+        
+        // If we got less than pageSize, we've reached the end
+        if (batch.length < pageSize) {
+          hasMore = false;
+        }
+      } else {
+        hasMore = false;
+      }
     }
 
-    console.log(`Total messages: ${allMessages.length}`);
+    console.log(`Total messages fetched: ${allMessages.length}`);
 
     // Step 2: Find duplicates (same name + mobile + message)
     const seen = new Map();
