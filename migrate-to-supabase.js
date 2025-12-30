@@ -12,7 +12,7 @@ async function migrateData() {
   console.log('Starting migration to Supabase...');
   
   // Read messages from exported JSON
-  const messagesFile = path.join(__dirname, 'messages_export.json');
+  const messagesFile = path.join(__dirname, 'messages_clean.json');
   const usersFile = path.join(__dirname, 'users_export.json');
   
   if (!fs.existsSync(messagesFile)) {
