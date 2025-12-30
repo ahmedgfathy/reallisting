@@ -577,7 +577,7 @@ function App() {
                       </div>
                     )}
                     
-                    <div className="card-index">#{(page - 1) * limit + index + 1}</div>
+                    <div className="card-index">#{index + 1}</div>
                     
                     <div className="card-title">
                       {buildCardTitle(msg)}
