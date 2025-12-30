@@ -1,20 +1,38 @@
 {
   "short_name": "كونتابو",
-  "name": "كونتابو | Contaboo",
+  "name": "كونتابو - عقارات العبور",
+  "description": "منصة عقارات العبور - ابحث عن شقق، أراضي، فيلات ومحلات للبيع والإيجار",
   "icons": [
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "orientation": "portrait",
+  "theme_color": "#3b5998",
+  "background_color": "#f5f7fa",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["business", "lifestyle"],
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "البحث عن عقار",
+      "short_name": "بحث",
+      "description": "ابحث عن عقارات",
+      "url": "/",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
 }
