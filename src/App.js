@@ -663,15 +663,14 @@ function App() {
                       <div className="card-contact">
                         {isUserActive ? (
                           <>
-                            <span className="card-name">👤 {msg.name}</span>
-                            {msg.mobile !== 'N/A' && (
+                            {msg.mobile && msg.mobile !== 'N/A' && (
                               <a href={`tel:${msg.mobile}`} className="card-phone" dir="ltr">
                                 📱 {msg.mobile}
                               </a>
                             )}
                           </>
                         ) : (
-                          <span className="card-name">👤 اسم الوسيط مخفي</span>
+                          <span className="card-name">🔒 اشترك لرؤية رقم الوسيط</span>
                         )}
                       </div>
                       <div className="card-date">
@@ -758,10 +757,6 @@ function App() {
                 <div className="detail-contact">
                   {isUserActive ? (
                     <>
-                      <div className="contact-item">
-                        <span className="contact-icon">👤</span>
-                        <span className="contact-text">{selectedUnit.name || 'اسم الوسيط مخفي'}</span>
-                      </div>
                       {selectedUnit.mobile && selectedUnit.mobile !== 'N/A' && (
                         <div className="contact-buttons">
                           <a 
