@@ -350,11 +350,11 @@ function App() {
         fetchMessages(1, { append: false });
         fetchStats();
       } else {
-        alert('حدث خطأ أثناء حذف الرسائل');
+        alert('حدث خطأ أثناء حذف الوحدات');
       }
     } catch (err) {
       console.error('Error deleting messages:', err);
-      alert('حدث خطأ أثناء حذف الرسائل');
+      alert('حدث خطأ أثناء حذف الوحدات');
     }
   };
 
@@ -416,8 +416,8 @@ function App() {
         </div>
         <div className="header-left">
           <div className="stats">
-            <span className="stat-item">📊 الرسائل: <strong>{stats.totalMessages}</strong></span>
-            <span className="stat-item">📁 الملفات: <strong>{stats.totalFiles}</strong></span>
+            <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
+            <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
           </div>
           {isAdmin && (
             <button
@@ -538,7 +538,7 @@ function App() {
       </div>
 
       {loading && messages.length === 0 ? (
-        <div className="loading">جاري تحميل الرسائل...</div>
+        <div className="loading">جاري تحميل الوحدات...</div>
       ) : (
         <>
           {/* Grid View */}
