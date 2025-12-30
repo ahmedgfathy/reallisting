@@ -186,6 +186,11 @@ body {
   flex-wrap: wrap;
 }
 
+/* Mobile button row - hidden on desktop */
+.mobile-btn-row {
+  display: contents;
+}
+
 .search-input {
   flex: 1;
   min-width: 250px;
@@ -750,67 +755,80 @@ body {
 }
 
 @media (max-width: 768px) {
-  /* Header Mobile */
+  /* Header Mobile - Compact Single Line */
   .header {
-    flex-direction: column;
-    padding: 12px 15px;
-    gap: 12px;
-    align-items: stretch;
+    flex-direction: row;
+    padding: 10px 12px;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
   }
   
   .brand {
-    justify-content: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-shrink: 0;
   }
   
   .brand-logo {
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
   }
   
   .header h1 {
-    font-size: 1.3rem;
+    font-size: 1rem;
+    display: block;
   }
   
   .header-left {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    gap: 6px;
     align-items: center;
+    flex-wrap: nowrap;
+    flex: 1;
+    justify-content: flex-end;
   }
   
   .stats {
     flex-direction: row;
-    gap: 15px;
-    justify-content: center;
-    width: 100%;
+    gap: 8px;
+    justify-content: flex-end;
   }
   
   .stat-item {
-    font-size: 0.9rem;
+    font-size: 0.7rem;
+    padding: 3px 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  
+  /* Hide text labels on very small screens, show only numbers */
+  .stat-item strong {
+    font-size: 0.75rem;
   }
   
   .user-info {
-    font-size: 0.8rem;
-    padding: 4px 10px;
+    display: none;
   }
   
   .auth-buttons {
-    width: 100%;
-    justify-content: center;
+    gap: 4px;
   }
   
   .auth-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   
   .logout-btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   
   .admin-link {
-    padding: 6px 12px;
-    font-size: 0.85rem;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   
   /* Main Content Mobile */
@@ -818,38 +836,96 @@ body {
     padding: 0 10px 20px;
   }
   
-  /* Controls Mobile */
+  /* Controls Mobile - Compact Layout */
   .controls {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
   
   .search-input {
     min-width: 100%;
-    padding: 12px 15px;
-    font-size: 1rem;
+    padding: 10px 12px;
+    font-size: 0.95rem;
   }
   
-  .refresh-btn,
-  .reset-btn,
-  .delete-btn {
-    padding: 12px 20px;
-    font-size: 0.95rem;
+  /* Mobile Button Row - 3 buttons in 1 line */
+  .mobile-btn-row {
+    display: flex;
     width: 100%;
+    gap: 0;
+  }
+  
+  .mobile-btn-row .refresh-btn,
+  .mobile-btn-row .reset-btn,
+  .mobile-btn-row .filter-toggle-btn {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 0.75rem;
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+    margin: 0;
+  }
+  
+  .mobile-btn-row .refresh-btn {
+    border-radius: 8px 0 0 8px;
+  }
+  
+  .mobile-btn-row .reset-btn {
+    border-radius: 0;
+    border-left: 1px solid rgba(255,255,255,0.2);
+    border-right: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .mobile-btn-row .filter-toggle-btn {
+    border-radius: 0 8px 8px 0;
+  }
+  
+  .controls .refresh-btn,
+  .controls .reset-btn,
+  .controls .filter-toggle-btn {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 0.75rem;
+    width: auto;
+    min-width: 0;
+    white-space: nowrap;
+  }
+  
+  .refresh-btn {
+    border-radius: 8px 0 0 8px;
+  }
+  
+  .reset-btn {
+    border-radius: 0;
   }
   
   /* Filter Toggle Button - Shown on Mobile */
   .filter-toggle-btn {
-    display: block;
-    width: 100%;
-    padding: 14px 20px;
-    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border-radius: 0 8px 8px 0;
     background: linear-gradient(135deg, #6c5ce7 0%, #5f4dd3 100%);
-    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+    box-shadow: none;
   }
   
   .filter-toggle-btn:active {
     transform: scale(0.98);
+  }
+  
+  .filter-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+    margin-right: 4px;
+  }
+  
+  .delete-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    width: 100%;
   }
   
   /* Filters Mobile - Collapsible */

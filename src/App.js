@@ -514,19 +514,21 @@ function App() {
           onChange={handleSearch}
           className="search-input"
         />
-        <button onClick={handleRefresh} className="refresh-btn">
-          🔄 تحديث
-        </button>
-        <button onClick={handleReset} className="reset-btn">
-          ✖ مسح الفلاتر
-        </button>
-        <button 
-          onClick={() => setShowFilters(!showFilters)} 
-          className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
-        >
-          {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 عرض الفلاتر'}
-          {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
-        </button>
+        <div className="mobile-btn-row">
+          <button onClick={handleRefresh} className="refresh-btn">
+            🔄 تحديث
+          </button>
+          <button onClick={handleReset} className="reset-btn">
+            ✖ مسح
+          </button>
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
+          >
+            {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
+            {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
+          </button>
+        </div>
           {isAdmin && selectedMessages.size > 0 && (
           <button onClick={handleDeleteSelected} className="delete-btn">
             🗑️ حذف المحدد ({selectedMessages.size})
