@@ -46,6 +46,19 @@
     
     <!-- Splash Screen Styles -->
     <style>
+      /* Set body background immediately to prevent white flash */
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+        min-height: 100vh;
+      }
+      
+      /* Hide default favicon in tab during load */
+      #root:empty {
+        display: none;
+      }
+      
       #splash-screen {
         position: fixed;
         top: 0;
