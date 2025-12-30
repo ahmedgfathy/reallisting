@@ -32,6 +32,10 @@ function App() {
   const observerRef = useRef(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState(null);
+  const [detailClosing, setDetailClosing] = useState(false);
+  const detailRef = useRef(null);
+  const touchStartX = useRef(null);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive);
@@ -298,6 +302,54 @@ function App() {
     setSelectedMessages(new Set());
     setShowFilters(false);
   };
+
+  // Unit detail view handlers
+  const openUnitDetail = (msg) => {
+    setSelectedUnit(msg);
+    setDetailClosing(false);
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeUnitDetail = () => {
+    setDetailClosing(true);
+    setTimeout(() => {
+      setSelectedUnit(null);
+      setDetailClosing(false);
+      document.body.style.overflow = '';
+    }, 300);
+  };
+
+  // Handle swipe gestures for detail view
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchEndX - touchStartX.current;
+    // Swipe right to close (RTL layout means swipe right = back)
+    if (diff > 100) {
+      closeUnitDetail();
+    }
+    touchStartX.current = null;
+  };
+
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = () => {
+      if (selectedUnit) {
+        closeUnitDetail();
+      }
+    };
+    
+    if (selectedUnit) {
+      window.history.pushState({ unitDetail: true }, '');
+    }
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedUnit]);
 
   const handleRefresh = async () => {
     try {
@@ -578,9 +630,11 @@ function App() {
                   <div 
                     key={msg.id} 
                     className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
+                    onClick={() => openUnitDetail(msg)}
+                    style={{ cursor: 'pointer' }}
                   >
                     {isAdmin && (
-                      <div className="card-checkbox">
+                      <div className="card-checkbox" onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={selectedMessages.has(msg.id)}
@@ -631,6 +685,117 @@ function App() {
         </>
       )}
       </div>
+
+      {/* Unit Detail View */}
+      {selectedUnit && (
+        <div 
+          className={`unit-detail-overlay ${detailClosing ? 'closing' : ''}`}
+          onClick={closeUnitDetail}
+        >
+          <div 
+            className={`unit-detail-panel ${detailClosing ? 'closing' : ''}`}
+            ref={detailRef}
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            <div className="unit-detail-header">
+              <button className="detail-close-btn" onClick={closeUnitDetail}>
+                ✕
+              </button>
+              <button className="detail-back-btn" onClick={closeUnitDetail}>
+                → رجوع
+              </button>
+              <h2 className="detail-title">{buildCardTitle(selectedUnit)}</h2>
+            </div>
+            
+            <div className="unit-detail-content">
+              <div className="detail-section">
+                <h3>📋 تفاصيل الوحدة</h3>
+                <div className="detail-info-grid">
+                  {selectedUnit.category && selectedUnit.category !== 'أخرى' && (
+                    <div className="detail-info-item">
+                      <span className="detail-label">نوع الإعلان</span>
+                      <span className="detail-value">{selectedUnit.category}</span>
+                    </div>
+                  )}
+                  {selectedUnit.propertyType && selectedUnit.propertyType !== 'أخرى' && (
+                    <div className="detail-info-item">
+                      <span className="detail-label">نوع العقار</span>
+                      <span className="detail-value">{selectedUnit.propertyType}</span>
+                    </div>
+                  )}
+                  {selectedUnit.region && selectedUnit.region !== 'أخرى' && (
+                    <div className="detail-info-item">
+                      <span className="detail-label">المنطقة</span>
+                      <span className="detail-value">{selectedUnit.region}</span>
+                    </div>
+                  )}
+                  {selectedUnit.purpose && selectedUnit.purpose !== 'أخرى' && (
+                    <div className="detail-info-item">
+                      <span className="detail-label">الغرض</span>
+                      <span className="detail-value">{formatPurpose(selectedUnit.purpose)}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h3>💬 نص الإعلان</h3>
+                <div className="detail-message">
+                  {selectedUnit.message}
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <h3>📞 معلومات التواصل</h3>
+                <div className="detail-contact">
+                  {isUserActive ? (
+                    <>
+                      <div className="contact-item">
+                        <span className="contact-icon">👤</span>
+                        <span className="contact-text">{selectedUnit.name}</span>
+                      </div>
+                      {selectedUnit.mobile !== 'N/A' && (
+                        <a href={`tel:${selectedUnit.mobile}`} className="contact-phone-btn" dir="ltr">
+                          📱 اتصل الآن: {selectedUnit.mobile}
+                        </a>
+                      )}
+                      {selectedUnit.mobile !== 'N/A' && (
+                        <a 
+                          href={`https://wa.me/${selectedUnit.mobile.replace(/[^0-9]/g, '')}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="contact-whatsapp-btn"
+                        >
+                          💬 واتساب
+                        </a>
+                      )}
+                    </>
+                  ) : (
+                    <div className="contact-hidden">
+                      <span>🔒 سجل دخولك لرؤية معلومات التواصل</span>
+                      <button onClick={() => { closeUnitDetail(); setShowLogin(true); }} className="detail-login-btn">
+                        تسجيل الدخول
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="detail-section detail-meta">
+                <span>🗓️ {selectedUnit.dateOfCreation}</span>
+                {selectedUnit.fileName && <span>📁 {selectedUnit.fileName}</span>}
+              </div>
+            </div>
+
+            <div className="swipe-hint">
+              <span>← اسحب للإغلاق →</span>
+            </div>
+          </div>
+        </div>
+      )}
+
         {isAdmin && showAdminDashboard && (
         <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
