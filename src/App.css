@@ -555,6 +555,22 @@ body {
   color: #666;
 }
 
+/* Infinite scroll loader */
+.infinite-loader {
+  text-align: center;
+  padding: 30px 20px;
+  font-size: 1rem;
+  color: #666;
+  min-height: 80px;
+}
+
+.infinite-loader span {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #f0f2f5;
+  border-radius: 20px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -1786,3 +1802,56 @@ body {
   transform: scale(0.98);
 }
 
+/* Scroll to Top Button */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(59, 89, 152, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.scroll-top-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(59, 89, 152, 0.5);
+}
+
+.scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.scroll-top-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .scroll-top-btn {
+    bottom: 20px;
+    left: 20px;
+    width: 45px;
+    height: 45px;
+  }
+  
+  .scroll-top-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+}

@@ -37,12 +37,27 @@ function App() {
   const [detailClosing, setDetailClosing] = useState(false);
   const detailRef = useRef(null);
   const touchStartX = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive);
 
   // Count active filters
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
+
+  // Scroll to top handler
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Show/hide scroll-to-top button based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const formatPurpose = useCallback((value) => {
     if (value === 'بيع') return 'للبيع';
@@ -817,6 +832,15 @@ function App() {
       
       {/* PWA Install Prompt */}
       <InstallPrompt />
+
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button className="scroll-top-btn" onClick={scrollToTop} title="العودة للأعلى">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
