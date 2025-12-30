@@ -1,0 +1,327 @@
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  direction: rtl;
+}
+
+.register-wrapper {
+  display: flex;
+  gap: 30px;
+  max-width: 900px;
+  width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Right side - Form */
+.register-form-section {
+  flex: 1;
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.register-box {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.register-header {
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  padding: 20px 25px;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.register-header h1 {
+  font-size: 1.3rem;
+  margin-bottom: 5px;
+}
+
+.register-header p {
+  opacity: 0.9;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.register-form {
+  padding: 25px 30px;
+  flex: 1;
+}
+
+.register-error {
+  background: #ffe6e6;
+  border: 1px solid #ff4444;
+  color: #cc0000;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.register-form .form-group {
+  margin-bottom: 18px;
+}
+
+.register-form .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.register-form .form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  font-family: 'Cairo', sans-serif;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: #fafafa;
+}
+
+.register-form .form-group input:focus {
+  border-color: #3b5998;
+  box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.1);
+  background: white;
+}
+
+.register-form .form-group input::placeholder {
+  color: #aaa;
+}
+
+.register-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 89, 152, 0.4);
+}
+
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.register-footer {
+  background: #f8f9fa;
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.register-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #3b5998;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  color: #2d4373;
+}
+
+/* Left side - Subscription */
+.subscription-section {
+  flex: 1;
+  min-width: 320px;
+  max-width: 400px;
+}
+
+.subscription-box {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.subscription-header {
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  padding: 20px 25px;
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.subscription-header h2 {
+  font-size: 1.3rem;
+  margin-bottom: 3px;
+}
+
+.subscription-header p {
+  opacity: 0.9;
+  font-size: 0.85rem;
+  margin: 0 0 8px 0;
+}
+
+.price-tag {
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-block;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+.payment-methods {
+  padding: 18px 25px;
+  flex: 1;
+}
+
+.payment-methods h3 {
+  color: #333;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.payment-option {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f8f9fa;
+  margin-bottom: 12px;
+}
+
+.payment-option.vodafone {
+  border-right: 4px solid #e60000;
+}
+
+.payment-option.instapay {
+  border-right: 4px solid #3b5998;
+}
+
+.payment-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.payment-details h4 {
+  margin: 0 0 3px 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.payment-number {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e60000;
+  margin: 3px 0;
+  font-family: 'Courier New', monospace;
+}
+
+.payment-note {
+  font-size: 0.75rem;
+  color: #888;
+  display: block;
+  margin-top: 3px;
+}
+
+.payment-divider {
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+  margin: 5px 0;
+}
+
+.instapay-link {
+  display: inline-block;
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin: 5px 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.instapay-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 89, 152, 0.3);
+}
+
+.instapay-account {
+  background: #e7f3ff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 5px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: #3b5998;
+}
+
+.powered-by {
+  font-style: italic;
+}
+
+.subscription-note {
+  padding: 12px 25px;
+  background: #fff8e1;
+  text-align: center;
+}
+
+.subscription-note p {
+  margin: 0;
+  color: #856404;
+  font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-wrapper {
+    flex-direction: column;
+  }
+  
+  .register-form-section,
+  .subscription-section {
+    max-width: 100%;
+  }
+}

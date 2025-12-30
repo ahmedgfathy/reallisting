@@ -1,0 +1,140 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.login-box {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  padding: 40px 30px;
+  text-align: center;
+}
+
+.login-header h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  opacity: 0.9;
+  font-size: 1rem;
+}
+
+.login-form {
+  padding: 40px 30px;
+}
+
+.login-error {
+  background: #ffe6e6;
+  border: 1px solid #ff4444;
+  color: #cc0000;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  font-family: 'Cairo', sans-serif;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  background: #fafafa;
+}
+
+.form-group input:focus {
+  border-color: #3b5998;
+  box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.1);
+  background: white;
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 89, 152, 0.4);
+}
+
+.login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.login-footer {
+  background: #f8f9fa;
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+
+.login-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #3b5998;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.link-btn:hover {
+  color: #2d4373;
+}
+
+/* RTL Support */
+.login-container {
+  direction: rtl;
+}
