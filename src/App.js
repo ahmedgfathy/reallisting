@@ -468,7 +468,7 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <div className="header-row">
+        <div className="header-row-1">
           <div className="brand">
             <img src={brandLogo} alt="كونتابو" className="brand-logo" />
             <h1>كونتابو</h1>
@@ -502,10 +502,10 @@ function App() {
             )}
           </div>
         </div>
-        <div className="stats-row">
-          <span className="stat-item">📊 <strong>{stats.totalMessages}</strong> وحدة</span>
-          <span className="stat-divider">|</span>
-          <span className="stat-item">👥 <strong>{stats.totalFiles}</strong> وسيط</span>
+        <div className="header-row-2">
+          <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
+          <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
+          <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
         </div>
       </header>
 

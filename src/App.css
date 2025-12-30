@@ -21,12 +21,13 @@ body {
 .header {
   background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
   color: white;
-  padding: 12px 20px 8px;
+  padding: 10px 20px;
   margin-bottom: 20px;
   box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
 }
 
-.header-row {
+/* Row 1: Brand + Auth */
+.header-row-1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,15 +42,15 @@ body {
 }
 
 .brand-logo {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   flex-shrink: 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .header h1 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   margin: 0;
   white-space: nowrap;
   font-weight: 700;
@@ -67,11 +68,11 @@ body {
 }
 
 .auth-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 5px 12px;
+  border-radius: 16px;
   cursor: pointer;
   font-family: 'Cairo', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.2s;
   border: none;
@@ -97,21 +98,21 @@ body {
 }
 
 .user-info {
-  font-size: 0.85rem;
-  padding: 5px 10px;
+  font-size: 0.8rem;
+  padding: 4px 10px;
   background: rgba(255, 255, 255, 0.15);
-  border-radius: 15px;
+  border-radius: 12px;
 }
 
 .logout-btn {
-  padding: 5px 12px;
+  padding: 4px 10px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   cursor: pointer;
   font-family: 'Cairo', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   transition: all 0.2s;
 }
 
@@ -120,13 +121,13 @@ body {
 }
 
 .admin-link {
-  padding: 5px 10px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.15);
   color: white;
   border: none;
-  border-radius: 15px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   transition: all 0.2s;
 }
 
@@ -134,27 +135,24 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Stats Row */
-.stats-row {
+/* Row 2: Stats */
+.header-row-2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 6px 0;
+  gap: 20px;
+  padding: 6px 0 2px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .stat-item {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   white-space: nowrap;
 }
 
 .stat-item strong {
   font-weight: 700;
-}
-
-.stat-divider {
-  opacity: 0.4;
+  margin: 0 2px;
 }
 
 .error-container .brand {
@@ -165,9 +163,6 @@ body {
 .error-container .brand h1 {
   color: #3b5998;
 }
-  display: flex;
-  align-items: center;
-  gap: 15px;
 }
 
 .user-info {
@@ -806,63 +801,64 @@ body {
      MOBILE HEADER - Clean Two-Row Design
      ========================================== */
   .header {
-    padding: 10px 12px 6px;
+    padding: 8px 12px;
   }
   
-  .header-row {
+  .header-row-1 {
     margin-bottom: 6px;
   }
   
   .brand {
-    gap: 8px;
-  }
-  
-  .brand-logo {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-  }
-  
-  .header h1 {
-    font-size: 1.1rem;
-  }
-  
-  .header-actions {
     gap: 6px;
   }
   
-  .auth-buttons {
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+  
+  .header h1 {
+    font-size: 1rem;
+  }
+  
+  .header-actions {
     gap: 5px;
   }
   
+  .auth-buttons {
+    gap: 4px;
+  }
+  
   .auth-btn {
-    padding: 5px 10px;
-    font-size: 0.75rem;
-    border-radius: 15px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    border-radius: 12px;
   }
   
   .user-info {
-    font-size: 0.7rem;
-    padding: 4px 8px;
+    font-size: 0.65rem;
+    padding: 3px 6px;
   }
   
   .logout-btn {
-    padding: 4px 10px;
-    font-size: 0.7rem;
+    padding: 3px 8px;
+    font-size: 0.65rem;
   }
   
   .admin-link {
-    padding: 4px 8px;
-    font-size: 0.9rem;
+    padding: 3px 6px;
+    font-size: 0.85rem;
   }
   
-  .stats-row {
-    padding: 5px 0;
-    gap: 10px;
+  .header-row-2 {
+    padding: 5px 0 2px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
   
   .stat-item {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   /* ==========================================
@@ -1302,24 +1298,29 @@ body {
 /* Landscape mobile */
 @media (max-width: 896px) and (orientation: landscape) {
   .header {
-    padding: 6px 15px 4px;
+    padding: 5px 15px;
   }
   
-  .header-row {
+  .header-row-1 {
     margin-bottom: 4px;
   }
   
   .brand-logo {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
   }
   
   .header h1 {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
   
-  .stats-row {
-    padding: 4px 0;
+  .header-row-2 {
+    padding: 3px 0;
+    gap: 15px;
+  }
+  
+  .stat-item {
+    font-size: 0.65rem;
   }
   
   .filters {

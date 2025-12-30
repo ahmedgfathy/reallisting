@@ -28,9 +28,24 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
+    // Get unique file names count (brokers)
+    const { data: filesData, error: filesError } = await supabase
+      .from('messages')
+      .select('fileName')
+      .not('fileName', 'is', null);
+    
+    const uniqueFiles = filesData ? new Set(filesData.map(f => f.fileName)).size : 0;
+
+    // Get active subscribers count
+    const { count: subscribersCount, error: subError } = await supabase
+      .from('users')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_active', true);
+
     res.status(200).json({
       totalMessages: count || 0,
-      totalFiles: 0,
+      totalFiles: uniqueFiles,
+      totalSubscribers: subscribersCount || 0,
       files: []
     });
   } catch (error) {
