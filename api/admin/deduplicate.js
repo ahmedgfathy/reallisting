@@ -1,7 +1,4 @@
-const { supabase, corsHeaders } = require('../_lib/supabase');
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const { supabase, verifyToken, corsHeaders } = require('../_lib/supabase');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -21,19 +18,14 @@ module.exports = async (req, res) => {
   }
 
   // Verify admin token
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const payload = jwt.verify(token, JWT_SECRET);
-    if (payload.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid token' });
+  const payload = verifyToken(token);
+  if (!payload || payload.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
   }
 
   try {
