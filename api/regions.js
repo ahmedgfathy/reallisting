@@ -71,16 +71,3 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-      
-      if (aIsHayy && bIsHayy) return aNum - bNum;
-      if (aIsMug && bIsMug) return aNum - bNum;
-      
-      return a.localeCompare(b, 'ar');
-    });
-
-    res.status(200).json(sortedRegions);
-  } catch (error) {
-    console.error('API error:', error);
-    res.status(500).json({ error: error.message });
-  }
-};
