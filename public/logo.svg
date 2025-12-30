@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+	<defs>
+		<linearGradient id="contabooGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+			<stop offset="0%" stop-color="#4267B2" />
+			<stop offset="100%" stop-color="#3b5998" />
+		</linearGradient>
+		<linearGradient id="contabooAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+			<stop offset="0%" stop-color="#7fb3ff" />
+			<stop offset="100%" stop-color="#b3d4fc" />
+		</linearGradient>
+	</defs>
+	<rect width="120" height="120" rx="24" fill="url(#contabooGradient)" />
+	<path d="M36 32h48c10.5 0 19 8.5 19 19v21c0 10.5-8.5 19-19 19H59l-17 14v-14h-6c-10.5 0-19-8.5-19-19V51c0-10.5 8.5-19 19-19z" fill="#ffffff" fill-opacity="0.94" />
+	<path d="M44 50h28c5 0 9 4 9 9s-4 9-9 9H52l-8 8v-8h-0.3C42 68 38 64 38 59s4-9 9-9z" fill="url(#contabooAccent)" />
+	<path d="M84 46c-12.7 0-23 10.3-23 23s10.3 23 23 23c6 0 11.6-2.3 15.8-6.1l-6.2-6.2c-2.7 2.4-6.1 3.7-9.6 3.7-7.9 0-14.3-6.4-14.3-14.3S76.1 54 84 54c3.5 0 6.9 1.3 9.6 3.7l6.2-6.2C95.6 48.3 90 46 84 46z" fill="#ffffff" fill-opacity="0.18" />
+	<circle cx="88" cy="58" r="6" fill="#7fb3ff" />
+</svg>

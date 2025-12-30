@@ -4,6 +4,12 @@
   "description": "كونتابو - منصة الوسطاء والسماسرة العقاريين",
   "icons": [
     {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
       "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192",
@@ -21,7 +27,7 @@
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "#3b5998",
-  "background_color": "#f5f7fa",
+  "background_color": "#3b5998",
   "lang": "ar",
   "dir": "rtl",
   "categories": ["business", "lifestyle"],
