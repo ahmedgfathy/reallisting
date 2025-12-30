@@ -28,11 +28,12 @@ function Profile({ onClose }) {
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        const data = await response.json();
+        
         if (!response.ok) {
-          throw new Error('فشل في تحميل البيانات');
+          throw new Error(data.error || 'فشل في تحميل البيانات');
         }
 
-        const data = await response.json();
         setUser(data.user);
         setName(data.user.name || '');
       } catch (err) {
