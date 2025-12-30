@@ -1,7 +1,7 @@
 {
   "short_name": "كونتابو",
-  "name": "كونتابو - عقارات العبور",
-  "description": "منصة عقارات العبور - ابحث عن شقق، أراضي، فيلات ومحلات للبيع والإيجار",
+  "name": "كونتابو",
+  "description": "كونتابو - منصة الوحدات العقارية",
   "icons": [
     {
       "src": "logo192.png",
@@ -25,14 +25,5 @@
   "lang": "ar",
   "dir": "rtl",
   "categories": ["business", "lifestyle"],
-  "prefer_related_applications": false,
-  "shortcuts": [
-    {
-      "name": "البحث عن عقار",
-      "short_name": "بحث",
-      "description": "ابحث عن عقارات",
-      "url": "/",
-      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
-    }
-  ]
+  "prefer_related_applications": false
 }
