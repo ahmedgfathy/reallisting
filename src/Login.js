@@ -122,10 +122,15 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
         </div>
         {/* Reset Password Dialog */}
         {showReset && (
-          <div className="reset-overlay">
-            <div className="reset-dialog">
-              <h3>إعادة تعيين كلمة المرور</h3>
-              <form onSubmit={handleResetPassword}>
+          <div className="reset-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.35)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="reset-dialog" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 4px 32px rgba(0,0,0,0.13)', maxWidth: 340, width: '90vw', padding: 28, textAlign: 'center', position: 'relative' }}>
+              <button onClick={() => setShowReset(false)} style={{ position: 'absolute', left: 12, top: 12, background: 'none', border: 'none', fontSize: 22, color: '#888', cursor: 'pointer' }} aria-label="إغلاق">×</button>
+              <div style={{ marginBottom: 18 }}>
+                <span style={{ fontSize: 28, color: '#4267B2', fontWeight: 700 }}>🔒</span>
+                <h3 style={{ margin: '10px 0 0 0', fontSize: 20, color: '#222', fontWeight: 700 }}>إعادة تعيين كلمة المرور</h3>
+                <div style={{ fontSize: 14, color: '#666', marginTop: 2 }}>أدخل رقم الموبايل المرتبط بحسابك</div>
+              </div>
+              <form onSubmit={handleResetPassword} style={{ marginBottom: 10 }}>
                 <input
                   type="text"
                   placeholder="رقم الموبايل"
@@ -133,23 +138,36 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
                   onChange={e => setResetMobile(e.target.value)}
                   required
                   dir="ltr"
-                  style={{ textAlign: 'left', width: '100%', marginBottom: 10 }}
+                  style={{
+                    textAlign: 'left',
+                    width: '100%',
+                    padding: 10,
+                    fontSize: 16,
+                    borderRadius: 8,
+                    border: '1px solid #ccc',
+                    marginBottom: 12
+                  }}
                 />
-                <button type="submit" className="login-btn" disabled={resetLoading} style={{ width: '100%' }}>
+                <button type="submit" className="login-btn" disabled={resetLoading} style={{ width: '100%', fontSize: 17, borderRadius: 8, padding: '10px 0' }}>
                   {resetLoading ? 'جاري التحقق...' : 'توليد كلمة مرور مؤقتة'}
                 </button>
               </form>
               {resetResult && resetResult.success && (
-                <div className="reset-success">
-                  <div>كلمة المرور المؤقتة:</div>
-                  <div style={{ fontWeight: 'bold', fontSize: 22, direction: 'ltr', margin: '10px 0' }}>{resetResult.tempPassword}</div>
-                  <div style={{ fontSize: 13, color: '#888' }}>يرجى نسخها واستخدامها لتسجيل الدخول ثم تغييرها من صفحتك الشخصية</div>
+                <div className="reset-success" style={{ background: '#f4f8ff', borderRadius: 10, padding: 14, margin: '10px 0 0 0', border: '1px solid #dbeafe' }}>
+                  <div style={{ fontSize: 15, color: '#222', marginBottom: 6 }}>كلمة المرور المؤقتة:</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 'bold', fontSize: 22, direction: 'ltr', letterSpacing: 2, background: '#fff', border: '1px dashed #7fb3ff', borderRadius: 7, padding: '6px 16px', color: '#4267B2' }}>{resetResult.tempPassword}</span>
+                    <button
+                      style={{ background: '#7fb3ff', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 15, cursor: 'pointer' }}
+                      onClick={() => { navigator.clipboard.writeText(resetResult.tempPassword); }}
+                    >نسخ</button>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#888', marginTop: 7 }}>استخدم كلمة المرور المؤقتة لتسجيل الدخول ثم قم بتغييرها من صفحتك الشخصية</div>
                 </div>
               )}
               {resetResult && !resetResult.success && (
                 <div className="login-error" style={{ marginTop: 10 }}>{resetResult.error}</div>
               )}
-              <button className="link-btn" style={{ marginTop: 15 }} onClick={() => setShowReset(false)}>إغلاق</button>
             </div>
           </div>
         )}
