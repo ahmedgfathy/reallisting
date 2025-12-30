@@ -1,14 +1,7 @@
-const { supabase, hashPassword, corsHeaders } = require('../_lib/supabase');
+const { supabase, corsHeaders } = require('../_lib/supabase');
 
-function generateTempPassword(length = 8) {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-  let pass = '';
-  for (let i = 0; i < length; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return pass;
-}
-
+// This endpoint is for USERS to REQUEST password reset
+// Admin will approve and generate the temp password manually
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
@@ -25,18 +18,37 @@ module.exports = async (req, res) => {
   if (error) return res.status(500).json({ error: 'Database error' });
   if (!users || users.length === 0) return res.status(404).json({ error: 'المستخدم غير موجود' });
 
-  // Generate and hash temp password
-  const tempPassword = generateTempPassword();
-  const hashed = hashPassword(tempPassword);
+  // Check if there's already a pending request
+  const { data: existing } = await supabase
+    .from('password_reset_requests')
+    .select('*')
+    .eq('mobile', mobile)
+    .eq('status', 'pending')
+    .limit(1);
 
-  // Update password in DB
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ password: hashed })
-    .eq('mobile', mobile);
+  if (existing && existing.length > 0) {
+    return res.status(200).json({ 
+      success: true, 
+      message: 'طلب إعادة التعيين موجود بالفعل. يرجى انتظار موافقة المسؤول.' 
+    });
+  }
 
-  if (updateError) return res.status(500).json({ error: 'خطأ أثناء تحديث كلمة المرور' });
+  // Create password reset request
+  const { error: insertError } = await supabase
+    .from('password_reset_requests')
+    .insert({
+      mobile,
+      status: 'pending',
+      requested_at: new Date().toISOString()
+    });
 
-  // Return temp password to display
-  res.status(200).json({ success: true, tempPassword });
+  if (insertError) {
+    console.error('Insert error:', insertError);
+    return res.status(500).json({ error: 'خطأ في إنشاء الطلب' });
+  }
+
+  res.status(200).json({ 
+    success: true, 
+    message: 'تم إرسال طلب إعادة التعيين. سيتم مراجعته من قبل المسؤول.' 
+  });
 };

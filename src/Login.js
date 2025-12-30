@@ -149,20 +149,13 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
                   }}
                 />
                 <button type="submit" className="login-btn" disabled={resetLoading} style={{ width: '100%', fontSize: 17, borderRadius: 8, padding: '10px 0' }}>
-                  {resetLoading ? 'جاري التحقق...' : 'توليد كلمة مرور مؤقتة'}
+                  {resetLoading ? 'جاري الإرسال...' : 'إرسال طلب إعادة التعيين'}
                 </button>
               </form>
               {resetResult && resetResult.success && (
-                <div className="reset-success" style={{ background: '#f4f8ff', borderRadius: 10, padding: 14, margin: '10px 0 0 0', border: '1px solid #dbeafe' }}>
-                  <div style={{ fontSize: 15, color: '#222', marginBottom: 6 }}>كلمة المرور المؤقتة:</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                    <span style={{ fontWeight: 'bold', fontSize: 22, direction: 'ltr', letterSpacing: 2, background: '#fff', border: '1px dashed #7fb3ff', borderRadius: 7, padding: '6px 16px', color: '#4267B2' }}>{resetResult.tempPassword}</span>
-                    <button
-                      style={{ background: '#7fb3ff', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 15, cursor: 'pointer' }}
-                      onClick={() => { navigator.clipboard.writeText(resetResult.tempPassword); }}
-                    >نسخ</button>
-                  </div>
-                  <div style={{ fontSize: 12, color: '#888', marginTop: 7 }}>استخدم كلمة المرور المؤقتة لتسجيل الدخول ثم قم بتغييرها من صفحتك الشخصية</div>
+                <div className="reset-success" style={{ background: '#f0fdf4', borderRadius: 10, padding: 14, margin: '10px 0 0 0', border: '1px solid #bbf7d0' }}>
+                  <div style={{ fontSize: 15, color: '#15803d', marginBottom: 6 }}>✅ تم إرسال الطلب بنجاح</div>
+                  <div style={{ fontSize: 13, color: '#166534' }}>{resetResult.message}</div>
                 </div>
               )}
               {resetResult && !resetResult.success && (

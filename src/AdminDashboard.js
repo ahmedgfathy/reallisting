@@ -8,6 +8,9 @@ function AdminDashboard({ onClose }) {
   const [updatingId, setUpdatingId] = useState(null);
   const [deduplicating, setDeduplicating] = useState(false);
   const [dedupeReport, setDedupeReport] = useState(null);
+  const [resetRequests, setResetRequests] = useState([]);
+  const [processingReset, setProcessingReset] = useState(null);
+  const [generatedPassword, setGeneratedPassword] = useState(null);
 
   const token = localStorage.getItem('token') || '';
 
@@ -41,9 +44,25 @@ function AdminDashboard({ onClose }) {
     }
   }, [token]);
 
+  const loadResetRequests = useCallback(async () => {
+    if (!token) return;
+    try {
+      const response = await fetch('/api/admin/reset-requests', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setResetRequests(data.requests || []);
+      }
+    } catch (err) {
+      console.error('Failed to load reset requests:', err);
+    }
+  }, [token]);
+
   useEffect(() => {
     loadUsers();
-  }, [loadUsers]);
+    loadResetRequests();
+  }, [loadUsers, loadResetRequests]);
 
   const handleActivate = async (userId) => {
     if (!token) {
@@ -118,6 +137,58 @@ function AdminDashboard({ onClose }) {
     }
   };
 
+  const handleApproveReset = async (mobile) => {
+    if (!token) return;
+    setProcessingReset(mobile);
+    setGeneratedPassword(null);
+    try {
+      const response = await fetch('/api/admin/reset-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ mobile, action: 'approve' })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setGeneratedPassword({ mobile, password: result.tempPassword });
+        await loadResetRequests();
+      } else {
+        setError(result.error || 'فشل في توليد كلمة المرور');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProcessingReset(null);
+    }
+  };
+
+  const handleRejectReset = async (mobile) => {
+    if (!token) return;
+    setProcessingReset(mobile);
+    try {
+      const response = await fetch('/api/admin/reset-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ mobile, action: 'reject' })
+      });
+      if (response.ok) {
+        await loadResetRequests();
+      } else {
+        const result = await response.json();
+        setError(result.error || 'فشل في رفض الطلب');
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setProcessingReset(null);
+    }
+  };
+
   return (
     <div className="admin-dashboard-overlay" role="dialog" aria-modal="true">
       <div className="admin-dashboard">
@@ -165,6 +236,56 @@ function AdminDashboard({ onClose }) {
         )}
 
         {error && <div className="admin-dashboard-error">⚠️ {error}</div>}
+
+        {resetRequests.length > 0 && (
+          <div className="admin-reset-requests">
+            <h3>🔐 طلبات إعادة تعيين كلمة المرور ({resetRequests.length})</h3>
+            <div className="reset-requests-list">
+              {resetRequests.map((req) => (
+                <div key={req.id} className="reset-request-item">
+                  <div className="reset-request-info">
+                    <span className="reset-mobile">📱 {req.mobile}</span>
+                    <span className="reset-time">{new Date(req.requested_at).toLocaleString('ar-EG')}</span>
+                  </div>
+                  <div className="reset-request-actions">
+                    <button
+                      className="reset-approve-btn"
+                      onClick={() => handleApproveReset(req.mobile)}
+                      disabled={processingReset === req.mobile}
+                    >
+                      {processingReset === req.mobile ? '⏳' : '✅ موافقة وتوليد'}
+                    </button>
+                    <button
+                      className="reset-reject-btn"
+                      onClick={() => handleRejectReset(req.mobile)}
+                      disabled={processingReset === req.mobile}
+                    >
+                      ❌ رفض
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {generatedPassword && (
+          <div className="generated-password-overlay" onClick={() => setGeneratedPassword(null)}>
+            <div className="generated-password-box" onClick={e => e.stopPropagation()}>
+              <h3>🔑 كلمة المرور المؤقتة</h3>
+              <p>للمستخدم: {generatedPassword.mobile}</p>
+              <div className="temp-password-display">
+                {generatedPassword.password}
+              </div>
+              <p style={{ fontSize: 12, color: '#666' }}>يرجى نسخها وإرسالها للمستخدم عبر واتساب أو الاتصال به</p>
+              <button onClick={() => {
+                navigator.clipboard.writeText(generatedPassword.password);
+                alert('تم النسخ!');
+              }}>📋 نسخ</button>
+              <button onClick={() => setGeneratedPassword(null)}>إغلاق</button>
+            </div>
+          </div>
+        )}
 
         {loading ? (
           <div className="admin-dashboard-loading">جاري تحميل المستخدمين...</div>

@@ -313,3 +313,142 @@
     align-items: stretch;
   }
 }
+
+.admin-reset-requests {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #e5e7eb;
+}
+
+.admin-reset-requests h3 {
+  margin: 0 0 15px 0;
+  color: #4267B2;
+  font-size: 1.1rem;
+}
+
+.reset-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reset-request-item {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+}
+
+.reset-request-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reset-mobile {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.reset-time {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.reset-request-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.reset-approve-btn, .reset-reject-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.reset-approve-btn {
+  background: #10b981;
+  color: #fff;
+}
+
+.reset-approve-btn:hover:not(:disabled) {
+  background: #059669;
+}
+
+.reset-reject-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.reset-reject-btn:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.reset-approve-btn:disabled, .reset-reject-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.generated-password-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.generated-password-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+}
+
+.generated-password-box h3 {
+  margin: 0 0 15px 0;
+  color: #4267B2;
+}
+
+.temp-password-display {
+  background: #f0f9ff;
+  border: 2px dashed #7fb3ff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  color: #4267B2;
+  font-family: 'Courier New', monospace;
+}
+
+.generated-password-box button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #4267B2;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.generated-password-box button:hover {
+  background: #365899;
+}
