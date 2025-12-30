@@ -67,18 +67,26 @@ body {
 
 .auth-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .auth-btn {
-  padding: 8px 16px;
-  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
   cursor: pointer;
   font-family: 'Cairo', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
   transition: all 0.3s;
   border: none;
+}
+
+.auth-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .auth-btn.login {
@@ -90,6 +98,7 @@ body {
 .auth-btn.login:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.1);
 }
 
 .auth-btn.register {
@@ -101,6 +110,7 @@ body {
 .auth-btn.register:hover {
   background: #218838;
   border-color: #218838;
+  transform: scale(1.1);
 }
 
 .stats {
@@ -821,7 +831,7 @@ body {
     font-size: 0.8rem;
   }
   
-  /* Auth buttons - very compact */
+  /* Auth buttons - icon only */
   .user-info {
     display: inline-flex;
     font-size: 0.65rem;
@@ -832,13 +842,23 @@ body {
   
   .auth-buttons {
     display: flex;
-    gap: 4px;
+    gap: 6px;
   }
   
   .auth-btn {
-    padding: 4px 8px;
-    font-size: 0.65rem;
-    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 0;
+  }
+  
+  .auth-btn svg {
+    width: 16px;
+    height: 16px;
   }
   
   .auth-btn.login {
