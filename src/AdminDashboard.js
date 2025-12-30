@@ -412,7 +412,8 @@ function AdminDashboard({ onClose }) {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

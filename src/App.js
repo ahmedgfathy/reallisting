@@ -68,6 +68,29 @@ function App() {
     return value;
   }, []);
 
+  const formatDateArabic = useCallback((dateString) => {
+    if (!dateString) return '';
+    
+    // Parse date - handle both "DD/MM/YYYY" and ISO formats
+    let date;
+    if (dateString.includes('/')) {
+      const [day, month, year] = dateString.split('/');
+      date = new Date(year, month - 1, day);
+    } else {
+      date = new Date(dateString);
+    }
+    
+    if (isNaN(date.getTime())) return dateString;
+    
+    const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const dayName = arabicDays[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${dayName} ${day}/${month}/${year}`;
+  }, []);
+
   const buildCardTitle = useCallback((msg) => {
     const parts = [];
     if (msg.propertyType && msg.propertyType !== 'أخرى') {
@@ -713,7 +736,7 @@ function App() {
                         )}
                       </div>
                       <div className="card-date">
-                        🗓️ {msg.dateOfCreation}
+                        🗓️ {formatDateArabic(msg.dateOfCreation)}
                       </div>
                     </div>
                   </div>
@@ -838,7 +861,7 @@ function App() {
               </div>
 
               <div className="detail-section detail-meta">
-                <span>🗓️ {selectedUnit.dateOfCreation}</span>
+                <span>🗓️ {formatDateArabic(selectedUnit.dateOfCreation)}</span>
                 {selectedUnit.fileName && <span>📁 {selectedUnit.fileName}</span>}
               </div>
             </div>
