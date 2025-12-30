@@ -1,0 +1,2 @@
+JSON_ARRAYAGG(JSON_OBJECT('id', id, 'mobile', mobile, 'password', password, 'role', role, 'isActive', isActive, 'createdAt', createdAt))
+[{"id": 1, "mobile": "01002778090", "password": "b1033538c309334e491175cde9272538619a848bbe233b0568c1660dbddc1229", "role": "broker", "isActive": 1, "createdAt": "2025-12-30 07:13:57"}]
