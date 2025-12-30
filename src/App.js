@@ -36,6 +36,9 @@ function App() {
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive);
 
+  // Count active filters
+  const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
+
   const formatPurpose = useCallback((value) => {
     if (value === 'بيع') return 'للبيع';
     if (value === 'إيجار') return 'للإيجار';
@@ -467,9 +470,10 @@ function App() {
         </button>
         <button 
           onClick={() => setShowFilters(!showFilters)} 
-          className="filter-toggle-btn"
+          className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
         >
           {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 عرض الفلاتر'}
+          {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
         </button>
           {isAdmin && selectedMessages.size > 0 && (
           <button onClick={handleDeleteSelected} className="delete-btn">

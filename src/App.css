@@ -273,11 +273,31 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 600;
+  position: relative;
 }
 
 .filter-toggle-btn:hover {
   background: linear-gradient(135deg, #5f4dd3 0%, #4834d4 100%);
   transform: translateY(-2px);
+}
+
+.filter-toggle-btn.has-active-filters {
+  background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #d63031;
+  font-size: 0.75rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 8px;
+  padding: 0 6px;
 }
 
 .filters {
