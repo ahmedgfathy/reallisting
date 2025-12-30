@@ -44,6 +44,7 @@ const PROPERTY_TYPE_KEYWORDS = {
   'أرض': ['أرض', 'ارض', 'قطعة', 'قطعه', 'القطعة', 'قطعة أرض', 'قطعه ارض', 'أراضي', 'اراضي', 'plot', 'land'],
   'فيلا': ['فيلا', 'فيللا', 'فلة', 'فله', 'الفيلا', 'فيلات', 'فلل', 'villa'],
   'بيت': ['بيت', 'منزل', 'البيت', 'المنزل', 'بيوت', 'منازل', 'house', 'home'],
+  'مزرعة': ['مزرعة', 'مزرعه', 'مزارع', 'المزرعة', 'المزرعه', 'farm', 'farmland', 'agricultural', 'فدان', 'افدنة', 'أفدنة', '10 فدان', 'فدانين'],
   'محل': ['محل', 'دكان', 'محلات', 'المحل', 'الدكان', 'دكاكين', 'لوكيشن تجاري', 'محل تجاري', 'shop', 'store', 'commercial shop'],
   'مكتب': ['مكتب', 'مكاتب', 'المكتب', 'اوفيس', 'أوفيس', 'office', 'offices'],
   'عمارة': ['عمارة', 'عماره', 'عمارات', 'العمارة', 'العماره', 'مبنى', 'مبني', 'building'],
@@ -69,6 +70,39 @@ const CATEGORY_VALUES = new Set(['مطلوب', 'معروض', 'أخرى']);
 const PURPOSE_VALUES = new Set(['بيع', 'إيجار', 'أخرى']);
 
 let ollamaWarningLogged = false;
+
+function containsAnyKeyword(text, keywords) {
+  if (!text || !Array.isArray(keywords) || keywords.length === 0) {
+    return false;
+  }
+  const lowerText = text.toLowerCase();
+  return keywords.some(keyword => {
+    if (!keyword) return false;
+    return lowerText.includes(keyword.toLowerCase());
+  });
+}
+
+function shouldApplyPropertyType(currentType, newType, message) {
+  if (!newType) return false;
+  if (!currentType || currentType === 'أخرى') return true;
+  if (currentType === newType) return false;
+
+  const newKeywords = PROPERTY_TYPE_KEYWORDS[newType] || [];
+  const currentKeywords = PROPERTY_TYPE_KEYWORDS[currentType] || [];
+
+  const messageHasNewType = containsAnyKeyword(message, newKeywords);
+  const messageHasCurrentType = containsAnyKeyword(message, currentKeywords);
+
+  if (messageHasNewType && !messageHasCurrentType) {
+    return true;
+  }
+
+  if (newType === 'مزرعة' && messageHasNewType) {
+    return true;
+  }
+
+  return false;
+}
 
 // Initialize database connection
 async function initDatabase() {
@@ -243,7 +277,7 @@ async function processFile(filePath) {
     for (const msg of messages) {
       const enriched = await enrichMessageWithOllama(msg);
       if (enriched) {
-        if (enriched.propertyType && (msg.propertyType === 'أخرى' || !msg.propertyType)) {
+        if (enriched.propertyType && shouldApplyPropertyType(msg.propertyType, enriched.propertyType, msg.message)) {
           msg.propertyType = enriched.propertyType;
         }
         if (enriched.region && (msg.region === 'أخرى' || !msg.region)) {
@@ -933,7 +967,7 @@ app.post('/api/reprocess', async (req, res) => {
 
       const enriched = await enrichMessageWithOllama(allMessages[i]);
       if (enriched) {
-        if (enriched.propertyType && (allMessages[i].propertyType === 'أخرى' || !allMessages[i].propertyType)) {
+        if (enriched.propertyType && shouldApplyPropertyType(allMessages[i].propertyType, enriched.propertyType, allMessages[i].message)) {
           allMessages[i].propertyType = enriched.propertyType;
         }
         if (enriched.region && (allMessages[i].region === 'أخرى' || !allMessages[i].region)) {
@@ -1045,6 +1079,13 @@ function authMiddleware(req, res, next) {
   next();
 }
 
+function requireAdmin(req, res, next) {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+  next();
+}
+
 // Hash password helper
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + JWT_SECRET).digest('hex');
@@ -1136,7 +1177,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({
       success: true,
       token,
-      user: { username: user.mobile, role: user.role, isActive: user.isActive }
+      user: { username: user.mobile, role: user.role, isActive: !!user.isActive }
     });
   } catch (error) {
     console.error('Login error:', error.message);
@@ -1163,7 +1204,7 @@ app.get('/api/auth/verify', async (req, res) => {
         const user = users[0];
         return res.json({ 
           authenticated: true, 
-          user: { username: user.mobile, role: user.role, isActive: user.isActive } 
+          user: { username: user.mobile, role: user.role, isActive: !!user.isActive } 
         });
       }
     } catch (error) {
@@ -1172,6 +1213,67 @@ app.get('/api/auth/verify', async (req, res) => {
   }
   
   res.json({ authenticated: true, user: { username: payload.username, role: payload.role || 'admin', isActive: true } });
+});
+
+app.get('/api/admin/users', authMiddleware, requireAdmin, async (req, res) => {
+  if (!db) {
+    return res.status(500).json({ error: 'Database not connected' });
+  }
+
+  try {
+    const [rows] = await db.execute('SELECT id, mobile, role, isActive, createdAt FROM users ORDER BY createdAt DESC');
+    const users = rows.map((row) => ({
+      id: row.id,
+      mobile: row.mobile,
+      role: row.role,
+      isActive: !!row.isActive,
+      createdAt: row.createdAt
+    }));
+    res.json(users);
+  } catch (error) {
+    console.error('Admin list users error:', error.message);
+    res.status(500).json({ error: 'Failed to load users' });
+  }
+});
+
+app.post('/api/admin/users/:id/status', authMiddleware, requireAdmin, async (req, res) => {
+  if (!db) {
+    return res.status(500).json({ error: 'Database not connected' });
+  }
+
+  const { id } = req.params;
+  const { isActive } = req.body || {};
+
+  if (typeof isActive !== 'boolean') {
+    return res.status(400).json({ error: 'Invalid isActive flag' });
+  }
+
+  try {
+    const [result] = await db.execute('UPDATE users SET isActive = ? WHERE id = ?', [isActive ? 1 : 0, id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const [rows] = await db.execute('SELECT id, mobile, role, isActive, createdAt FROM users WHERE id = ?', [id]);
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updated = rows[0];
+    res.json({
+      success: true,
+      user: {
+        id: updated.id,
+        mobile: updated.mobile,
+        role: updated.role,
+        isActive: !!updated.isActive,
+        createdAt: updated.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Admin update user error:', error.message);
+    res.status(500).json({ error: 'Failed to update user status' });
+  }
 });
 
 // Initialize and start server

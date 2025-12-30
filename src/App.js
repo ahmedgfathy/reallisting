@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import Login from './Login';
 import Register from './Register';
+import AdminDashboard from './AdminDashboard';
+import brandLogo from './logo.svg';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,6 +30,10 @@ function App() {
   const [loadingMore, setLoadingMore] = useState(false);
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+
+  const isAdmin = user?.role === 'admin';
+  const isUserActive = Boolean(user?.isActive);
 
   const formatPurpose = useCallback((value) => {
     if (value === 'بيع') return 'للبيع';
@@ -108,6 +114,7 @@ function App() {
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setUser(null);
+    setShowAdminDashboard(false);
   };
 
   const handleShowLogin = () => {
@@ -124,6 +131,12 @@ function App() {
     setShowLogin(false);
     setShowRegister(false);
   };
+
+  useEffect(() => {
+    if (!isAdmin) {
+      setShowAdminDashboard(false);
+    }
+  }, [isAdmin]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -380,7 +393,10 @@ function App() {
     return (
       <div className="app">
         <div className="error-container">
-          <h1>📱 عارض بيانات واتساب</h1>
+          <div className="brand">
+            <img src={brandLogo} alt="كونتابو" className="brand-logo" />
+            <h1>كونتابو</h1>
+          </div>
           <div className="error-message">
             <p>خطأ في الاتصال بالخادم. تأكد من تشغيل الخادم على المنفذ 3001</p>
             <p>قم بتشغيل الخادم:</p>
@@ -394,14 +410,23 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>📱 عارض بيانات واتساب</h1>
+        <div className="brand">
+          <img src={brandLogo} alt="كونتابو" className="brand-logo" />
+          <h1>كونتابو</h1>
+        </div>
         <div className="header-left">
           <div className="stats">
             <span className="stat-item">📊 الرسائل: <strong>{stats.totalMessages}</strong></span>
             <span className="stat-item">📁 الملفات: <strong>{stats.totalFiles}</strong></span>
           </div>
-          {user?.role === 'admin' && (
-            <a href="#" className="admin-link">⚙️ لوحة التحكم</a>
+          {isAdmin && (
+            <button
+              type="button"
+              className="admin-link"
+              onClick={() => setShowAdminDashboard(true)}
+            >
+              ⚙️ لوحة التحكم
+            </button>
           )}
           {isAuthenticated ? (
             <>
@@ -438,7 +463,7 @@ function App() {
         <button onClick={handleReset} className="reset-btn">
           ✖ مسح الفلاتر
         </button>
-        {user?.role === 'admin' && selectedMessages.size > 0 && (
+          {isAdmin && selectedMessages.size > 0 && (
           <button onClick={handleDeleteSelected} className="delete-btn">
             🗑️ حذف المحدد ({selectedMessages.size})
           </button>
@@ -467,6 +492,7 @@ function App() {
           <option value="الكل">الكل</option>
           <option value="شقة">شقة</option>
           <option value="أرض">أرض / قطعة</option>
+          <option value="مزرعة">مزرعة / فدان</option>
           <option value="فيلا">فيلا</option>
           <option value="بيت">بيت / منزل</option>
           <option value="محل">محل / دكان</option>
@@ -517,7 +543,7 @@ function App() {
         <>
           {/* Grid View */}
           <div className="grid-container">
-            {user?.role === 'admin' && messages.length > 0 && (
+            {isAdmin && messages.length > 0 && (
               <div className="grid-select-all">
                 <label>
                   <input
@@ -539,9 +565,9 @@ function App() {
                 {messages.map((msg, index) => (
                   <div 
                     key={msg.id} 
-                    className={`property-card ${selectedMessages.has(msg.id) && user?.role === 'admin' ? 'selected-card' : ''}`}
+                    className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
                   >
-                    {user?.role === 'admin' && (
+                    {isAdmin && (
                       <div className="card-checkbox">
                         <input
                           type="checkbox"
@@ -563,7 +589,7 @@ function App() {
                     
                     <div className="card-footer">
                       <div className="card-contact">
-                        {user && user.isActive === true ? (
+                        {isUserActive ? (
                           <>
                             <span className="card-name">👤 {msg.name}</span>
                             {msg.mobile !== 'N/A' && (
@@ -593,6 +619,9 @@ function App() {
         </>
       )}
       </div>
+        {isAdmin && showAdminDashboard && (
+        <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+      )}
     </div>
   );
 }

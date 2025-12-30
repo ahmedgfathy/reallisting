@@ -1,0 +1,216 @@
+.admin-dashboard-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 60px 20px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.admin-dashboard {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 900px;
+  width: 100%;
+  padding: 25px;
+  position: relative;
+  direction: rtl;
+}
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.admin-dashboard-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #3b5998;
+}
+
+.admin-dashboard-close {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.admin-dashboard-close:hover {
+  color: #c0392b;
+}
+
+.admin-dashboard-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.admin-dashboard-refresh {
+  background: #3b5998;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.admin-dashboard-refresh:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-dashboard-refresh:not(:disabled):hover {
+  background: #2d4373;
+  transform: translateY(-2px);
+}
+
+.admin-dashboard-error {
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  color: #a94442;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.admin-dashboard-loading,
+.admin-dashboard-empty {
+  background: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  color: #555;
+  font-size: 1.05rem;
+}
+
+.admin-dashboard-table-wrapper {
+  max-height: 60vh;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.admin-users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.admin-users-table th {
+  background: #f0f4ff;
+  color: #1f2937;
+  padding: 14px 12px;
+  text-align: right;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.admin-users-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eef1f7;
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.admin-users-table tbody tr:hover {
+  background: #f9fbff;
+}
+
+.user-active {
+  background: rgba(40, 167, 69, 0.05);
+}
+
+.user-inactive {
+  background: rgba(231, 76, 60, 0.03);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-active {
+  background: rgba(40, 167, 69, 0.15);
+  color: #1d6f2d;
+}
+
+.status-pending {
+  background: rgba(231, 76, 60, 0.15);
+  color: #a33020;
+}
+
+.activate-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.activate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.activate-btn:not(:disabled):hover {
+  background: #218838;
+  transform: translateY(-2px);
+}
+
+.already-active {
+  color: #1d6f2d;
+  font-weight: 600;
+}
+
+.admin-user-mobile {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.admin-user-id {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 20px;
+  }
+
+  .admin-users-table {
+    min-width: unset;
+  }
+
+  .admin-users-table th,
+  .admin-users-table td {
+    font-size: 0.85rem;
+    padding: 10px 8px;
+  }
+
+  .admin-dashboard-overlay {
+    align-items: stretch;
+  }
+}

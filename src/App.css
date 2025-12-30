@@ -31,9 +31,32 @@ body {
 }
 
 .header h1 {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   margin: 0;
   white-space: nowrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  box-shadow: 0 6px 12px rgba(66, 103, 178, 0.35);
+}
+
+.error-container .brand {
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.error-container .brand h1 {
+  color: #3b5998;
 }
 
 .header-left {
@@ -129,13 +152,20 @@ body {
 
 .admin-link {
   color: white;
-  text-decoration: none;
   background: rgba(255, 255, 255, 0.15);
   padding: 8px 16px;
   border-radius: 8px;
   font-size: 0.95rem;
   transition: all 0.3s;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  outline: none;
+  background-clip: padding-box;
 }
 
 .admin-link:hover {
@@ -479,8 +509,7 @@ body {
 }
 
 .error-container h1 {
-  margin-bottom: 30px;
-  color: #3b5998;
+  margin: 0;
 }
 
 .error-message {
