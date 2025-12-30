@@ -28,13 +28,27 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    // Get unique file names count (brokers)
-    const { data: filesData, error: filesError } = await supabase
-      .from('messages')
-      .select('fileName')
-      .not('fileName', 'is', null);
-    
-    const uniqueFiles = filesData ? new Set(filesData.map(f => f.fileName)).size : 0;
+    // Get unique senders (mobile)
+    let uniqueMobiles = new Set();
+    let offset = 0;
+    const pageSize = 10000;
+    let hasMore = true;
+    while (hasMore) {
+      const { data: batch, error: batchError } = await supabase
+        .from('messages')
+        .select('mobile')
+        .range(offset, offset + pageSize - 1);
+      if (batchError) {
+        console.error('Supabase error:', batchError);
+        return res.status(500).json({ error: batchError.message });
+      }
+      if (!batch || batch.length === 0) break;
+      for (const row of batch) {
+        if (row.mobile) uniqueMobiles.add(row.mobile.trim());
+      }
+      if (batch.length < pageSize) hasMore = false;
+      offset += pageSize;
+    }
 
     // Get active subscribers count
     const { count: subscribersCount, error: subError } = await supabase
@@ -44,7 +58,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json({
       totalMessages: count || 0,
-      totalFiles: uniqueFiles,
+      totalFiles: uniqueMobiles.size,
       totalSubscribers: subscribersCount || 0,
       files: []
     });
