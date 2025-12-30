@@ -38,9 +38,30 @@ module.exports = async (req, res) => {
 
       if (!error && users && users.length > 0) {
         const user = users[0];
+        
+        // Auto-deactivate if subscription expired
+        let isActive = !!user.is_active;
+        if (isActive && user.subscription_end_date) {
+          const now = new Date();
+          const endDate = new Date(user.subscription_end_date);
+          if (endDate < now) {
+            // Subscription expired, deactivate user
+            await supabase
+              .from('users')
+              .update({ is_active: false })
+              .eq('mobile', user.mobile);
+            isActive = false;
+          }
+        }
+        
         return res.status(200).json({
           authenticated: true,
-          user: { username: user.mobile, role: user.role, isActive: !!user.is_active }
+          user: { 
+            username: user.mobile, 
+            role: user.role, 
+            isActive: isActive,
+            subscriptionEndDate: user.subscription_end_date
+          }
         });
       }
     }

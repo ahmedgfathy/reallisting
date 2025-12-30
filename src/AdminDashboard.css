@@ -452,3 +452,181 @@
 .generated-password-box button:hover {
   background: #365899;
 }
+
+/* Subscription Management Styles */
+.subscription-date {
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.expired-badge {
+  display: inline-block;
+  background: #e74c3c;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+.days-remaining {
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.days-warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.days-expired {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.subscription-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
+}
+
+.subscription-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.subscription-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.subscription-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.subscription-modal h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.subscription-modal p {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+.subscription-input-group {
+  margin-bottom: 20px;
+}
+
+.subscription-input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+}
+
+.subscription-input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-family: 'Cairo', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.subscription-input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.subscription-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.subscription-presets button {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.subscription-presets button:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.subscription-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.subscription-confirm-btn,
+.subscription-cancel-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
+}
+
+.subscription-confirm-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+}
+
+.subscription-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.subscription-cancel-btn {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.subscription-cancel-btn:hover {
+  background: #e0e0e0;
+}

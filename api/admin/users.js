@@ -28,7 +28,7 @@ module.exports = async (req, res) => {
     try {
       const { data: users, error } = await supabase
         .from('users')
-        .select('id, mobile, role, is_active, created_at')
+        .select('id, mobile, role, is_active, created_at, subscription_end_date')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -41,7 +41,8 @@ module.exports = async (req, res) => {
         mobile: row.mobile,
         role: row.role,
         isActive: !!row.is_active,
-        createdAt: row.created_at
+        createdAt: row.created_at,
+        subscriptionEndDate: row.subscription_end_date
       }));
 
       res.status(200).json(mappedUsers);

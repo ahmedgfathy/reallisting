@@ -513,6 +513,18 @@ function App() {
                   👤
                 </button>
                 <span className="user-info">{user?.username}</span>
+                {user?.subscriptionEndDate && !isAdmin && (
+                  <span className="subscription-countdown">
+                    {(() => {
+                      const now = new Date();
+                      const end = new Date(user.subscriptionEndDate);
+                      const diff = end - now;
+                      if (diff < 0) return '⏰ منتهي';
+                      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                      return days <= 3 ? `⚠️ ${days} يوم` : `⏳ ${days} يوم`;
+                    })()}
+                  </span>
+                )}
                 <button onClick={handleLogout} className="logout-btn">
                   خروج
                 </button>

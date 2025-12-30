@@ -11,6 +11,8 @@ function AdminDashboard({ onClose }) {
   const [resetRequests, setResetRequests] = useState([]);
   const [processingReset, setProcessingReset] = useState(null);
   const [generatedPassword, setGeneratedPassword] = useState(null);
+  const [subscriptionModal, setSubscriptionModal] = useState(null);
+  const [subscriptionDays, setSubscriptionDays] = useState('30');
 
   const token = localStorage.getItem('token') || '';
 
@@ -189,6 +191,49 @@ function AdminDashboard({ onClose }) {
     }
   };
 
+  const handleSetSubscription = async (mobile) => {
+    if (!token || !subscriptionDays) return;
+    try {
+      const response = await fetch('/api/admin/subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ mobile, days: parseInt(subscriptionDays) })
+      });
+      const result = await response.json();
+      if (response.ok) {
+        setSubscriptionModal(null);
+        setSubscriptionDays('30');
+        await loadUsers();
+      } else {
+        setError(result.error || 'فشل في تعيين الاشتراك');
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const calculateRemainingDays = (endDate) => {
+    if (!endDate) return null;
+    const now = new Date();
+    const end = new Date(endDate);
+    const diff = end - now;
+    if (diff < 0) return 0;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ar-EG', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   return (
     <div className="admin-dashboard-overlay" role="dialog" aria-modal="true">
       <div className="admin-dashboard">
@@ -298,13 +343,18 @@ function AdminDashboard({ onClose }) {
                 <tr>
                   <th>المستخدم</th>
                   <th>الحالة</th>
+                  <th>نهاية الاشتراك</th>
+                  <th>الأيام المتبقية</th>
                   <th>الدور</th>
                   <th>تاريخ التسجيل</th>
                   <th>الإجراء</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {users.map((user) => {
+                  const remaining = calculateRemainingDays(user.subscriptionEndDate);
+                  const isExpired = remaining !== null && remaining === 0;
+                  return (
                   <tr key={user.id} className={user.isActive ? 'user-active' : 'user-inactive'}>
                     <td>
                       <div className="admin-user-mobile">📱 {user.mobile}</div>
@@ -317,26 +367,88 @@ function AdminDashboard({ onClose }) {
                         <span className="status-badge status-pending">غير مفعل</span>
                       )}
                     </td>
+                    <td>
+                      <div className="subscription-date">
+                        {user.subscriptionEndDate ? (
+                          <>
+                            📅 {formatDate(user.subscriptionEndDate)}
+                            {isExpired && <span className="expired-badge">منتهي</span>}
+                          </>
+                        ) : (
+                          <span style={{ color: '#999' }}>غير محدد</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      {remaining !== null ? (
+                        <span className={`days-remaining ${remaining <= 3 ? 'days-warning' : remaining === 0 ? 'days-expired' : ''}`}>
+                          {remaining === 0 ? '⏰ منتهي' : `⏳ ${remaining} يوم`}
+                        </span>
+                      ) : (
+                        <span style={{ color: '#999' }}>-</span>
+                      )}
+                    </td>
                     <td>{user.role === 'admin' ? 'مدير' : 'وسيط'}</td>
                     <td>{user.createdAt ? new Date(user.createdAt).toLocaleString('ar-EG') : '—'}</td>
                     <td>
-                      {user.isActive ? (
-                        <span className="already-active">✅ لديه صلاحية الوصول</span>
-                      ) : (
+                      <div className="action-buttons">
                         <button
                           type="button"
-                          className="activate-btn"
-                          onClick={() => handleActivate(user.id)}
-                          disabled={updatingId === user.id}
+                          className="subscription-btn"
+                          onClick={() => setSubscriptionModal(user.mobile)}
                         >
-                          {updatingId === user.id ? '... جاري التفعيل' : 'تفعيل الاشتراك'}
+                          ⏱️ اشتراك
                         </button>
-                      )}
+                        {!user.isActive && (
+                          <button
+                            type="button"
+                            className="activate-btn"
+                            onClick={() => handleActivate(user.id)}
+                            disabled={updatingId === user.id}
+                          >
+                            {updatingId === user.id ? '...' : 'تفعيل'}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {subscriptionModal && (
+          <div className="subscription-modal-overlay" onClick={() => setSubscriptionModal(null)}>
+            <div className="subscription-modal" onClick={e => e.stopPropagation()}>
+              <h3>⏱️ تعيين مدة الاشتراك</h3>
+              <p>للمستخدم: {subscriptionModal}</p>
+              <div className="subscription-input-group">
+                <label>عدد الأيام:</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={subscriptionDays}
+                  onChange={e => setSubscriptionDays(e.target.value)}
+                  placeholder="30"
+                />
+              </div>
+              <div className="subscription-presets">
+                <button onClick={() => setSubscriptionDays('7')}>أسبوع</button>
+                <button onClick={() => setSubscriptionDays('30')}>شهر</button>
+                <button onClick={() => setSubscriptionDays('90')}>3 أشهر</button>
+                <button onClick={() => setSubscriptionDays('180')}>6 أشهر</button>
+                <button onClick={() => setSubscriptionDays('365')}>سنة</button>
+              </div>
+              <div className="subscription-modal-actions">
+                <button className="subscription-confirm-btn" onClick={() => handleSetSubscription(subscriptionModal)}>
+                  ✅ تأكيد وتفعيل
+                </button>
+                <button className="subscription-cancel-btn" onClick={() => setSubscriptionModal(null)}>
+                  ❌ إلغاء
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
