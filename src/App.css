@@ -1582,6 +1582,58 @@ body {
   box-shadow: 0 5px 20px rgba(40, 167, 69, 0.4);
 }
 
+/* Contact Icon Buttons - Call & WhatsApp */
+.contact-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.contact-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.contact-icon-btn.call-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.contact-icon-btn.whatsapp-btn {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+
+.contact-icon-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+}
+
+.contact-icon-btn:active {
+  transform: scale(0.95);
+}
+
+.contact-icon-btn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.contact-no-phone {
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  color: #6c757d;
+  margin-top: 10px;
+}
+
 .contact-whatsapp-btn {
   display: flex;
   align-items: center;
@@ -1699,6 +1751,20 @@ body {
   .contact-whatsapp-btn {
     font-size: 1rem;
     padding: 14px 18px;
+  }
+  
+  .contact-icon-btn {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .contact-icon-btn svg {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .contact-buttons {
+    gap: 25px;
   }
 }
 
