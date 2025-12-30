@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
+import Profile from './Profile';
 import InstallPrompt from './InstallPrompt';
 import brandLogo from './logo.svg';
 
@@ -33,6 +34,7 @@ function App() {
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [detailClosing, setDetailClosing] = useState(false);
@@ -502,7 +504,15 @@ function App() {
             )}
             {isAuthenticated ? (
               <>
-                <span className="user-info">👤 {user?.username}</span>
+                <button
+                  type="button"
+                  className="profile-link"
+                  onClick={() => setShowProfile(true)}
+                  title="الملف الشخصي"
+                >
+                  👤
+                </button>
+                <span className="user-info">{user?.username}</span>
                 <button onClick={handleLogout} className="logout-btn">
                   خروج
                 </button>
@@ -830,6 +840,10 @@ function App() {
 
         {isAdmin && showAdminDashboard && (
         <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+      )}
+      
+      {showProfile && isAuthenticated && (
+        <Profile onClose={() => setShowProfile(false)} />
       )}
       
       {/* PWA Install Prompt */}

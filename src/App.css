@@ -120,7 +120,8 @@ body {
   background: rgba(255, 255, 255, 0.3);
 }
 
-.admin-link {
+.admin-link,
+.profile-link {
   padding: 4px 8px;
   background: rgba(255, 255, 255, 0.15);
   color: white;
@@ -131,7 +132,8 @@ body {
   transition: all 0.2s;
 }
 
-.admin-link:hover {
+.admin-link:hover,
+.profile-link:hover {
   background: rgba(255, 255, 255, 0.25);
 }
 
