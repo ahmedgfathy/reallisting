@@ -756,14 +756,14 @@ body {
 
 @media (max-width: 768px) {
   /* ==========================================
-     MOBILE HEADER - 2 Rows Design
-     Row 1: Logo + Name | Login/Register
-     Row 2: Stats (Units & Brokers count)
+     MOBILE HEADER - Single Line Design
+     Logo + Title | Login/Register (same line)
+     Stats below
      ========================================== */
   .header {
     flex-direction: column;
-    padding: 12px 15px;
-    gap: 10px;
+    padding: 10px 12px;
+    gap: 8px;
     align-items: stretch;
   }
   
@@ -776,23 +776,23 @@ body {
   
   .brand {
     justify-content: flex-start;
-    gap: 10px;
+    gap: 8px;
     flex-shrink: 0;
   }
   
   .brand-logo {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
   
   .header h1 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
   
   .header-left {
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     justify-content: space-between;
   }
@@ -806,13 +806,13 @@ body {
     width: 100%;
     justify-content: center;
     background: rgba(255, 255, 255, 0.1);
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 8px;
-    margin-top: 5px;
+    margin-top: 3px;
   }
   
   .stat-item {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     padding: 0;
     background: none;
     border-radius: 0;
@@ -820,28 +820,28 @@ body {
   }
   
   .stat-item strong {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   
-  /* Auth buttons - visible and styled */
+  /* Auth buttons - compact for same line */
   .user-info {
     display: inline-flex;
-    font-size: 0.8rem;
-    padding: 6px 10px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
     background: rgba(255, 255, 255, 0.15);
-    border-radius: 15px;
+    border-radius: 12px;
   }
   
   .auth-buttons {
     display: flex;
-    gap: 8px;
+    gap: 5px;
     order: 1;
   }
   
   .auth-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    border-radius: 15px;
   }
   
   .auth-btn.login {
@@ -853,15 +853,15 @@ body {
   }
   
   .logout-btn {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 0.7rem;
+    border-radius: 15px;
   }
   
   .admin-link {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    border-radius: 15px;
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    border-radius: 12px;
   }
   
   /* ==========================================
