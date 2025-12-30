@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
+import { Analytics } from '@vercel/analytics/react';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
@@ -482,6 +483,7 @@ function App() {
 
   return (
     <div className="app">
+      <Analytics />
       <header className="header">
         <div className="header-row-1">
           <div className="brand">
