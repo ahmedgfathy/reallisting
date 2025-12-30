@@ -1,7 +1,8 @@
 const { supabase, corsHeaders } = require('./_lib/supabase');
 
+// Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {
-  // Handle CORS
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -9,6 +10,7 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
+  // Set CORS headers
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
@@ -18,12 +20,22 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Use the PostgreSQL function we created for efficient distinct regions
+    // Use the PostgreSQL function for efficient distinct regions
     const { data, error } = await supabase.rpc('get_distinct_regions');
 
     if (error) {
       console.error('Supabase RPC error:', error);
-      return res.status(500).json({ error: error.message });
+      // Fallback: try direct query if RPC fails
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('messages')
+        .select('region');
+      
+      if (fallbackError) {
+        return res.status(500).json({ error: fallbackError.message });
+      }
+      
+      const uniqueRegions = [...new Set((fallbackData || []).map(r => r.region).filter(Boolean))];
+      return res.status(200).json(uniqueRegions);
     }
 
     const regions = (data || []).map(r => r.region).filter(Boolean);
