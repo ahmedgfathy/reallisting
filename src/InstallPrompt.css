@@ -1,0 +1,207 @@
+/* Install Prompt Styles */
+.install-prompt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.install-prompt {
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 25px 20px 30px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.install-close {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.install-close:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.install-icon {
+  margin-bottom: 15px;
+}
+
+.install-icon img {
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(59, 89, 152, 0.3);
+}
+
+.install-prompt h2 {
+  font-family: 'Cairo', sans-serif;
+  font-size: 1.4rem;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.install-prompt > p {
+  font-family: 'Cairo', sans-serif;
+  color: #666;
+  font-size: 0.95rem;
+  margin: 0 0 20px 0;
+}
+
+/* iOS Instructions */
+.ios-instructions {
+  text-align: right;
+  padding: 10px 0;
+}
+
+.ios-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #3b5998 0%, #4267B2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.ios-icon {
+  margin-right: auto;
+  font-size: 1.2rem;
+}
+
+.ios-btn {
+  margin-top: 15px;
+}
+
+/* Action Buttons */
+.install-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.install-btn {
+  padding: 14px 25px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.install-btn.primary {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+.install-btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.install-btn.primary:active {
+  transform: scale(0.98);
+}
+
+.install-btn.secondary {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.install-btn.secondary:hover {
+  background: #e5e5e5;
+}
+
+/* Features */
+.install-features {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.install-features span {
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.8rem;
+  color: #28a745;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Desktop adjustments */
+@media (min-width: 769px) {
+  .install-prompt-overlay {
+    align-items: center;
+  }
+  
+  .install-prompt {
+    border-radius: 24px;
+    max-width: 380px;
+  }
+}

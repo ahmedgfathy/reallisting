@@ -3,6 +3,7 @@ import './App.css';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
+import InstallPrompt from './InstallPrompt';
 import brandLogo from './logo.svg';
 
 function App() {
