@@ -690,14 +690,144 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .filters {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .filter-select {
+    min-width: 120px;
+    padding: 8px 12px;
+  }
+  
+  .results-count {
+    margin-right: 0;
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
+
 @media (max-width: 768px) {
+  /* Header Mobile */
+  .header {
+    flex-direction: column;
+    padding: 12px 15px;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .brand {
+    justify-content: center;
+  }
+  
+  .brand-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
   .header h1 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
   }
   
   .stats {
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .stat-item {
+    font-size: 0.9rem;
+  }
+  
+  .user-info {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+  }
+  
+  .auth-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .auth-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+  
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+  
+  .admin-link {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  
+  /* Main Content Mobile */
+  .main-content {
+    padding: 0 10px 20px;
+  }
+  
+  /* Controls Mobile */
+  .controls {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .search-input {
+    min-width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+  }
+  
+  .refresh-btn,
+  .reset-btn,
+  .delete-btn {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+  
+  /* Filters Mobile */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 15px;
+  }
+  
+  .filter-label {
+    font-size: 0.9rem;
+    margin-bottom: -8px;
+  }
+  
+  .filter-select {
+    width: 100%;
+    min-width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+  }
+  
+  .results-count {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 1rem;
+  }
+  
+  /* Table Mobile - Hidden */
+  .messages-table {
+    display: none;
   }
   
   .messages-table th,
@@ -710,11 +840,320 @@ body {
     max-width: 200px;
   }
   
+  /* Grid Mobile */
+  .grid-container {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  
+  .grid-select-all {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  
   .properties-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
   
   .property-card {
-    padding: 15px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+  
+  .card-index {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+  }
+  
+  .card-title {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+  
+  .card-message {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    min-height: 50px;
+  }
+  
+  .card-footer {
+    padding-top: 10px;
+  }
+  
+  .card-contact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .card-name {
+    font-size: 0.9rem;
+  }
+  
+  .card-phone {
+    width: 100%;
+    text-align: center;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+  
+  .card-date {
+    font-size: 0.8rem;
+    text-align: center;
+    width: 100%;
+  }
+  
+  /* Loading & Error Mobile */
+  .loading {
+    padding: 40px 15px;
+    font-size: 1rem;
+  }
+  
+  .error-container {
+    padding: 40px 15px;
+  }
+  
+  .error-message {
+    padding: 20px 15px;
+  }
+  
+  .error-message code {
+    font-size: 0.75rem;
+    padding: 10px;
+    word-break: break-all;
+  }
+  
+  /* No data Mobile */
+  .no-data-grid {
+    padding: 40px 15px;
+    font-size: 1rem;
   }
 }
+
+/* Extra Small Mobile (phones in portrait) */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+  }
+  
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header h1 {
+    font-size: 1.15rem;
+  }
+  
+  .stats {
+    gap: 10px;
+  }
+  
+  .stat-item {
+    font-size: 0.8rem;
+  }
+  
+  .stat-item strong {
+    font-size: 0.85rem;
+  }
+  
+  .main-content {
+    padding: 0 8px 15px;
+  }
+  
+  .controls {
+    gap: 8px;
+  }
+  
+  .search-input {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  
+  .refresh-btn,
+  .reset-btn,
+  .delete-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .filters {
+    padding: 12px;
+    gap: 10px;
+  }
+  
+  .filter-select {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  
+  .results-count {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .results-count strong {
+    font-size: 1rem;
+  }
+  
+  .grid-container {
+    padding: 8px;
+  }
+  
+  .properties-grid {
+    gap: 10px;
+  }
+  
+  .property-card {
+    padding: 12px;
+  }
+  
+  .card-checkbox {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .card-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .card-index {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    margin-bottom: 10px;
+  }
+  
+  .card-title {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .card-message {
+    font-size: 0.85rem;
+    min-height: 45px;
+    margin-bottom: 12px;
+  }
+  
+  .card-name {
+    font-size: 0.85rem;
+  }
+  
+  .card-phone {
+    padding: 10px 12px;
+    font-size: 0.95rem;
+  }
+  
+  .card-date {
+    font-size: 0.75rem;
+  }
+  
+  .auth-buttons {
+    flex-direction: row;
+    gap: 8px;
+  }
+  
+  .auth-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    flex: 1;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .property-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .property-card:active {
+    transform: scale(0.98);
+    background: #f8f9fa;
+  }
+  
+  .refresh-btn:hover,
+  .reset-btn:hover,
+  .delete-btn:hover {
+    transform: none;
+  }
+  
+  .card-phone {
+    padding: 12px 15px;
+  }
+  
+  /* Make buttons more tappable */
+  .auth-btn,
+  .logout-btn,
+  .admin-link,
+  .refresh-btn,
+  .reset-btn,
+  .delete-btn {
+    min-height: 44px;
+  }
+  
+  .filter-select,
+  .search-input {
+    min-height: 48px;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 896px) and (orientation: landscape) {
+  .header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px 15px;
+  }
+  
+  .brand {
+    flex: 0 0 auto;
+  }
+  
+  .header-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  
+  .stats {
+    flex-direction: row;
+  }
+  
+  .filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .filter-select {
+    width: auto;
+    min-width: 130px;
+  }
+  
+  .controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .refresh-btn,
+  .reset-btn,
+  .delete-btn {
+    width: auto;
+  }
+  
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
