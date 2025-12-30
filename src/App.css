@@ -15,39 +15,146 @@ body {
   min-height: 100vh;
 }
 
+/* ==========================================
+   HEADER - Clean Two-Row Design
+   ========================================== */
 .header {
   background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
   color: white;
-  padding: 10px 20px;
+  padding: 12px 20px 8px;
   margin-bottom: 20px;
   box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
-  display: flex;
-  flex-direction: row;
-  direction: rtl;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
-  gap: 15px;
 }
 
-.header h1 {
-  font-size: 1.4rem;
-  margin: 0;
-  white-space: nowrap;
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 8px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-logo {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: 14px;
-  box-shadow: 0 6px 12px rgba(66, 103, 178, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.header h1 {
+  font-size: 1.3rem;
+  margin: 0;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.auth-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+}
+
+.auth-btn.login {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.auth-btn.login:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.auth-btn.register {
+  background: #25D366;
+  color: white;
+}
+
+.auth-btn.register:hover {
+  background: #20bd5a;
+}
+
+.user-info {
+  font-size: 0.85rem;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+}
+
+.logout-btn {
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.admin-link {
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.admin-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Stats Row */
+.stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.stat-item {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.stat-item strong {
+  font-weight: 700;
+}
+
+.stat-divider {
+  opacity: 0.4;
 }
 
 .error-container .brand {
@@ -58,76 +165,6 @@ body {
 .error-container .brand h1 {
   color: #3b5998;
 }
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.auth-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.auth-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  transition: all 0.3s;
-  border: none;
-}
-
-.auth-btn svg {
-  width: 18px;
-  height: 18px;
-}
-
-.auth-btn.login {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-}
-
-.auth-btn.login:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: scale(1.1);
-}
-
-.auth-btn.register {
-  background: #28a745;
-  color: white;
-  border: 1px solid #28a745;
-}
-
-.auth-btn.register:hover {
-  background: #218838;
-  border-color: #218838;
-  transform: scale(1.1);
-}
-
-.stats {
-  display: flex;
-  gap: 12px;
-  flex-wrap: nowrap;
-  align-items: center;
-}
-
-.stat-item {
-  font-size: 1.2rem;
-  margin: 0;
-  white-space: nowrap;
-}
-
-  
-.header-left {
   display: flex;
   align-items: center;
   gap: 15px;
@@ -766,121 +803,68 @@ body {
 
 @media (max-width: 768px) {
   /* ==========================================
-     MOBILE HEADER - Single Row Design
-     Logo + Title + Login/Register all in one line
-     Stats in second row
+     MOBILE HEADER - Clean Two-Row Design
      ========================================== */
   .header {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 8px 10px;
-    gap: 6px;
-    align-items: center;
-    justify-content: space-between;
+    padding: 10px 12px 6px;
+  }
+  
+  .header-row {
+    margin-bottom: 6px;
   }
   
   .brand {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 6px;
-    flex-shrink: 0;
+    gap: 8px;
   }
   
   .brand-logo {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
   }
   
   .header h1 {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   
-  .header-left {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+  .header-actions {
+    gap: 6px;
+  }
+  
+  .auth-buttons {
     gap: 5px;
-    align-items: center;
-    justify-content: flex-end;
-    flex: 1;
   }
   
-  /* Stats row - full width below */
-  .stats {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    width: 100%;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 5px 8px;
-    border-radius: 6px;
-    order: 10;
+  .auth-btn {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    border-radius: 15px;
+  }
+  
+  .user-info {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+  }
+  
+  .logout-btn {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+  
+  .admin-link {
+    padding: 4px 8px;
+    font-size: 0.9rem;
+  }
+  
+  .stats-row {
+    padding: 5px 0;
+    gap: 10px;
   }
   
   .stat-item {
     font-size: 0.75rem;
-    padding: 0;
-    background: none;
-    border-radius: 0;
-    white-space: nowrap;
   }
-  
-  .stat-item strong {
-    font-size: 0.8rem;
-  }
-  
-  /* Auth buttons - icon only */
-  .user-info {
-    display: inline-flex;
-    font-size: 0.65rem;
-    padding: 3px 6px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 10px;
-  }
-  
-  .auth-buttons {
-    display: flex;
-    gap: 6px;
-  }
-  
-  .auth-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    border-radius: 50%;
-    font-size: 0;
-  }
-  
-  .auth-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-  
-  .auth-btn.login {
-    background: rgba(255, 255, 255, 0.2);
-  }
-  
-  .auth-btn.register {
-    background: #25D366;
-  }
-  
-  .logout-btn {
-    padding: 5px 10px;
-    font-size: 0.7rem;
-    border-radius: 15px;
-  }
-  
-  .admin-link {
-    padding: 5px 8px;
-    font-size: 0.7rem;
-    border-radius: 12px;
-  }
-  
+
   /* ==========================================
      MOBILE MAIN CONTENT
      ========================================== */
@@ -1318,24 +1302,24 @@ body {
 /* Landscape mobile */
 @media (max-width: 896px) and (orientation: landscape) {
   .header {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 8px 15px;
+    padding: 6px 15px 4px;
   }
   
-  .brand {
-    flex: 0 0 auto;
+  .header-row {
+    margin-bottom: 4px;
   }
   
-  .header-left {
-    flex-direction: row;
-    flex-wrap: wrap;
-    flex: 1;
-    justify-content: flex-end;
+  .brand-logo {
+    width: 28px;
+    height: 28px;
   }
   
-  .stats {
-    flex-direction: row;
+  .header h1 {
+    font-size: 1rem;
+  }
+  
+  .stats-row {
+    padding: 4px 0;
   }
   
   .filters {
