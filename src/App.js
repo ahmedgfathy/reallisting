@@ -31,6 +31,7 @@ function App() {
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive);
@@ -292,6 +293,7 @@ function App() {
     setPurpose('الكل');
     setPage(1);
     setSelectedMessages(new Set());
+    setShowFilters(false);
   };
 
   const handleRefresh = async () => {
@@ -463,6 +465,12 @@ function App() {
         <button onClick={handleReset} className="reset-btn">
           ✖ مسح الفلاتر
         </button>
+        <button 
+          onClick={() => setShowFilters(!showFilters)} 
+          className="filter-toggle-btn"
+        >
+          {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 عرض الفلاتر'}
+        </button>
           {isAdmin && selectedMessages.size > 0 && (
           <button onClick={handleDeleteSelected} className="delete-btn">
             🗑️ حذف المحدد ({selectedMessages.size})
@@ -470,7 +478,7 @@ function App() {
         )}
       </div>
 
-      <div className="filters">
+      <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
         <label className="filter-label">نوع الإعلان:</label>
         <select 
           value={category} 

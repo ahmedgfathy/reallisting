@@ -260,6 +260,26 @@ body {
   50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
 }
 
+/* Filter Toggle Button - Hidden on Desktop */
+.filter-toggle-btn {
+  display: none;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-family: 'Cairo', sans-serif;
+  background: linear-gradient(135deg, #6c5ce7 0%, #5f4dd3 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.filter-toggle-btn:hover {
+  background: linear-gradient(135deg, #5f4dd3 0%, #4834d4 100%);
+  transform: translateY(-2px);
+}
+
 .filters {
   display: flex;
   align-items: center;
@@ -798,12 +818,51 @@ body {
     width: 100%;
   }
   
-  /* Filters Mobile */
+  /* Filter Toggle Button - Shown on Mobile */
+  .filter-toggle-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #6c5ce7 0%, #5f4dd3 100%);
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+  }
+  
+  .filter-toggle-btn:active {
+    transform: scale(0.98);
+  }
+  
+  /* Filters Mobile - Collapsible */
   .filters {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
     padding: 15px;
+    display: none;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 0;
+  }
+  
+  .filters.filters-open {
+    display: flex;
+    max-height: 1000px;
+    opacity: 1;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   .filter-label {
