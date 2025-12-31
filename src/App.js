@@ -573,13 +573,13 @@ function App() {
             onClick={() => { setShowProperties(false); setShowAdminDashboard(false); setShowProfile(false); }}
             className={`nav-tab ${!showProperties ? 'active' : ''}`}
           >
-            📊 الوحدات
+            العاشر من رمضان
           </button>
           <button 
             onClick={() => { setShowProperties(true); setShowAdminDashboard(false); setShowProfile(false); }}
             className={`nav-tab ${showProperties ? 'active' : ''}`}
           >
-            🏘️ العقارات
+            التجمع الخامس
           </button>
           <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
           <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
