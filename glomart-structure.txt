@@ -1,0 +1,183 @@
+🔍 Getting complete glomart_data structure...
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-90-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Wed Dec 31 02:51:40 CET 2025
+
+  System load:           0.48
+  Usage of /:            41.3% of 483.29GB
+  Memory usage:          9%
+  Swap usage:            0%
+  Processes:             324
+  Users logged in:       0
+  IPv4 address for eth0: 5.180.148.92
+  IPv6 address for eth0: 2a02:c202:2265:8011::1
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+11 updates can be applied immediately.
+To see these additional updates run: apt list --upgradable
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+
+  _____
+ / ___/___  _  _ _____ _   ___  ___
+| |   / _ \| \| |_   _/ \ | _ )/ _ \
+| |__| (_) | .` | | |/ _ \| _ \ (_) |
+ \____\___/|_|\_| |_/_/ \_|___/\___/
+
+Welcome!
+
+This server is hosted by Contabo. If you have any questions or need help,
+please don't hesitate to contact us at support@contabo.com.
+
+=== properties table ===
+*************************** 1. row ***************************
+       Table: properties
+Create Table: CREATE TABLE `properties` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `building` varchar(255) DEFAULT NULL,
+  `propertynumber` varchar(255) DEFAULT NULL,
+  `thefloors` varchar(255) DEFAULT NULL,
+  `unitfeatures` varchar(255) DEFAULT NULL,
+  `phase` varchar(255) DEFAULT NULL,
+  `note` varchar(1000) DEFAULT NULL,
+  `inoroutsidecompound` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `lastfollowin` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `propertyofferedby` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `unitno` varchar(255) DEFAULT NULL,
+  `callupdate` varchar(255) DEFAULT NULL,
+  `forupdate` text DEFAULT NULL,
+  `handler` varchar(255) DEFAULT NULL,
+  `sales` varchar(255) DEFAULT NULL,
+  `modifiedtime` varchar(255) DEFAULT NULL,
+  `landarea` varchar(255) DEFAULT NULL,
+  `rentfrom` varchar(255) DEFAULT NULL,
+  `rentto` varchar(255) DEFAULT NULL,
+  `compoundname` varchar(255) DEFAULT NULL,
+  `liked` tinyint(1) DEFAULT NULL,
+  `inhome` tinyint(1) DEFAULT NULL,
+  `rooms` decimal(15,4) DEFAULT NULL,
+  `mobileno` varchar(255) DEFAULT NULL,
+  `totalprice` decimal(15,4) DEFAULT NULL,
+  `pricepermeter` decimal(15,4) DEFAULT NULL,
+  `propertyimage` text DEFAULT NULL,
+  `videos` text DEFAULT NULL,
+  `tel` varchar(255) DEFAULT NULL,
+  `users` longtext DEFAULT NULL,
+  `project` varchar(255) DEFAULT NULL,
+  `installment` text DEFAULT NULL,
+  `payedevery` text DEFAULT NULL,
+  `monthly` varchar(255) DEFAULT NULL,
+  `createdtime` varchar(255) DEFAULT NULL,
+  `downpayment` decimal(15,4) DEFAULT NULL,
+  `spaceeerth` varchar(255) DEFAULT NULL,
+  `spaceunit` varchar(255) DEFAULT NULL,
+  `spaceguard` varchar(255) DEFAULT NULL,
+  `title` text DEFAULT NULL,
+  `price` text DEFAULT NULL,
+  `location` text DEFAULT NULL,
+  `images` text DEFAULT NULL,
+  `region_id_new` varchar(255) DEFAULT NULL,
+  `property_type_id_new` varchar(255) DEFAULT NULL,
+  `finishing_level_id_new` varchar(255) DEFAULT NULL,
+  `currency_id_new` varchar(255) DEFAULT NULL,
+  `category_id_new` varchar(255) DEFAULT NULL,
+  `unit_facility_id_new` varchar(255) DEFAULT NULL,
+  `unit_purpose_id_new` text DEFAULT NULL,
+  `region_name` varchar(255) DEFAULT NULL,
+  `country_name` varchar(255) DEFAULT NULL,
+  `property_type_name` varchar(255) DEFAULT NULL,
+  `unit_type_name` text DEFAULT NULL,
+  `category_name` text DEFAULT NULL,
+  `property_purpose_name` text DEFAULT NULL,
+  `currency_name` text DEFAULT NULL,
+  `currency_symbol` text DEFAULT NULL,
+  `payment_type_name` text DEFAULT NULL,
+  `finishing_level_name` text DEFAULT NULL,
+  `development_phase_name` text DEFAULT NULL,
+  `activity` text DEFAULT NULL,
+  `land_area` text DEFAULT NULL,
+  `built_area` text DEFAULT NULL,
+  `bedrooms_count` text DEFAULT NULL,
+  `_sequence` decimal(15,4) DEFAULT NULL,
+  `_permissions` longtext DEFAULT NULL,
+  `_databaseid` varchar(255) DEFAULT NULL,
+  `_collectionid` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8
+
+=== properties_images table ===
+*************************** 1. row ***************************
+       Table: properties_images
+Create Table: CREATE TABLE `properties_images` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `bucket_id` varchar(255) DEFAULT NULL,
+  `file_id` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint(20) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bucket_id` (`bucket_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+=== properties_videos table ===
+*************************** 1. row ***************************
+       Table: properties_videos
+Create Table: CREATE TABLE `properties_videos` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `bucket_id` varchar(255) DEFAULT NULL,
+  `file_id` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint(20) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bucket_id` (`bucket_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+=== projects table ===
+*************************** 1. row ***************************
+       Table: projects
+Create Table: CREATE TABLE `projects` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `code` varchar(500) DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `region_id` varchar(500) DEFAULT NULL,
+  `developer_name` text DEFAULT NULL,
+  `delivery_date` text DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== Sample property with images ===
+
+✓ Complete structure retrieved!

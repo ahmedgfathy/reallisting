@@ -6,6 +6,7 @@ import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
 import Profile from './Profile';
+import Properties from './Properties';
 import InstallPrompt from './InstallPrompt';
 import brandLogo from './logo.svg';
 
@@ -37,6 +38,7 @@ function App() {
   const observerRef = useRef(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showProperties, setShowProperties] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [detailClosing, setDetailClosing] = useState(false);
@@ -641,13 +643,28 @@ function App() {
           </div>
         </div>
         <div className="header-row-2">
+          <button 
+            onClick={() => { setShowProperties(false); setShowAdminDashboard(false); setShowProfile(false); }}
+            className={`nav-tab ${!showProperties ? 'active' : ''}`}
+          >
+            العاشر من رمضان
+          </button>
+          <button 
+            onClick={() => { setShowProperties(true); setShowAdminDashboard(false); setShowProfile(false); }}
+            className={`nav-tab ${showProperties ? 'active' : ''}`}
+          >
+            التجمع الخامس
+          </button>
           <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
           <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
           <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
         </div>
       </header>
 
-      <div className="main-content">
+      {showProperties ? (
+        <Properties user={user} />
+      ) : (
+        <div className="main-content">
         <div className="controls">
         <input
           type="text"
@@ -836,6 +853,7 @@ function App() {
         </>
       )}
       </div>
+      )}
 
       {/* Unit Detail View */}
       {selectedUnit && (
@@ -973,7 +991,7 @@ function App() {
         </div>
       )}
 
-        {isAdmin && showAdminDashboard && (
+      {isAdmin && showAdminDashboard && (
         <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
       

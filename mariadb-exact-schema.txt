@@ -1,0 +1,293 @@
+=== countries ===
+Create Table: CREATE TABLE `countries` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `code` varchar(500) DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== currencies ===
+Create Table: CREATE TABLE `currencies` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `code` varchar(500) DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `symbol` varchar(500) DEFAULT NULL,
+  `exchange_rate` decimal(15,4) DEFAULT NULL,
+  `is_base_currency` tinyint(1) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== regions ===
+Create Table: CREATE TABLE `regions` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `country_id` varchar(500) DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== property_types ===
+Create Table: CREATE TABLE `property_types` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== property_categories ===
+Create Table: CREATE TABLE `property_categories` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== property_purposes ===
+Create Table: CREATE TABLE `property_purposes` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== property_statuses ===
+Create Table: CREATE TABLE `property_statuses` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `color_code` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== finishing_levels ===
+Create Table: CREATE TABLE `finishing_levels` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== unit_facilities ===
+Create Table: CREATE TABLE `unit_facilities` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `category` varchar(500) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `display_order` bigint(20) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== filtersettings ===
+Create Table: CREATE TABLE `filtersettings` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `leadsettings` varchar(500) DEFAULT NULL,
+  `unitsettings` longtext DEFAULT NULL,
+  `sequence` bigint(20) DEFAULT NULL,
+  `permissions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`permissions`)),
+  `databaseid` varchar(500) DEFAULT NULL,
+  `collectionid` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC
+
+=== properties ===
+Create Table: CREATE TABLE `properties` (
+  `id` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `building` varchar(255) DEFAULT NULL,
+  `propertynumber` varchar(255) DEFAULT NULL,
+  `thefloors` varchar(255) DEFAULT NULL,
+  `unitfeatures` varchar(255) DEFAULT NULL,
+  `phase` varchar(255) DEFAULT NULL,
+  `note` varchar(1000) DEFAULT NULL,
+  `inoroutsidecompound` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `lastfollowin` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `propertyofferedby` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `unitno` varchar(255) DEFAULT NULL,
+  `callupdate` varchar(255) DEFAULT NULL,
+  `forupdate` text DEFAULT NULL,
+  `handler` varchar(255) DEFAULT NULL,
+  `sales` varchar(255) DEFAULT NULL,
+  `modifiedtime` varchar(255) DEFAULT NULL,
+  `landarea` varchar(255) DEFAULT NULL,
+  `rentfrom` varchar(255) DEFAULT NULL,
+  `rentto` varchar(255) DEFAULT NULL,
+  `compoundname` varchar(255) DEFAULT NULL,
+  `liked` tinyint(1) DEFAULT NULL,
+  `inhome` tinyint(1) DEFAULT NULL,
+  `rooms` decimal(15,4) DEFAULT NULL,
+  `mobileno` varchar(255) DEFAULT NULL,
+  `totalprice` decimal(15,4) DEFAULT NULL,
+  `pricepermeter` decimal(15,4) DEFAULT NULL,
+  `propertyimage` text DEFAULT NULL,
+  `videos` text DEFAULT NULL,
+  `tel` varchar(255) DEFAULT NULL,
+  `users` longtext DEFAULT NULL,
+  `project` varchar(255) DEFAULT NULL,
+  `installment` text DEFAULT NULL,
+  `payedevery` text DEFAULT NULL,
+  `monthly` varchar(255) DEFAULT NULL,
+  `createdtime` varchar(255) DEFAULT NULL,
+  `downpayment` decimal(15,4) DEFAULT NULL,
+  `spaceeerth` varchar(255) DEFAULT NULL,
+  `spaceunit` varchar(255) DEFAULT NULL,
+  `spaceguard` varchar(255) DEFAULT NULL,
+  `title` text DEFAULT NULL,
+  `price` text DEFAULT NULL,
+  `location` text DEFAULT NULL,
+  `images` text DEFAULT NULL,
+  `region_id_new` varchar(255) DEFAULT NULL,
+  `property_type_id_new` varchar(255) DEFAULT NULL,
+  `finishing_level_id_new` varchar(255) DEFAULT NULL,
+  `currency_id_new` varchar(255) DEFAULT NULL,
+  `category_id_new` varchar(255) DEFAULT NULL,
+  `unit_facility_id_new` varchar(255) DEFAULT NULL,
+  `unit_purpose_id_new` text DEFAULT NULL,
+  `region_name` varchar(255) DEFAULT NULL,
+  `country_name` varchar(255) DEFAULT NULL,
+  `property_type_name` varchar(255) DEFAULT NULL,
+  `unit_type_name` text DEFAULT NULL,
+  `category_name` text DEFAULT NULL,
+  `property_purpose_name` text DEFAULT NULL,
+  `currency_name` text DEFAULT NULL,
+  `currency_symbol` text DEFAULT NULL,
+  `payment_type_name` text DEFAULT NULL,
+  `finishing_level_name` text DEFAULT NULL,
+  `development_phase_name` text DEFAULT NULL,
+  `activity` text DEFAULT NULL,
+  `land_area` text DEFAULT NULL,
+  `built_area` text DEFAULT NULL,
+  `bedrooms_count` text DEFAULT NULL,
+  `_sequence` decimal(15,4) DEFAULT NULL,
+  `_permissions` longtext DEFAULT NULL,
+  `_databaseid` varchar(255) DEFAULT NULL,
+  `_collectionid` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_updated_at` (`updated_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8
+
+=== properties_images ===
+Create Table: CREATE TABLE `properties_images` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `bucket_id` varchar(255) DEFAULT NULL,
+  `file_id` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint(20) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bucket_id` (`bucket_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+=== properties_videos ===
+Create Table: CREATE TABLE `properties_videos` (
+  `id` varchar(255) NOT NULL,
+  `name` varchar(500) DEFAULT NULL,
+  `bucket_id` varchar(255) DEFAULT NULL,
+  `file_id` varchar(255) DEFAULT NULL,
+  `size_bytes` bigint(20) DEFAULT NULL,
+  `mime_type` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bucket_id` (`bucket_id`),
+  KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
