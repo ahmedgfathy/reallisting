@@ -771,6 +771,7 @@ function App() {
         </>
       )}
       </div>
+      )}
 
       {/* Unit Detail View */}
       {selectedUnit && (
@@ -890,7 +891,6 @@ function App() {
             </div>
           </div>
         </div>
-      </div>
       )}
 
       {isAdmin && showAdminDashboard && (
