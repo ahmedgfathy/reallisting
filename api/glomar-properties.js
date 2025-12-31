@@ -30,10 +30,10 @@ module.exports = async (req, res) => {
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    // Build query
+    // Build query - fetch properties first
     let query = supabase
       .from('glomar_properties')
-      .select('*, glomar_properties_images(id, image_url, file_id, bucket_id)', { count: 'exact' });
+      .select('*', { count: 'exact' });
 
     // Apply filters
     if (search && search !== '') {
@@ -68,19 +68,34 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
+    // Fetch images separately for all properties
+    const propertyIds = data.map(p => p.id);
+    let imagesData = [];
+    
+    if (propertyIds.length > 0) {
+      const { data: imgs, error: imgsError } = await supabase
+        .from('glomar_properties_images')
+        .select('*')
+        .in('id', propertyIds);
+      
+      if (!imgsError) {
+        imagesData = imgs || [];
+      }
+    }
+
     // Build image URLs for each property
     const properties = data.map(prop => {
-      const images = prop.glomar_properties_images?.map(img => {
+      const propImages = imagesData.filter(img => img.id === prop.id);
+      const images = propImages.map(img => {
         if (img.file_id && img.bucket_id) {
           return `https://app.glomartrealestates.com/v1/storage/buckets/${img.bucket_id}/files/${img.file_id}/view`;
         }
         return img.image_url;
-      }).filter(Boolean) || [];
+      }).filter(Boolean);
 
       return {
         ...prop,
-        images,
-        glomar_properties_images: undefined // Remove nested object
+        images
       };
     });
 
