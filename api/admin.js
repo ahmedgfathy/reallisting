@@ -24,10 +24,10 @@ module.exports = async (req, res) => {
     return res.status(403).json({ error: 'Admin access required' });
   }
 
-  const path = req.url.split('?')[0].replace('/api/admin', '');
+  const path = req.query.path || req.url.split('?')[0].replace('/api/admin', '');
 
   // GET USERS
-  if (path === '/users' && req.method === 'GET') {
+  if ((path === 'users' || path === '/users') && req.method === 'GET') {
     const { data: users, error } = await supabase
       .from('users')
       .select('id, mobile, role, is_active, created_at, subscription_end_date')
@@ -48,8 +48,9 @@ module.exports = async (req, res) => {
   }
 
   // ACTIVATE USER
-  if (path.match(/^\/users\/\d+\/status$/) && req.method === 'POST') {
-    const userId = path.match(/\/users\/(\d+)\/status/)[1];
+  if (path.match(/^\/?(users\/\d+\/status)$/) && req.method === 'POST') {
+    const match = path.match(/users\/(\d+)\/status/);
+    const userId = match[1];
     
     const { error } = await supabase
       .from('users')
@@ -61,7 +62,7 @@ module.exports = async (req, res) => {
   }
 
   // DEDUPLICATE
-  if (path === '/deduplicate' && req.method === 'POST') {
+  if ((path === 'deduplicate' || path === '/deduplicate') && req.method === 'POST') {
     const BATCH_SIZE = 10000;
     let offset = 0;
     let hasMore = true;
@@ -115,7 +116,7 @@ module.exports = async (req, res) => {
   }
 
   // RESET REQUESTS - GET
-  if (path === '/reset-requests' && req.method === 'GET') {
+  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'GET') {
     const { data, error } = await supabase
       .from('password_reset_requests')
       .select('*')
@@ -127,7 +128,7 @@ module.exports = async (req, res) => {
   }
 
   // RESET REQUESTS - APPROVE/REJECT
-  if (path === '/reset-requests' && req.method === 'POST') {
+  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'POST') {
     const { mobile, action } = req.body;
 
     if (action === 'approve') {
@@ -168,7 +169,7 @@ module.exports = async (req, res) => {
   }
 
   // SUBSCRIPTION - SET
-  if (path === '/subscription' && req.method === 'POST') {
+  if ((path === 'subscription' || path === '/subscription') && req.method === 'POST') {
     const { mobile, days } = req.body;
 
     if (!mobile || !days) {

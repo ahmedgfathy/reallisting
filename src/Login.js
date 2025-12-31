@@ -16,7 +16,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     setResetResult(null);
     setResetLoading(true);
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch('/api/auth?path=reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: resetMobile })
@@ -40,7 +40,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/auth?path=login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

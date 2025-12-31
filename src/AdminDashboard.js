@@ -26,7 +26,7 @@ function AdminDashboard({ onClose }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/admin/users', {
+      const response = await fetch('/api/admin?path=users', {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -49,7 +49,7 @@ function AdminDashboard({ onClose }) {
   const loadResetRequests = useCallback(async () => {
     if (!token) return;
     try {
-      const response = await fetch('/api/admin/reset-requests', {
+      const response = await fetch('/api/admin?path=reset-requests', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
@@ -74,7 +74,7 @@ function AdminDashboard({ onClose }) {
 
     setUpdatingId(userId);
     try {
-      const response = await fetch(`/api/admin/users/${userId}/status`, {
+      const response = await fetch(`/api/admin?path=users/${userId}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ function AdminDashboard({ onClose }) {
     setError(null);
 
     try {
-      const response = await fetch('/api/admin/deduplicate', {
+      const response = await fetch('/api/admin?path=deduplicate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ function AdminDashboard({ onClose }) {
     setProcessingReset(mobile);
     setGeneratedPassword(null);
     try {
-      const response = await fetch('/api/admin/reset-requests', {
+      const response = await fetch('/api/admin?path=reset-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ function AdminDashboard({ onClose }) {
     if (!token) return;
     setProcessingReset(mobile);
     try {
-      const response = await fetch('/api/admin/reset-requests', {
+      const response = await fetch('/api/admin?path=reset-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ function AdminDashboard({ onClose }) {
   const handleSetSubscription = async (mobile) => {
     if (!token || !subscriptionDays) return;
     try {
-      const response = await fetch('/api/admin/subscription', {
+      const response = await fetch('/api/admin?path=subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -7,10 +7,10 @@ module.exports = async (req, res) => {
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
-  const path = req.url.split('?')[0].replace('/api/auth', '');
+  const path = req.query.path || req.url.split('?')[0].replace('/api/auth', '');
 
   // LOGIN
-  if (path === '/login' && req.method === 'POST') {
+  if ((path === 'login' || path === '/login') && req.method === 'POST') {
     const { mobile, password } = req.body || {};
     if (!mobile || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
   }
 
   // REGISTER
-  if (path === '/register' && req.method === 'POST') {
+  if ((path === 'register' || path === '/register') && req.method === 'POST') {
     const { mobile, password } = req.body || {};
     if (!mobile || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
@@ -66,7 +66,7 @@ module.exports = async (req, res) => {
   }
 
   // VERIFY
-  if (path === '/verify' && req.method === 'GET') {
+  if ((path === 'verify' || path === '/verify') && req.method === 'GET') {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) return res.status(401).json({ authenticated: false });
 
@@ -112,7 +112,7 @@ module.exports = async (req, res) => {
   }
 
   // RESET PASSWORD
-  if (path === '/reset-password' && req.method === 'POST') {
+  if ((path === 'reset-password' || path === '/reset-password') && req.method === 'POST') {
     const { mobile } = req.body || {};
     if (!mobile) return res.status(400).json({ error: 'رقم الموبايل مطلوب' });
 

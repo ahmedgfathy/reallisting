@@ -119,7 +119,7 @@ function App() {
       }
 
       try {
-        const response = await fetch('/api/auth/verify', {
+        const response = await fetch('/api/auth?path=verify', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
