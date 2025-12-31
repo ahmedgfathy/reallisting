@@ -21,6 +21,7 @@ function Properties({ user }) {
   const [purposes, setPurposes] = useState([]);
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
+  const fetchingRef = useRef(false);
 
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
 
@@ -41,7 +42,11 @@ function Properties({ user }) {
     fetchFilters();
   }, []);
 
-  const fetchProperties = async (targetPage = 1, { append = false } = {}) => {
+  const fetchProperties = useCallback(async (targetPage = 1, { append = false } = {}) => {
+    // Prevent duplicate fetches
+    if (fetchingRef.current) return;
+    fetchingRef.current = true;
+
     const isInitialLoad = targetPage === 1 && !append;
     if (isInitialLoad) {
       setLoading(true);
@@ -74,27 +79,26 @@ function Properties({ user }) {
     } catch (err) {
       console.error('Error fetching properties:', err);
     } finally {
+      fetchingRef.current = false;
       if (isInitialLoad) {
         setLoading(false);
       } else {
         setLoadingMore(false);
       }
     }
-  };
+  }, [search, category, propertyType, region, purpose]);
 
   useEffect(() => {
     setProperties([]);
     setHasMore(true);
     setPage(1);
     fetchProperties(1, { append: false });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, category, propertyType, region, purpose]);
+  }, [fetchProperties]);
 
   useEffect(() => {
     if (page === 1) return;
     fetchProperties(page, { append: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, fetchProperties]);
 
   useEffect(() => {
     const node = loaderRef.current;
