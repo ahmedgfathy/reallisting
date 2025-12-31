@@ -68,30 +68,27 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    // Fetch images separately for all properties
-    const propertyIds = data.map(p => p.id);
-    let imagesData = [];
-    
-    if (propertyIds.length > 0) {
-      const { data: imgs, error: imgsError } = await supabase
-        .from('glomar_properties_images')
-        .select('*')
-        .in('id', propertyIds);
-      
-      if (!imgsError) {
-        imagesData = imgs || [];
-      }
-    }
-
-    // Build image URLs for each property
+    // Build image URLs from propertyimage field (JSON string)
     const properties = data.map(prop => {
-      const propImages = imagesData.filter(img => img.id === prop.id);
-      const images = propImages.map(img => {
-        if (img.file_id && img.bucket_id) {
-          return `https://app.glomartrealestates.com/v1/storage/buckets/${img.bucket_id}/files/${img.file_id}/view`;
+      let images = [];
+      
+      // Parse propertyimage field if it exists
+      if (prop.propertyimage) {
+        try {
+          const imgData = typeof prop.propertyimage === 'string' 
+            ? JSON.parse(prop.propertyimage) 
+            : prop.propertyimage;
+          
+          if (Array.isArray(imgData)) {
+            images = imgData.map(img => img.fileUrl || img.image_url).filter(Boolean);
+          }
+        } catch (e) {
+          // If parsing fails, try as plain string
+          if (typeof prop.propertyimage === 'string' && prop.propertyimage.startsWith('http')) {
+            images = [prop.propertyimage];
+          }
         }
-        return img.image_url;
-      }).filter(Boolean);
+      }
 
       return {
         ...prop,

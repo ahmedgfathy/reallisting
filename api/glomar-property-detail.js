@@ -30,33 +30,41 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    // Fetch images
-    const { data: images } = await supabase
-      .from('glomar_properties_images')
-      .select('*')
-      .eq('id', id); // Note: properties_images doesn't have property_id, uses id matching
-
-    // Fetch videos
-    const { data: videos } = await supabase
-      .from('glomar_properties_videos')
-      .select('*')
-      .eq('id', id);
-
-    // Build image URLs
-    const imageUrls = images?.map(img => {
-      if (img.file_id && img.bucket_id) {
-        return `https://app.glomartrealestates.com/v1/storage/buckets/${img.bucket_id}/files/${img.file_id}/view`;
+    // Parse images from propertyimage field (JSON string)
+    let imageUrls = [];
+    if (property.propertyimage) {
+      try {
+        const imgData = typeof property.propertyimage === 'string' 
+          ? JSON.parse(property.propertyimage) 
+          : property.propertyimage;
+        
+        if (Array.isArray(imgData)) {
+          imageUrls = imgData.map(img => img.fileUrl || img.image_url).filter(Boolean);
+        }
+      } catch (e) {
+        if (typeof property.propertyimage === 'string' && property.propertyimage.startsWith('http')) {
+          imageUrls = [property.propertyimage];
+        }
       }
-      return img.image_url;
-    }).filter(Boolean) || [];
+    }
 
-    // Build video URLs
-    const videoUrls = videos?.map(vid => {
-      if (vid.file_id && vid.bucket_id) {
-        return `https://app.glomartrealestates.com/v1/storage/buckets/${vid.bucket_id}/files/${vid.file_id}/view`;
+    // Parse videos from videos field (JSON string)
+    let videoUrls = [];
+    if (property.videos) {
+      try {
+        const vidData = typeof property.videos === 'string' 
+          ? JSON.parse(property.videos) 
+          : property.videos;
+        
+        if (Array.isArray(vidData)) {
+          videoUrls = vidData.map(vid => vid.fileUrl || vid.video_url).filter(Boolean);
+        }
+      } catch (e) {
+        if (typeof property.videos === 'string' && property.videos.startsWith('http')) {
+          videoUrls = [property.videos];
+        }
       }
-      return vid.video_url;
-    }).filter(Boolean) || [];
+    }
 
     res.status(200).json({
       ...property,
