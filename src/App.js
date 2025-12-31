@@ -837,7 +837,11 @@ function App() {
                     </div>
                     
                     <div className="card-message">
-                      {msg.message.length > 150 ? msg.message.substring(0, 150) + '...' : msg.message}
+                      {(() => {
+                        // Remove mobile numbers from message text
+                        const cleanMessage = msg.message.replace(/\b\d{11}\b/g, '***').replace(/\b01[0-2,5]\d{8}\b/g, '***');
+                        return cleanMessage.length > 150 ? cleanMessage.substring(0, 150) + '...' : cleanMessage;
+                      })()}
                     </div>
                     
                     <div className="card-footer">
