@@ -26,6 +26,7 @@ function App() {
   const [region, setRegion] = useState('الكل');
   const [purpose, setPurpose] = useState('الكل');
   const [page, setPage] = useState(1);
+  // eslint-disable-next-line no-unused-vars
   const [totalPages, setTotalPages] = useState(1);
   const [filteredCount, setFilteredCount] = useState(0);
   const [selectedMessages, setSelectedMessages] = useState(new Set());
