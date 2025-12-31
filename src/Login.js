@@ -45,7 +45,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ mobile: username, password }),
       });
 
       const data = await response.json();
