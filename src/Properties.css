@@ -351,22 +351,18 @@
 
 .detail-description {
   font-family: 'Cairo', sans-serif;
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid #ecf0f1;
-}
-
-.detail-description strong {
-  display: block;
-  color: #2c3e50;
-  font-size: 16px;
-  margin-bottom: 8px;
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-right: 4px solid #4267B2;
 }
 
 .detail-description p {
-  color: #34495e;
+  color: #2c3e50;
   line-height: 1.8;
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .detail-location {

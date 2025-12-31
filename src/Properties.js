@@ -123,9 +123,9 @@ function Properties({ user }) {
             {property.compoundname || property.title || property.name || 'عقار'}
           </h3>
           
-          {property.price && (
+          {property.totalprice && (
             <div className="property-price">
-              {formatPrice(property.price)} {property.currency_name || 'جنيه'}
+              {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
             </div>
           )}
           
@@ -213,9 +213,15 @@ function Properties({ user }) {
 
           <div className="property-detail-content">
             
-            {property.price && (
+            {property.totalprice && (
               <div className="detail-price">
-                {formatPrice(property.price)} {property.currency_name || 'جنيه'}
+                {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
+              </div>
+            )}
+
+            {property.description && (
+              <div className="detail-description">
+                <p>{property.description}</p>
               </div>
             )}
 
@@ -245,14 +251,24 @@ function Properties({ user }) {
                   <strong>عدد الغرف:</strong> {property.rooms}
                 </div>
               )}
-              {property.built_area && (
+              {property.building && (
                 <div className="detail-item">
-                  <strong>المساحة المبنية:</strong> {property.built_area} م²
+                  <strong>المساحة:</strong> {property.building} م²
                 </div>
               )}
-              {property.land_area && (
+              {property.spaceunit && property.spaceunit !== '0' && (
                 <div className="detail-item">
-                  <strong>مساحة الأرض:</strong> {property.land_area} م²
+                  <strong>مساحة الوحدة:</strong> {property.spaceunit} م²
+                </div>
+              )}
+              {property.spaceeerth && property.spaceeerth !== '0' && (
+                <div className="detail-item">
+                  <strong>مساحة الأرض:</strong> {property.spaceeerth} م²
+                </div>
+              )}
+              {property.thefloors && (
+                <div className="detail-item">
+                  <strong>الطابق:</strong> {property.thefloors}
                 </div>
               )}
               {property.finishing_level_name && (
@@ -260,18 +276,46 @@ function Properties({ user }) {
                   <strong>مستوى التشطيب:</strong> {property.finishing_level_name}
                 </div>
               )}
+              {property.inoroutsidecompound && (
+                <div className="detail-item">
+                  <strong>داخل/خارج المجمع:</strong> {property.inoroutsidecompound === 'inside' ? 'داخل المجمع' : 'خارج المجمع'}
+                </div>
+              )}
+              {property.propertyofferedby && (
+                <div className="detail-item">
+                  <strong>معروض من:</strong> {property.propertyofferedby === 'owner' ? 'المالك' : property.propertyofferedby}
+                </div>
+              )}
+              {property.name && (
+                <div className="detail-item">
+                  <strong>اسم المالك:</strong> {property.name}
+                </div>
+              )}
+              {property.mobileno && (
+                <div className="detail-item">
+                  <strong>رقم الهاتف:</strong> <a href={`tel:${property.mobileno}`} style={{color: '#27ae60'}}>{property.mobileno}</a>
+                </div>
+              )}
+              {property.handler && (
+                <div className="detail-item">
+                  <strong>المسؤول:</strong> {property.handler}
+                </div>
+              )}
+              {property.sales && (
+                <div className="detail-item">
+                  <strong>المبيعات:</strong> {property.sales}
+                </div>
+              )}
+              {property.status && (
+                <div className="detail-item">
+                  <strong>الحالة:</strong> {property.status}
+                </div>
+              )}
             </div>
-
-            {property.description && (
-              <div className="detail-description">
-                <strong>الوصف:</strong>
-                <p>{property.description}</p>
-              </div>
-            )}
 
             {property.location && (
               <div className="detail-location">
-                <strong>الموقع:</strong> {property.location}
+                <strong>📍 الموقع:</strong> {property.location}
               </div>
             )}
           </div>

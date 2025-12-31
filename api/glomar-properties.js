@@ -98,8 +98,16 @@ module.exports = async (req, res) => {
 
       return {
         ...prop,
-        images
+        images,
+        hasImages: images.length > 0
       };
+    });
+
+    // Sort properties: those with images first
+    properties.sort((a, b) => {
+      if (a.hasImages && !b.hasImages) return -1;
+      if (!a.hasImages && b.hasImages) return 1;
+      return 0;
     });
 
     const totalPages = Math.ceil(count / parseInt(limit));
