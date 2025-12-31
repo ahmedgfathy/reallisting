@@ -80,7 +80,22 @@ module.exports = async (req, res) => {
             : prop.propertyimage;
           
           if (Array.isArray(imgData)) {
-            images = imgData.map(img => img.fileUrl || img.image_url).filter(Boolean);
+            images = imgData.map(img => {
+              const url = img.fileUrl || img.image_url;
+              if (!url) return null;
+              
+              // If URL is from cloud.appwrite.io, convert to remote server URL
+              if (url.includes('cloud.appwrite.io')) {
+                // Extract bucket_id and file_id from URL
+                const match = url.match(/buckets\/([^\/]+)\/files\/([^\/\?]+)/);
+                if (match) {
+                  const [, bucketId, fileId] = match;
+                  return `https://app.glomartrealestates.com/v1/storage/buckets/${bucketId}/files/${fileId}/view`;
+                }
+              }
+              
+              return url;
+            }).filter(Boolean);
           }
         } catch (e) {
           // If parsing fails, try as plain string
