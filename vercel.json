@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/clean-mobiles-cron",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "rewrites": [
