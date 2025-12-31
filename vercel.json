@@ -3,6 +3,12 @@
   "buildCommand": "npm run build",
   "outputDirectory": "build",
   "framework": null,
+  "crons": [
+    {
+      "path": "/api/clean-mobiles-cron",
+      "schedule": "0 * * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/api/messages", "destination": "/api/messages" },
     { "source": "/api/regions", "destination": "/api/regions" },
