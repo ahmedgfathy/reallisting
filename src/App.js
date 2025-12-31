@@ -668,7 +668,7 @@ function App() {
         <div className="controls">
         <input
           type="text"
-          placeholder="البحث بالاسم أو رقم الموبايل أو الرسالة..."
+          placeholder="🔍 البحث بالاسم أو رقم الموبايل أو الرسالة..."
           value={search}
           onChange={handleSearch}
           className="search-input"
@@ -678,13 +678,13 @@ function App() {
             🔄 تحديث
           </button>
           <button onClick={handleReset} className="reset-btn">
-            ✖ مسح
+            ✖ مسح الفلاتر
           </button>
           <button 
             onClick={() => setShowFilters(!showFilters)} 
             className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
           >
-            {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
+            {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
             {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
           </button>
         </div>
@@ -696,66 +696,74 @@ function App() {
       </div>
 
       <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
-        <label className="filter-label">نوع الإعلان:</label>
-        <select 
-          value={category} 
-          onChange={handleCategoryChange}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          <option value="مطلوب">مطلوب</option>
-          <option value="معروض">معروض</option>
-          <option value="أخرى">أخرى</option>
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">📋 نوع الإعلان</label>
+          <select 
+            value={category} 
+            onChange={handleCategoryChange}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأنواع</option>
+            <option value="مطلوب">مطلوب</option>
+            <option value="معروض">معروض</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
 
-        <label className="filter-label">نوع العقار:</label>
-        <select 
-          value={propertyType} 
-          onChange={handlePropertyTypeChange}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          <option value="شقة">شقة</option>
-          <option value="أرض">أرض / قطعة</option>
-          <option value="مزرعة">مزرعة / فدان</option>
-          <option value="فيلا">فيلا</option>
-          <option value="بيت">بيت / منزل</option>
-          <option value="محل">محل / دكان</option>
-          <option value="مكتب">مكتب</option>
-          <option value="عمارة">عمارة</option>
-          <option value="استوديو">استوديو</option>
-          <option value="دوبلكس">دوبلكس</option>
-          <option value="بدروم">بدروم</option>
-          <option value="هنجر">هنجر</option>
-          <option value="مصنع">مصنع</option>
-          <option value="مخزن">مخزن</option>
-          <option value="جراج">جراج</option>
-          <option value="أخرى">أخرى</option>
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">🏠 نوع العقار</label>
+          <select 
+            value={propertyType} 
+            onChange={handlePropertyTypeChange}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأنواع</option>
+            <option value="شقة">شقة</option>
+            <option value="أرض">أرض / قطعة</option>
+            <option value="مزرعة">مزرعة / فدان</option>
+            <option value="فيلا">فيلا</option>
+            <option value="بيت">بيت / منزل</option>
+            <option value="محل">محل / دكان</option>
+            <option value="مكتب">مكتب</option>
+            <option value="عمارة">عمارة</option>
+            <option value="استوديو">استوديو</option>
+            <option value="دوبلكس">دوبلكس</option>
+            <option value="بدروم">بدروم</option>
+            <option value="هنجر">هنجر</option>
+            <option value="مصنع">مصنع</option>
+            <option value="مخزن">مخزن</option>
+            <option value="جراج">جراج</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
 
-        <label className="filter-label">المنطقة:</label>
-        <select 
-          value={region} 
-          onChange={handleRegionChange}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          {regions.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">📍 المنطقة</label>
+          <select 
+            value={region} 
+            onChange={handleRegionChange}
+            className="filter-select"
+          >
+            <option value="الكل">جميع المناطق</option>
+            {regions.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
 
-        <label className="filter-label">الغرض:</label>
-        <select 
-          value={purpose} 
-          onChange={handlePurposeChange}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          <option value="بيع">للبيع</option>
-          <option value="إيجار">للإيجار</option>
-          <option value="أخرى">أخرى</option>
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">🎯 الغرض</label>
+          <select 
+            value={purpose} 
+            onChange={handlePurposeChange}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأغراض</option>
+            <option value="بيع">للبيع</option>
+            <option value="إيجار">للإيجار</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
 
         <div className="results-count">
           <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>

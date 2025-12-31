@@ -15,12 +15,33 @@ function Properties({ user }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredCount, setFilteredCount] = useState(0);
+  const [regions, setRegions] = useState([]);
+  const [propertyTypes, setPropertyTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [purposes, setPurposes] = useState([]);
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
 
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
 
-  const fetchProperties = useCallback(async (targetPage = 1, { append = false } = {}) => {
+  // Fetch filter options
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const response = await fetch('/api/glomar-filters');
+        const data = await response.json();
+        setRegions(data.regions || []);
+        setPropertyTypes(data.propertyTypes || []);
+        setCategories(data.categories || []);
+        setPurposes(data.purposes || []);
+      } catch (error) {
+        console.error('Error fetching filters:', error);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  const fetchProperties = async (targetPage = 1, { append = false } = {}) => {
     const isInitialLoad = targetPage === 1 && !append;
     if (isInitialLoad) {
       setLoading(true);
@@ -59,19 +80,21 @@ function Properties({ user }) {
         setLoadingMore(false);
       }
     }
-  }, [search, category, propertyType, region, purpose]);
+  };
 
   useEffect(() => {
     setProperties([]);
     setHasMore(true);
     setPage(1);
     fetchProperties(1, { append: false });
-  }, [fetchProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, propertyType, region, purpose]);
 
   useEffect(() => {
     if (page === 1) return;
     fetchProperties(page, { append: true });
-  }, [page, fetchProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     const node = loaderRef.current;
@@ -123,9 +146,9 @@ function Properties({ user }) {
             {property.compoundname || property.title || property.name || 'عقار'}
           </h3>
           
-          {property.price && (
+          {property.totalprice && (
             <div className="property-price">
-              {formatPrice(property.price)} {property.currency_name || 'جنيه'}
+              {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
             </div>
           )}
           
@@ -213,9 +236,15 @@ function Properties({ user }) {
 
           <div className="property-detail-content">
             
-            {property.price && (
+            {property.totalprice && (
               <div className="detail-price">
-                {formatPrice(property.price)} {property.currency_name || 'جنيه'}
+                {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
+              </div>
+            )}
+
+            {property.description && (
+              <div className="detail-description">
+                <p>{property.description}</p>
               </div>
             )}
 
@@ -245,14 +274,24 @@ function Properties({ user }) {
                   <strong>عدد الغرف:</strong> {property.rooms}
                 </div>
               )}
-              {property.built_area && (
+              {property.building && (
                 <div className="detail-item">
-                  <strong>المساحة المبنية:</strong> {property.built_area} م²
+                  <strong>المساحة:</strong> {property.building} م²
                 </div>
               )}
-              {property.land_area && (
+              {property.spaceunit && property.spaceunit !== '0' && (
                 <div className="detail-item">
-                  <strong>مساحة الأرض:</strong> {property.land_area} م²
+                  <strong>مساحة الوحدة:</strong> {property.spaceunit} م²
+                </div>
+              )}
+              {property.spaceeerth && property.spaceeerth !== '0' && (
+                <div className="detail-item">
+                  <strong>مساحة الأرض:</strong> {property.spaceeerth} م²
+                </div>
+              )}
+              {property.thefloors && (
+                <div className="detail-item">
+                  <strong>الطابق:</strong> {property.thefloors}
                 </div>
               )}
               {property.finishing_level_name && (
@@ -260,18 +299,46 @@ function Properties({ user }) {
                   <strong>مستوى التشطيب:</strong> {property.finishing_level_name}
                 </div>
               )}
+              {property.inoroutsidecompound && (
+                <div className="detail-item">
+                  <strong>داخل/خارج المجمع:</strong> {property.inoroutsidecompound === 'inside' ? 'داخل المجمع' : 'خارج المجمع'}
+                </div>
+              )}
+              {property.propertyofferedby && (
+                <div className="detail-item">
+                  <strong>معروض من:</strong> {property.propertyofferedby === 'owner' ? 'المالك' : property.propertyofferedby}
+                </div>
+              )}
+              {property.name && (
+                <div className="detail-item">
+                  <strong>اسم المالك:</strong> {property.name}
+                </div>
+              )}
+              {property.mobileno && (
+                <div className="detail-item">
+                  <strong>رقم الهاتف:</strong> <a href={`tel:${property.mobileno}`} style={{color: '#27ae60'}}>{property.mobileno}</a>
+                </div>
+              )}
+              {property.handler && (
+                <div className="detail-item">
+                  <strong>المسؤول:</strong> {property.handler}
+                </div>
+              )}
+              {property.sales && (
+                <div className="detail-item">
+                  <strong>المبيعات:</strong> {property.sales}
+                </div>
+              )}
+              {property.status && (
+                <div className="detail-item">
+                  <strong>الحالة:</strong> {property.status}
+                </div>
+              )}
             </div>
-
-            {property.description && (
-              <div className="detail-description">
-                <strong>الوصف:</strong>
-                <p>{property.description}</p>
-              </div>
-            )}
 
             {property.location && (
               <div className="detail-location">
-                <strong>الموقع:</strong> {property.location}
+                <strong>📍 الموقع:</strong> {property.location}
               </div>
             )}
           </div>
@@ -282,45 +349,99 @@ function Properties({ user }) {
 
   return (
     <div className="properties-container">
-      <div className="properties-header">
-        <h1>العقارات</h1>
-        <div className="properties-count">{filteredCount} عقار</div>
-      </div>
-
-      <div className="search-filters">
+      <div className="controls">
         <input
           type="text"
-          placeholder="ابحث عن عقار..."
+          placeholder="🔍 ابحث عن عقار..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="search-input"
         />
-        
-        <button 
-          className={`filters-toggle ${activeFiltersCount > 0 ? 'has-active' : ''}`}
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <i className="fas fa-filter"></i>
-          {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
-        </button>
+        <div className="mobile-btn-row">
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
+          >
+            {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
+            {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
+          </button>
+          {activeFiltersCount > 0 && (
+            <button 
+              onClick={() => {
+                setRegion('الكل');
+                setPropertyType('الكل');
+                setCategory('الكل');
+                setPurpose('الكل');
+              }}
+              className="reset-btn"
+            >
+              ✖ مسح الفلاتر
+            </button>
+          )}
+        </div>
       </div>
 
-      {showFilters && (
-        <div className="filters-panel">
-          <select value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="الكل">كل المناطق</option>
-          </select>
-          <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
-            <option value="الكل">كل الأنواع</option>
-          </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="الكل">كل التصنيفات</option>
-          </select>
-          <select value={purpose} onChange={(e) => setPurpose(e.target.value)}>
-            <option value="الكل">كل الأغراض</option>
+      <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
+        <div className="filter-group">
+          <label className="filter-label">📍 المنطقة</label>
+          <select 
+            value={region} 
+            onChange={(e) => setRegion(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع المناطق</option>
+            {regions.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
           </select>
         </div>
-      )}
+
+        <div className="filter-group">
+          <label className="filter-label">🏠 نوع العقار</label>
+          <select 
+            value={propertyType} 
+            onChange={(e) => setPropertyType(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأنواع</option>
+            {propertyTypes.map((pt) => (
+              <option key={pt} value={pt}>{pt}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label className="filter-label">📋 التصنيف</label>
+          <select 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع التصنيفات</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="filter-group">
+          <label className="filter-label">🎯 الغرض</label>
+          <select 
+            value={purpose} 
+            onChange={(e) => setPurpose(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأغراض</option>
+            {purposes.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="results-count">
+          <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
+        </div>
+      </div>
 
       {loading ? (
         <div className="loading-spinner">
