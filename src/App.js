@@ -715,21 +715,12 @@ function App() {
                     
                     <div className="card-index">#{index + 1}</div>
                     
-                    {msg.imageUrl ? (
+                    {msg.imageUrl && (
                       <img 
                         src={msg.imageUrl} 
                         alt={buildCardTitle(msg)} 
                         className="card-image"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
                       />
-                    ) : null}
-                    {!msg.imageUrl && (
-                      <div className="card-image-placeholder" style={{ display: 'none' }}>
-                        🏠 لا توجد صورة
-                      </div>
                     )}
                     
                     <div className="card-title">
