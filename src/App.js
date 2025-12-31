@@ -956,7 +956,11 @@ function App() {
               <div className="detail-section">
                 <h3>💬 نص الإعلان</h3>
                 <div className="detail-message">
-                  {selectedUnit.message}
+                  {(() => {
+                    // Remove mobile numbers from message text
+                    const cleanMessage = selectedUnit.message.replace(/\b\d{11}\b/g, '***').replace(/\b01[0-2,5]\d{8}\b/g, '***');
+                    return cleanMessage;
+                  })()}
                 </div>
               </div>
 

@@ -930,6 +930,7 @@ body {
      ========================================== */
   .header {
     padding: 8px 12px;
+    margin-bottom: 10px;
   }
   
   .header-row-1 {
@@ -1013,13 +1014,20 @@ body {
   }
   
   .logout-btn {
-    padding: 5px 10px;
-    font-size: 0.7rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    gap: 0;
+  }
+  
+  .logout-btn span {
+    display: none;
   }
   
   .logout-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
   }
   
   .admin-link,
@@ -1048,16 +1056,18 @@ body {
      MOBILE MAIN CONTENT
      ========================================== */
   .main-content {
-    padding: 0 12px 20px;
+    padding: 0 10px 20px;
   }
   
   /* Controls Mobile */
   .controls {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
   
   .search-input {
+    width: 100%;
     min-width: 100%;
     padding: 12px 15px;
     font-size: 1rem;
@@ -1167,7 +1177,7 @@ body {
     display: flex;
     max-height: 1000px;
     opacity: 1;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     animation: slideDown 0.3s ease-out;
   }
   
