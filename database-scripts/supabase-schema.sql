@@ -30,6 +30,7 @@ CREATE TABLE messages (
   property_type TEXT DEFAULT 'أخرى',
   region TEXT DEFAULT 'أخرى',
   purpose TEXT DEFAULT 'أخرى',
+  image_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -39,6 +40,7 @@ CREATE INDEX idx_messages_property_type ON messages(property_type);
 CREATE INDEX idx_messages_region ON messages(region);
 CREATE INDEX idx_messages_purpose ON messages(purpose);
 CREATE INDEX idx_messages_source_file ON messages(source_file);
+CREATE INDEX idx_messages_image_url ON messages(image_url) WHERE image_url IS NOT NULL;
 CREATE INDEX idx_users_mobile ON users(mobile);
 
 -- Enable Row Level Security (optional but recommended)

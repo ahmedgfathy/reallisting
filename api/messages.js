@@ -55,9 +55,21 @@ module.exports = async (req, res) => {
     }
 
     // Order and paginate
-    query = query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limitNum - 1);
+    // For 5th settlement (التجمع الخامس), prioritize properties with images
+    const isFifthSettlement = region === 'التجمع الخامس';
+    
+    if (isFifthSettlement) {
+      // Sort by: 1) has image first (non-null values last when descending), 2) created_at (DESC)
+      // Using nullsLast: true ensures properties with images (non-null) come before nulls
+      query = query
+        .order('image_url', { nullsLast: true })
+        .order('created_at', { ascending: false });
+    } else {
+      query = query
+        .order('created_at', { ascending: false });
+    }
+    
+    query = query.range(offset, offset + limitNum - 1);
 
     const { data, error, count } = await query;
 
@@ -77,7 +89,8 @@ module.exports = async (req, res) => {
       category: row.category,
       propertyType: row.property_type,
       region: row.region,
-      purpose: row.purpose
+      purpose: row.purpose,
+      imageUrl: row.image_url
     }));
 
     res.status(200).json({
