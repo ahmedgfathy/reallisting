@@ -309,26 +309,6 @@ function Properties({ user }) {
                   <strong>معروض من:</strong> {property.propertyofferedby === 'owner' ? 'المالك' : property.propertyofferedby}
                 </div>
               )}
-              {property.name && (
-                <div className="detail-item">
-                  <strong>اسم المالك:</strong> {property.name}
-                </div>
-              )}
-              {property.mobileno && (
-                <div className="detail-item">
-                  <strong>رقم الهاتف:</strong> <a href={`tel:${property.mobileno}`} style={{color: '#27ae60'}}>{property.mobileno}</a>
-                </div>
-              )}
-              {property.handler && (
-                <div className="detail-item">
-                  <strong>المسؤول:</strong> {property.handler}
-                </div>
-              )}
-              {property.sales && (
-                <div className="detail-item">
-                  <strong>المبيعات:</strong> {property.sales}
-                </div>
-              )}
               {property.status && (
                 <div className="detail-item">
                   <strong>الحالة:</strong> {property.status}
