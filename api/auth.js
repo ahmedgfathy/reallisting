@@ -36,6 +36,10 @@ module.exports = async (req, res) => {
     }
 
     const hashedPassword = hashPassword(password);
+    
+    // DEBUG: Log the hash
+    console.log('Login attempt:', { loginIdentifier, hashedPassword: hashedPassword.substring(0, 20) + '...' });
+    
     const { data: users, error } = await supabase
       .from('users')
       .select('*')
@@ -44,6 +48,7 @@ module.exports = async (req, res) => {
       .limit(1);
 
     if (error || !users || users.length === 0) {
+      console.log('Login failed:', { error, usersFound: users?.length || 0 });
       return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
     }
 
