@@ -1,9 +1,11 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  'https://gxyrpboyubpycejlkxue.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4eXJwYm95dWJweWNlamxreHVlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzEwNjU5OSwiZXhwIjoyMDgyNjgyNTk5fQ.jaQO9OmympAlJqrClhxQ-NFkmp74tB-IpRPqRf0eXvk'
-);
+// Use environment variables if available, otherwise fallback to defaults
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4eXJwYm95dWJweWNlamxreHVlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzEwNjU5OSwiZXhwIjoyMDgyNjgyNTk5fQ.jaQO9OmympAlJqrClhxQ-NFkmp74tB-IpRPqRf0eXvk';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Enhanced patterns to remove contact information
 const patterns = {
@@ -14,13 +16,14 @@ const patterns = {
   // - 01xxxxxxxxx (Egyptian format)
   // - +201xxxxxxxxx (International format)
   // - 201xxxxxxxxx (Without +)
-  // - 1xxxxxxxxx (Without country code and leading 0)
+  // Must be 11 digits (Egyptian mobile) or 10 digits (without leading 0)
   mobileNumbers: /(\+?20)?0?1[0-9]{9}\b/g,
   
-  // Arabic digits (11 digits for mobile numbers)
-  arabicDigits: /[٠-٩]{10,}/g,
+  // Arabic digits (11 consecutive digits that start with ٠١ which is Egyptian mobile prefix)
+  // This is more specific than matching any 10+ digits to avoid false positives
+  arabicDigits: /٠١[٠-٩]{9}/g,
   
-  // Common contact patterns
+  // Common contact patterns (keywords followed by numbers)
   contactPatterns: [
     /\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi,
   ]

@@ -11,10 +11,11 @@ const patterns = {
   securityCode: /.*security code.*changed.*/gi,
   
   // Mobile numbers with various formats
+  // Must be 11 digits (Egyptian mobile) or 10 digits (without leading 0)
   mobileNumbers: /(\+?20)?0?1[0-9]{9}\b/g,
   
-  // Arabic digits (11 digits for mobile numbers)
-  arabicDigits: /[٠-٩]{10,}/g,
+  // Arabic digits (11 consecutive digits that start with ٠١ which is Egyptian mobile prefix)
+  arabicDigits: /٠١[٠-٩]{9}/g,
   
   // Common contact patterns
   contactPatterns: [
