@@ -41,7 +41,7 @@ function Properties({ user }) {
     fetchFilters();
   }, []);
 
-  const fetchProperties = useCallback(async (targetPage = 1, { append = false } = {}) => {
+  const fetchProperties = async (targetPage = 1, { append = false } = {}) => {
     const isInitialLoad = targetPage === 1 && !append;
     if (isInitialLoad) {
       setLoading(true);
@@ -80,7 +80,7 @@ function Properties({ user }) {
         setLoadingMore(false);
       }
     }
-  }, [search, category, propertyType, region, purpose]);
+  };
 
   useEffect(() => {
     setProperties([]);
