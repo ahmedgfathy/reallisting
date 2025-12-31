@@ -799,9 +799,6 @@ function App() {
                       borderRadius: '12px',
                       marginBottom: '20px'
                     }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                    }}
                   />
                 </div>
               )}

@@ -59,9 +59,10 @@ module.exports = async (req, res) => {
     const isFifthSettlement = region === 'التجمع الخامس';
     
     if (isFifthSettlement) {
-      // Sort by: 1) has image first (non-null values), 2) created_at (DESC)
+      // Sort by: 1) has image first (non-null values last when descending), 2) created_at (DESC)
+      // Using nullsLast: true ensures properties with images (non-null) come before nulls
       query = query
-        .order('image_url', { ascending: false, nullsLast: true })
+        .order('image_url', { nullsLast: true })
         .order('created_at', { ascending: false });
     } else {
       query = query
