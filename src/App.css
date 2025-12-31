@@ -118,37 +118,75 @@ body {
   50% { opacity: 0.7; }
 }
 
-.logout-btn {
-  padding: 4px 10px;
+/* Base button styling for header actions */
+.header-btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  border: none;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: 'Cairo', sans-serif;
-  font-size: 0.75rem;
-  transition: all 0.2s;
+}
+
+.header-btn-base:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.header-btn-base:active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logout-btn {
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn:active {
+  transform: translateY(0);
+}
+
+.logout-btn svg {
+  flex-shrink: 0;
 }
 
 .admin-link,
 .profile-link {
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
 }
 
 .admin-link:hover,
 .profile-link:hover {
-  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.admin-link:active,
+.profile-link:active {
+  transform: translateY(0) scale(1);
+}
+
+.admin-link svg,
+.profile-link svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 /* Row 2: Navigation Tabs + Stats */
@@ -205,53 +243,10 @@ body {
 }
 
 .user-info {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.logout-btn {
+  font-size: 0.8rem;
+  padding: 4px 10px;
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  font-size: 0.85rem;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.admin-link {
-  color: white;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  outline: none;
-  background-clip: padding-box;
-}
-
-.admin-link:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
 }
 
 .main-content {
@@ -951,18 +946,30 @@ body {
   }
   
   .user-info {
-    font-size: 0.65rem;
-    padding: 3px 6px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
   
   .logout-btn {
-    padding: 3px 8px;
-    font-size: 0.65rem;
+    padding: 5px 10px;
+    font-size: 0.7rem;
   }
   
-  .admin-link {
-    padding: 3px 6px;
-    font-size: 0.85rem;
+  .logout-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .admin-link,
+  .profile-link {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .admin-link svg,
+  .profile-link svg {
+    width: 18px;
+    height: 18px;
   }
   
   .header-row-2 {
@@ -1370,15 +1377,37 @@ body {
     font-weight: 600;
   }
   
-  .auth-buttons {
-    flex-direction: row;
-    gap: 8px;
+  .auth-btn {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    flex: 1;
   }
   
-  .auth-btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-    flex: 1;
+  .admin-link,
+  .profile-link {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .admin-link svg,
+  .profile-link svg {
+    width: 19px;
+    height: 19px;
+  }
+  
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .logout-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+  
+  .user-info {
+    font-size: 0.72rem;
+    padding: 4px 9px;
   }
 }
 
