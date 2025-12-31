@@ -87,12 +87,14 @@ function Properties({ user }) {
     setHasMore(true);
     setPage(1);
     fetchProperties(1, { append: false });
-  }, [fetchProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, propertyType, region, purpose]);
 
   useEffect(() => {
     if (page === 1) return;
     fetchProperties(page, { append: true });
-  }, [page, fetchProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     const node = loaderRef.current;
@@ -350,7 +352,7 @@ function Properties({ user }) {
       <div className="controls">
         <input
           type="text"
-          placeholder="ابحث عن عقار..."
+          placeholder="🔍 ابحث عن عقار..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="search-input"
@@ -360,60 +362,81 @@ function Properties({ user }) {
             onClick={() => setShowFilters(!showFilters)} 
             className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
           >
-            {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
+            {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
             {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
           </button>
+          {activeFiltersCount > 0 && (
+            <button 
+              onClick={() => {
+                setRegion('الكل');
+                setPropertyType('الكل');
+                setCategory('الكل');
+                setPurpose('الكل');
+              }}
+              className="reset-btn"
+            >
+              ✖ مسح الفلاتر
+            </button>
+          )}
         </div>
       </div>
 
       <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
-        <label className="filter-label">المنطقة:</label>
-        <select 
-          value={region} 
-          onChange={(e) => setRegion(e.target.value)}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          {regions.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">📍 المنطقة</label>
+          <select 
+            value={region} 
+            onChange={(e) => setRegion(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع المناطق</option>
+            {regions.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+        </div>
 
-        <label className="filter-label">نوع العقار:</label>
-        <select 
-          value={propertyType} 
-          onChange={(e) => setPropertyType(e.target.value)}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          {propertyTypes.map((pt) => (
-            <option key={pt} value={pt}>{pt}</option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">🏠 نوع العقار</label>
+          <select 
+            value={propertyType} 
+            onChange={(e) => setPropertyType(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأنواع</option>
+            {propertyTypes.map((pt) => (
+              <option key={pt} value={pt}>{pt}</option>
+            ))}
+          </select>
+        </div>
 
-        <label className="filter-label">التصنيف:</label>
-        <select 
-          value={category} 
-          onChange={(e) => setCategory(e.target.value)}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">📋 التصنيف</label>
+          <select 
+            value={category} 
+            onChange={(e) => setCategory(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع التصنيفات</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
 
-        <label className="filter-label">الغرض:</label>
-        <select 
-          value={purpose} 
-          onChange={(e) => setPurpose(e.target.value)}
-          className="filter-select"
-        >
-          <option value="الكل">الكل</option>
-          {purposes.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
+        <div className="filter-group">
+          <label className="filter-label">🎯 الغرض</label>
+          <select 
+            value={purpose} 
+            onChange={(e) => setPurpose(e.target.value)}
+            className="filter-select"
+          >
+            <option value="الكل">جميع الأغراض</option>
+            {purposes.map((p) => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        </div>
 
         <div className="results-count">
           <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
