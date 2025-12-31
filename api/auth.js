@@ -28,8 +28,10 @@ module.exports = async (req, res) => {
   // LOGIN
   if ((path === 'login' || path === '/login') && req.method === 'POST') {
     const body = await parseBody(req);
-    const { mobile, password } = body || {};
-    if (!mobile || !password) {
+    const { username, mobile, password } = body || {};
+    const loginIdentifier = username || mobile;
+    
+    if (!loginIdentifier || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
 
@@ -37,7 +39,7 @@ module.exports = async (req, res) => {
     const { data: users, error } = await supabase
       .from('users')
       .select('*')
-      .eq('mobile', mobile)
+      .eq('mobile', loginIdentifier)
       .eq('password', hashedPassword)
       .limit(1);
 
