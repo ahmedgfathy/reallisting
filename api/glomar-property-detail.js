@@ -40,19 +40,11 @@ module.exports = async (req, res) => {
         
         if (Array.isArray(imgData)) {
           imageUrls = imgData.map(img => {
-            const url = img.fileUrl || img.image_url;
-            if (!url) return null;
-            
-            // If URL is from cloud.appwrite.io, convert to remote server URL
-            if (url.includes('cloud.appwrite.io')) {
-              const match = url.match(/buckets\/([^\/]+)\/files\/([^\/\?]+)/);
-              if (match) {
-                const [, bucketId, fileId] = match;
-                return `https://app.glomartrealestates.com/v1/storage/buckets/${bucketId}/files/${fileId}/view`;
-              }
+            // Use the ID from the image object to construct the URL
+            if (img.id) {
+              return `https://app.glomartrealestates.com/storage/properties/images/${img.id}.jpg`;
             }
-            
-            return url;
+            return null;
           }).filter(Boolean);
         }
       } catch (e) {
@@ -72,19 +64,11 @@ module.exports = async (req, res) => {
         
         if (Array.isArray(vidData)) {
           videoUrls = vidData.map(vid => {
-            const url = vid.fileUrl || vid.video_url;
-            if (!url) return null;
-            
-            // If URL is from cloud.appwrite.io, convert to remote server URL
-            if (url.includes('cloud.appwrite.io')) {
-              const match = url.match(/buckets\/([^\/]+)\/files\/([^\/\?]+)/);
-              if (match) {
-                const [, bucketId, fileId] = match;
-                return `https://app.glomartrealestates.com/v1/storage/buckets/${bucketId}/files/${fileId}/view`;
-              }
+            // Use the ID from the video object to construct the URL
+            if (vid.id) {
+              return `https://app.glomartrealestates.com/storage/properties/videos/${vid.id}.mp4`;
             }
-            
-            return url;
+            return null;
           }).filter(Boolean);
         }
       } catch (e) {
