@@ -910,29 +910,31 @@ body {
      MOBILE HEADER - Clean Two-Row Design
      ========================================== */
   .header {
-    padding: 8px 12px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   }
   
   .header-row-1 {
-    margin-bottom: 6px;
+    margin-bottom: 10px;
   }
   
   .brand {
-    gap: 6px;
+    gap: 8px;
   }
   
   .brand-logo {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
   }
   
   .header h1 {
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
   }
   
   .header-actions {
-    gap: 5px;
+    gap: 8px;
   }
   
   .auth-buttons {
@@ -946,13 +948,23 @@ body {
   }
   
   .user-info {
-    font-size: 0.7rem;
-    padding: 4px 8px;
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    font-weight: 600;
   }
   
   .logout-btn {
-    padding: 5px 10px;
-    font-size: 0.7rem;
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+  }
+  
+  .logout-btn:active {
+    transform: scale(0.95);
   }
   
   .logout-btn svg {
@@ -962,24 +974,50 @@ body {
   
   .admin-link,
   .profile-link {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .admin-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .profile-link {
+    background: linear-gradient(135deg, #4267B2 0%, #365899 100%);
+  }
+  
+  .admin-link:active,
+  .profile-link:active {
+    transform: scale(0.95);
   }
   
   .admin-link svg,
   .profile-link svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .subscription-countdown {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 700;
   }
   
   .header-row-2 {
-    padding: 5px 0 2px;
-    gap: 8px;
+    padding: 8px 0 4px;
+    gap: 10px;
     flex-wrap: wrap;
   }
   
   .stat-item {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    font-weight: 600;
   }
 
   /* ==========================================
