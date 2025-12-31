@@ -1390,7 +1390,7 @@ body {
 }
 
 /* ==========================================
-   Unit Detail View - Slide from RTL
+   Unit Detail View - Fade from Right
    ========================================== */
 
 .unit-detail-overlay {
@@ -1441,7 +1441,7 @@ body {
 
 @keyframes slideInFromRight {
   from {
-    transform: translateX(100%);
+    transform: translateX(50px);
     opacity: 0;
   }
   to {
@@ -1456,7 +1456,7 @@ body {
     opacity: 1;
   }
   to {
-    transform: translateX(100%);
+    transform: translateX(50px);
     opacity: 0;
   }
 }
