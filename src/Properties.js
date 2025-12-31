@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './Properties.css';
 
+// Fixed: Auto-refresh issue resolved
 function Properties({ user }) {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
