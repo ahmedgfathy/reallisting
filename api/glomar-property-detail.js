@@ -30,13 +30,16 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Property not found' });
     }
 
+    // Remove sensitive contact information fields
+    const { mobileno, tel, ...safeProperty } = property;
+
     // Parse images from propertyimage field (JSON string)
     let imageUrls = [];
-    if (property.propertyimage) {
+    if (safeProperty.propertyimage) {
       try {
-        const imgData = typeof property.propertyimage === 'string' 
-          ? JSON.parse(property.propertyimage) 
-          : property.propertyimage;
+        const imgData = typeof safeProperty.propertyimage === 'string' 
+          ? JSON.parse(safeProperty.propertyimage) 
+          : safeProperty.propertyimage;
         
         if (Array.isArray(imgData)) {
           imageUrls = imgData.map(img => {
@@ -48,19 +51,19 @@ module.exports = async (req, res) => {
           }).filter(Boolean);
         }
       } catch (e) {
-        if (typeof property.propertyimage === 'string' && property.propertyimage.startsWith('http')) {
-          imageUrls = [property.propertyimage];
+        if (typeof safeProperty.propertyimage === 'string' && safeProperty.propertyimage.startsWith('http')) {
+          imageUrls = [safeProperty.propertyimage];
         }
       }
     }
 
     // Parse videos from videos field (JSON string)
     let videoUrls = [];
-    if (property.videos) {
+    if (safeProperty.videos) {
       try {
-        const vidData = typeof property.videos === 'string' 
-          ? JSON.parse(property.videos) 
-          : property.videos;
+        const vidData = typeof safeProperty.videos === 'string' 
+          ? JSON.parse(safeProperty.videos) 
+          : safeProperty.videos;
         
         if (Array.isArray(vidData)) {
           videoUrls = vidData.map(vid => {
@@ -72,14 +75,14 @@ module.exports = async (req, res) => {
           }).filter(Boolean);
         }
       } catch (e) {
-        if (typeof property.videos === 'string' && property.videos.startsWith('http')) {
-          videoUrls = [property.videos];
+        if (typeof safeProperty.videos === 'string' && safeProperty.videos.startsWith('http')) {
+          videoUrls = [safeProperty.videos];
         }
       }
     }
 
     res.status(200).json({
-      ...property,
+      ...safeProperty,
       images: imageUrls,
       videos: videoUrls
     });

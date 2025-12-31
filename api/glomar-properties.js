@@ -68,14 +68,17 @@ module.exports = async (req, res) => {
 
     // Build image URLs from propertyimage field (JSON string)
     const properties = data.map(prop => {
+      // Remove sensitive contact information fields
+      const { mobileno, tel, ...safeProp } = prop;
+      
       let images = [];
       
       // Parse propertyimage field if it exists
-      if (prop.propertyimage) {
+      if (safeProp.propertyimage) {
         try {
-          const imgData = typeof prop.propertyimage === 'string' 
-            ? JSON.parse(prop.propertyimage) 
-            : prop.propertyimage;
+          const imgData = typeof safeProp.propertyimage === 'string' 
+            ? JSON.parse(safeProp.propertyimage) 
+            : safeProp.propertyimage;
           
           if (Array.isArray(imgData)) {
             images = imgData.map(img => {
@@ -88,14 +91,14 @@ module.exports = async (req, res) => {
           }
         } catch (e) {
           // If parsing fails, try as plain string
-          if (typeof prop.propertyimage === 'string' && prop.propertyimage.startsWith('http')) {
-            images = [prop.propertyimage];
+          if (typeof safeProp.propertyimage === 'string' && safeProp.propertyimage.startsWith('http')) {
+            images = [safeProp.propertyimage];
           }
         }
       }
 
       return {
-        ...prop,
+        ...safeProp,
         images,
         hasImages: images.length > 0
       };
