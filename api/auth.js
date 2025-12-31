@@ -1,5 +1,21 @@
 const { supabase, verifyToken, hashPassword, generateToken, corsHeaders } = require('./_lib/supabase');
 
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
@@ -11,7 +27,8 @@ module.exports = async (req, res) => {
 
   // LOGIN
   if ((path === 'login' || path === '/login') && req.method === 'POST') {
-    const { mobile, password } = req.body || {};
+    const body = await parseBody(req);
+    const { mobile, password } = body || {};
     if (!mobile || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
@@ -38,7 +55,8 @@ module.exports = async (req, res) => {
 
   // REGISTER
   if ((path === 'register' || path === '/register') && req.method === 'POST') {
-    const { mobile, password } = req.body || {};
+    const body = await parseBody(req);
+    const { mobile, password } = body || {};
     if (!mobile || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
@@ -113,7 +131,8 @@ module.exports = async (req, res) => {
 
   // RESET PASSWORD
   if ((path === 'reset-password' || path === '/reset-password') && req.method === 'POST') {
-    const { mobile } = req.body || {};
+    const body = await parseBody(req);
+    const { mobile } = body || {};
     if (!mobile) return res.status(400).json({ error: 'رقم الموبايل مطلوب' });
 
     const { data: users } = await supabase.from('users').select('mobile').eq('mobile', mobile).limit(1);

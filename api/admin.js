@@ -9,6 +9,22 @@ function generateTempPassword(length = 8) {
   return password;
 }
 
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
@@ -129,7 +145,8 @@ module.exports = async (req, res) => {
 
   // RESET REQUESTS - APPROVE/REJECT
   if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'POST') {
-    const { mobile, action } = req.body;
+    const body = await parseBody(req);
+    const { mobile, action } = body;
 
     if (action === 'approve') {
       const tempPassword = generateTempPassword(8);
@@ -170,7 +187,8 @@ module.exports = async (req, res) => {
 
   // SUBSCRIPTION - SET
   if ((path === 'subscription' || path === '/subscription') && req.method === 'POST') {
-    const { mobile, days } = req.body;
+    const body = await parseBody(req);
+    const { mobile, days } = body;
 
     if (!mobile || !days) {
       return res.status(400).json({ error: 'Mobile and days are required' });
