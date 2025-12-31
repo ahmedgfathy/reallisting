@@ -30,14 +30,14 @@ module.exports = async (req, res) => {
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    // Build query - fetch properties first
+    // Build query - fetch ALL properties matching filters (no pagination yet)
     let query = supabase
       .from('glomar_properties')
       .select('*', { count: 'exact' });
 
     // Apply filters
     if (search && search !== '') {
-      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,name.ilike.%${search}%`);
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%,name.ilike.%${search}%,compoundname.ilike.%${search}%`);
     }
 
     if (region && region !== 'الكل') {
@@ -57,9 +57,7 @@ module.exports = async (req, res) => {
     }
 
     // Order by created_at desc
-    query = query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + parseInt(limit) - 1);
+    query = query.order('created_at', { ascending: false });
 
     const { data, error, count } = await query;
 
@@ -103,17 +101,21 @@ module.exports = async (req, res) => {
       };
     });
 
-    // Sort properties: those with images first
+    // Sort properties: those with images first, then by creation date
     properties.sort((a, b) => {
       if (a.hasImages && !b.hasImages) return -1;
       if (!a.hasImages && b.hasImages) return 1;
+      // If both have images or both don't, maintain creation date order
       return 0;
     });
+
+    // Apply pagination AFTER sorting
+    const paginatedProperties = properties.slice(offset, offset + parseInt(limit));
 
     const totalPages = Math.ceil(count / parseInt(limit));
 
     res.status(200).json({
-      data: properties,
+      data: paginatedProperties,
       page: parseInt(page),
       limit: parseInt(limit),
       total: count,
