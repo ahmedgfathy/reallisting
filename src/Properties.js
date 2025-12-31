@@ -92,13 +92,13 @@ function Properties({ user }) {
     setProperties([]);
     setHasMore(true);
     setPage(1);
-    fetchProperties(1, { append: false });
-  }, [fetchProperties]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category, propertyType, region, purpose]);
 
   useEffect(() => {
-    if (page === 1) return;
-    fetchProperties(page, { append: true });
-  }, [page, fetchProperties]);
+    fetchProperties(page, { append: page > 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   useEffect(() => {
     const node = loaderRef.current;
