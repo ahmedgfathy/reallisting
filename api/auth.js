@@ -50,6 +50,7 @@ module.exports = async (req, res) => {
     const user = users[0];
     const token = generateToken(user.mobile, user.role);
     return res.status(200).json({ 
+      success: true,
       token, 
       user: { username: user.mobile, role: user.role, isActive: !!user.is_active } 
     });
