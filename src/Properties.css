@@ -1,0 +1,274 @@
+.properties-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.properties-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.properties-header h1 {
+  font-family: 'Cairo', sans-serif;
+  font-size: 28px;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.properties-count {
+  font-family: 'Cairo', sans-serif;
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+.properties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.property-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.property-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.property-image {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.property-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-count {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: 'Cairo', sans-serif;
+}
+
+.property-content {
+  padding: 16px;
+}
+
+.property-title {
+  font-family: 'Cairo', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.property-price {
+  font-family: 'Cairo', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #27ae60;
+  margin-bottom: 12px;
+}
+
+.property-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.detail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ecf0f1;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #34495e;
+  font-family: 'Cairo', sans-serif;
+}
+
+.detail-tag i {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.property-category {
+  display: inline-block;
+  background: #3498db;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-family: 'Cairo', sans-serif;
+  margin-top: 8px;
+}
+
+.property-gallery {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #000;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gallery-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.9);
+  border: none;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 10;
+}
+
+.gallery-btn:hover {
+  background: white;
+}
+
+.gallery-btn.prev {
+  right: 15px;
+}
+
+.gallery-btn.next {
+  left: 15px;
+}
+
+.gallery-indicator {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 14px;
+}
+
+.property-detail-content {
+  padding: 24px;
+}
+
+.property-detail-content h2 {
+  font-family: 'Cairo', sans-serif;
+  font-size: 24px;
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+}
+
+.detail-price {
+  font-family: 'Cairo', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #27ae60;
+  margin-bottom: 24px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.detail-item {
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  color: #2c3e50;
+}
+
+.detail-item strong {
+  color: #7f8c8d;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.detail-description {
+  font-family: 'Cairo', sans-serif;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #ecf0f1;
+}
+
+.detail-description strong {
+  display: block;
+  color: #2c3e50;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.detail-description p {
+  color: #34495e;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.detail-location {
+  font-family: 'Cairo', sans-serif;
+  margin-top: 16px;
+  padding: 12px;
+  background: #ecf0f1;
+  border-radius: 8px;
+}
+
+.detail-location strong {
+  color: #2c3e50;
+  margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+  .properties-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .property-gallery {
+    height: 250px;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

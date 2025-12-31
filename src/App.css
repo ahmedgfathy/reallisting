@@ -151,14 +151,38 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Row 2: Stats */
+/* Row 2: Navigation Tabs + Stats */
 .header-row-2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 12px;
   padding: 6px 0 2px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
+  flex-wrap: wrap;
+}
+
+.nav-tab {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-tab.active {
+  background: white;
+  color: #4267B2;
+  border-color: white;
 }
 
 .stat-item {
