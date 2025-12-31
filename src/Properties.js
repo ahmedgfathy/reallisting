@@ -15,10 +15,31 @@ function Properties({ user }) {
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [filteredCount, setFilteredCount] = useState(0);
+  const [regions, setRegions] = useState([]);
+  const [propertyTypes, setPropertyTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [purposes, setPurposes] = useState([]);
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
 
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
+
+  // Fetch filter options
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const response = await fetch('/api/glomar-filters');
+        const data = await response.json();
+        setRegions(data.regions || []);
+        setPropertyTypes(data.propertyTypes || []);
+        setCategories(data.categories || []);
+        setPurposes(data.purposes || []);
+      } catch (error) {
+        console.error('Error fetching filters:', error);
+      }
+    };
+    fetchFilters();
+  }, []);
 
   const fetchProperties = useCallback(async (targetPage = 1, { append = false } = {}) => {
     const isInitialLoad = targetPage === 1 && !append;
@@ -326,12 +347,7 @@ function Properties({ user }) {
 
   return (
     <div className="properties-container">
-      <div className="properties-header">
-        <h1>العقارات</h1>
-        <div className="properties-count">{filteredCount} عقار</div>
-      </div>
-
-      <div className="search-filters">
+      <div className="controls">
         <input
           type="text"
           placeholder="ابحث عن عقار..."
@@ -339,32 +355,70 @@ function Properties({ user }) {
           onChange={(e) => setSearch(e.target.value)}
           className="search-input"
         />
-        
-        <button 
-          className={`filters-toggle ${activeFiltersCount > 0 ? 'has-active' : ''}`}
-          onClick={() => setShowFilters(!showFilters)}
-        >
-          <i className="fas fa-filter"></i>
-          {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
-        </button>
+        <div className="mobile-btn-row">
+          <button 
+            onClick={() => setShowFilters(!showFilters)} 
+            className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
+          >
+            {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
+            {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
+          </button>
+        </div>
       </div>
 
-      {showFilters && (
-        <div className="filters-panel">
-          <select value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="الكل">كل المناطق</option>
-          </select>
-          <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
-            <option value="الكل">كل الأنواع</option>
-          </select>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}>
-            <option value="الكل">كل التصنيفات</option>
-          </select>
-          <select value={purpose} onChange={(e) => setPurpose(e.target.value)}>
-            <option value="الكل">كل الأغراض</option>
-          </select>
+      <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
+        <label className="filter-label">المنطقة:</label>
+        <select 
+          value={region} 
+          onChange={(e) => setRegion(e.target.value)}
+          className="filter-select"
+        >
+          <option value="الكل">الكل</option>
+          {regions.map((r) => (
+            <option key={r} value={r}>{r}</option>
+          ))}
+        </select>
+
+        <label className="filter-label">نوع العقار:</label>
+        <select 
+          value={propertyType} 
+          onChange={(e) => setPropertyType(e.target.value)}
+          className="filter-select"
+        >
+          <option value="الكل">الكل</option>
+          {propertyTypes.map((pt) => (
+            <option key={pt} value={pt}>{pt}</option>
+          ))}
+        </select>
+
+        <label className="filter-label">التصنيف:</label>
+        <select 
+          value={category} 
+          onChange={(e) => setCategory(e.target.value)}
+          className="filter-select"
+        >
+          <option value="الكل">الكل</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
+
+        <label className="filter-label">الغرض:</label>
+        <select 
+          value={purpose} 
+          onChange={(e) => setPurpose(e.target.value)}
+          className="filter-select"
+        >
+          <option value="الكل">الكل</option>
+          {purposes.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+
+        <div className="results-count">
+          <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
         </div>
-      )}
+      </div>
 
       {loading ? (
         <div className="loading-spinner">
