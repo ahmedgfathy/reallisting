@@ -131,10 +131,108 @@
   margin-top: 8px;
 }
 
+/* Detail Overlay - Slide from Right */
+.unit-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.unit-detail-panel {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  height: 100%;
+  overflow-y: auto;
+  animation: slideInRight 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.unit-detail-panel.closing {
+  animation: slideOutRight 0.3s ease;
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.unit-detail-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 10;
+}
+
+.detail-title {
+  font-family: 'Cairo', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+  flex: 1;
+}
+
+.detail-close-btn,
+.detail-back-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #7f8c8d;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.2s;
+}
+
+.detail-close-btn:hover,
+.detail-back-btn:hover {
+  color: #2c3e50;
+}
+
+.detail-back-btn {
+  font-size: 18px;
+  font-family: 'Cairo', sans-serif;
+}
+
+.close-detail-btn {
+  display: none;
+}
+
 .property-gallery {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 300px;
   background: #000;
 }
 
@@ -189,14 +287,39 @@
 }
 
 .property-detail-content {
-  padding: 24px;
+  padding: 20px;
+  flex: 1;
 }
 
-.property-detail-content h2 {
+.detail-price {
   font-family: 'Cairo', sans-serif;
   font-size: 24px;
+  font-weight: 700;
+  color: #27ae60;
+  margin-bottom: 20px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.detail-item {
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
   color: #2c3e50;
-  margin: 0 0 16px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detail-item strong {
+  display: block;
+  color: #7f8c8d;
+  font-size: 13px;
+  margin-bottom: 4px;
 }
 
 .detail-price {
@@ -264,11 +387,20 @@
     grid-template-columns: 1fr;
   }
 
+  .unit-detail-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .property-gallery {
     height: 250px;
   }
 
   .detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .detail-title {
+    font-size: 16px;
   }
 }

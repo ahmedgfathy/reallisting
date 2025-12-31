@@ -120,7 +120,7 @@ function Properties({ user }) {
         )}
         <div className="property-content">
           <h3 className="property-title">
-            {property.title || property.name || 'عقار'}
+            {property.compoundname || property.title || property.name || 'عقار'}
           </h3>
           
           {property.price && (
@@ -177,10 +177,16 @@ function Properties({ user }) {
 
     return (
       <div className="unit-detail-overlay" onClick={onClose}>
-        <div className="unit-detail-container" onClick={(e) => e.stopPropagation()}>
-          <button className="close-detail-btn" onClick={onClose}>
-            <i className="fas fa-times"></i>
-          </button>
+        <div className="unit-detail-panel" onClick={(e) => e.stopPropagation()}>
+          <div className="unit-detail-header">
+            <button className="detail-close-btn" onClick={onClose}>
+              ✕
+            </button>
+            <button className="detail-back-btn" onClick={onClose}>
+              → رجوع
+            </button>
+            <h2 className="detail-title">{property.compoundname || property.title || property.name}</h2>
+          </div>
 
           {property.images && property.images.length > 0 && (
             <div className="property-gallery">
@@ -206,7 +212,6 @@ function Properties({ user }) {
           )}
 
           <div className="property-detail-content">
-            <h2>{property.title || property.name}</h2>
             
             {property.price && (
               <div className="detail-price">
