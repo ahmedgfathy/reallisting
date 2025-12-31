@@ -3,6 +3,71 @@ const { supabase, corsHeaders } = require('./_lib/supabase');
 // This endpoint runs automatically via Vercel Cron (every hour)
 // Or you can call it manually: GET /api/clean-mobiles-cron
 
+/**
+ * Enhanced contact information cleaning patterns
+ */
+const patterns = {
+  // Security code messages (entire line)
+  securityCode: /.*security code.*changed.*/gi,
+  
+  // Mobile numbers with various formats
+  mobileNumbers: /(\+?20)?0?1[0-9]{9}\b/g,
+  
+  // Arabic digits (11 digits for mobile numbers)
+  arabicDigits: /[٠-٩]{10,}/g,
+  
+  // Common contact patterns
+  contactPatterns: [
+    /\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi,
+  ]
+};
+
+function cleanText(text) {
+  if (!text || typeof text !== 'string') return text;
+  
+  const original = text;
+  let cleaned = text;
+  let hasContactInfo = false;
+  
+  // Check and remove security code messages
+  if (patterns.securityCode.test(cleaned)) {
+    cleaned = cleaned.replace(patterns.securityCode, '');
+    hasContactInfo = true;
+  }
+  
+  // Check and remove mobile numbers
+  if (patterns.mobileNumbers.test(cleaned)) {
+    cleaned = cleaned.replace(patterns.mobileNumbers, '');
+    hasContactInfo = true;
+  }
+  
+  // Check and remove Arabic digit sequences
+  if (patterns.arabicDigits.test(cleaned)) {
+    cleaned = cleaned.replace(patterns.arabicDigits, '');
+    hasContactInfo = true;
+  }
+  
+  // Check and remove contact patterns
+  patterns.contactPatterns.forEach(pattern => {
+    if (pattern.test(cleaned)) {
+      cleaned = cleaned.replace(pattern, '');
+      hasContactInfo = true;
+    }
+  });
+  
+  // Only clean up whitespace if we found contact info
+  if (hasContactInfo) {
+    cleaned = cleaned.replace(/\s+/g, ' ').trim();
+    
+    cleaned = cleaned.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0 && /[a-zA-Zا-ي]/.test(line))
+      .join('\n');
+  }
+  
+  return cleaned;
+}
+
 module.exports = async (req, res) => {
   // Verify cron secret for security
   const authHeader = req.headers.authorization;
@@ -15,9 +80,9 @@ module.exports = async (req, res) => {
   const startTime = Date.now();
   
   try {
-    console.log('Starting mobile number cleanup...');
+    console.log('Starting enhanced contact information cleanup...');
     
-    // Get recent messages (last 2 hours) that might contain mobile numbers
+    // Get recent messages (last 2 hours) that might contain contact info
     const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
     
     const { data: messages, error: fetchError } = await supabase
@@ -32,14 +97,15 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'Failed to fetch messages' });
     }
 
-    // Filter messages containing mobile numbers and clean them
-    const mobileRegex = /\b01[0-9]{9}\b/g;
+    // Filter messages containing contact info and clean them
     const updates = [];
     
     for (const msg of messages || []) {
-      if (msg.message && mobileRegex.test(msg.message)) {
-        const cleaned = msg.message.replace(mobileRegex, '').replace(/\s+/g, ' ').trim();
-        updates.push({ id: msg.id, message: cleaned });
+      if (msg.message) {
+        const cleaned = cleanText(msg.message);
+        if (cleaned !== msg.message && cleaned.length > 0) {
+          updates.push({ id: msg.id, message: cleaned });
+        }
       }
     }
 
