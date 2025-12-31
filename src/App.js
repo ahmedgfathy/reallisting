@@ -593,6 +593,29 @@ function App() {
             <img src={brandLogo} alt="كونتابو" className="brand-logo" />
             <h1>كونتابو</h1>
           </div>
+          
+          <div className="nav-and-stats">
+            <div className="nav-tabs-inline">
+              <button 
+                onClick={() => { setShowProperties(false); setShowAdminDashboard(false); setShowProfile(false); }}
+                className={`nav-tab ${!showProperties ? 'active' : ''}`}
+              >
+                العاشر من رمضان
+              </button>
+              <button 
+                onClick={() => { setShowProperties(true); setShowAdminDashboard(false); setShowProfile(false); }}
+                className={`nav-tab ${showProperties ? 'active' : ''}`}
+              >
+                التجمع الخامس
+              </button>
+            </div>
+            <div className="stats-inline">
+              <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
+              <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
+              <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
+            </div>
+          </div>
+
           <div className="header-actions">
             {isAdmin && (
               <button
@@ -651,23 +674,6 @@ function App() {
               </div>
             )}
           </div>
-        </div>
-        <div className="header-row-2">
-          <button 
-            onClick={() => { setShowProperties(false); setShowAdminDashboard(false); setShowProfile(false); }}
-            className={`nav-tab ${!showProperties ? 'active' : ''}`}
-          >
-            العاشر من رمضان
-          </button>
-          <button 
-            onClick={() => { setShowProperties(true); setShowAdminDashboard(false); setShowProfile(false); }}
-            className={`nav-tab ${showProperties ? 'active' : ''}`}
-          >
-            التجمع الخامس
-          </button>
-          <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
-          <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
-          <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
         </div>
       </header>
 

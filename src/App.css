@@ -26,19 +26,38 @@ body {
   box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
 }
 
-/* Row 1: Brand + Auth */
+/* Row 1: Brand + Tabs/Stats + Auth */
 .header-row-1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  margin-bottom: 8px;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
+}
+
+.nav-and-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.nav-tabs-inline {
+  display: flex;
+  gap: 8px;
+}
+
+.stats-inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .brand-logo {
@@ -914,7 +933,50 @@ body {
   }
   
   .header-row-1 {
-    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .brand {
+    gap: 6px;
+    order: 1;
+  }
+  
+  .header-actions {
+    order: 2;
+    gap: 5px;
+  }
+  
+  .nav-and-stats {
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .nav-tabs-inline {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stats-inline {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .nav-tab {
+    padding: 5px 14px;
+    font-size: 0.75rem;
+  }
+  
+  .stat-item {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
   }
   
   .brand {
