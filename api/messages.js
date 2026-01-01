@@ -32,10 +32,45 @@ module.exports = async (req, res) => {
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
 
-    // Build query
-    let query = supabase
-      .from('messages')
-      .select('*', { count: 'exact' });
+    // Check if user is authenticated and approved
+    const authHeader = req.headers.authorization;
+    let isApprovedUser = false;
+    
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const { data: { user } } = await supabase.auth.getUser(token);
+      
+      if (user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('is_active')
+          .eq('mobile', user.phone)
+          .single();
+        
+        isApprovedUser = userData?.is_active === true;
+      }
+    }
+
+    // Build query - join with sender table if user is approved
+    let query;
+    if (isApprovedUser) {
+      // Approved users get sender info
+      query = supabase
+        .from('messages')
+        .select(`
+          *,
+          sender:sender_id (
+            id,
+            name,
+            mobile
+          )
+        `, { count: 'exact' });
+    } else {
+      // Non-approved users: no sender info
+      query = supabase
+        .from('messages')
+        .select('*', { count: 'exact' });
+    }
 
     // Apply filters
     if (category && category !== 'الكل') {
@@ -51,7 +86,13 @@ module.exports = async (req, res) => {
       query = query.eq('purpose', purpose);
     }
     if (search) {
-      query = query.or(`name.ilike.%${search}%,mobile.ilike.%${search}%,message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
+      if (isApprovedUser) {
+        // Approved users can search sender info too
+        query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
+      } else {
+        // Non-approved users: search only message content
+        query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
+      }
     }
 
     // Order and paginate
@@ -81,8 +122,8 @@ module.exports = async (req, res) => {
     // Map column names to match frontend expectations
     const mappedData = (data || []).map(row => ({
       id: row.id,
-      name: row.name,
-      mobile: row.mobile,
+      name: isApprovedUser ? row.sender?.name : null,
+      mobile: isApprovedUser ? row.sender?.mobile : 'N/A',
       message: row.message,
       dateOfCreation: row.date_of_creation,
       sourceFile: row.source_file,

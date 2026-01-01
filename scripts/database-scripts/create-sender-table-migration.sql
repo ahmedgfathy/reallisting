@@ -110,35 +110,31 @@ WHERE m.mobile = s.mobile
   AND m.mobile NOT IN ('N/A', '')
   AND m.sender_id IS NULL;
 
--- Step 9: Create function to clean message content (remove phone numbers)
-CREATE OR REPLACE FUNCTION clean_message_content()
-RETURNS void AS $$
-BEGIN
-  -- Remove Egyptian mobile numbers from message content
-  UPDATE messages
-  SET message = regexp_replace(
+-- Step 9: Clean mobile numbers from message content
+UPDATE messages
+SET message = regexp_replace(
+  regexp_replace(
     regexp_replace(
-      regexp_replace(
-        message,
-        '\y01[0-9]{9}\y',
-        '',
-        'g'
-      ),
-      '\+201[0-9]{9}\y',
+      message,
+      '\y01[0-9]{9}\y',
       '',
       'g'
     ),
-    '\s+',
-    ' ',
+    '\+201[0-9]{9}\y',
+    '',
     'g'
-  )
-  WHERE sender_id IS NOT NULL
-    AND message ~ '01[0-9]{9}|\\+201[0-9]{9}';
-END;
-$$ LANGUAGE plpgsql;
+  ),
+  '\s+',
+  ' ',
+  'g'
+)
+WHERE sender_id IS NOT NULL
+  AND message ~ '01[0-9]{9}|\\+201[0-9]{9}';
 
--- Step 10: Clean mobile numbers from message content (optional - uncomment if you want to run)
--- SELECT clean_message_content();
+-- Step 10: Drop mobile and name columns from messages table
+-- Contact info now stored ONLY in sender table for privacy control
+ALTER TABLE messages DROP COLUMN IF EXISTS mobile;
+ALTER TABLE messages DROP COLUMN IF EXISTS name;
 
 -- Step 11: Create view for easy access to messages with sender info
 CREATE OR REPLACE VIEW messages_with_sender AS
@@ -224,5 +220,10 @@ FROM sender;
 -- 2. sender_id foreign key in messages table
 -- 3. Extracted all phone numbers from messages and populated sender table
 -- 4. Linked messages to senders via sender_id
--- 5. Created helper functions and views
--- 6. Set up proper indexes and RLS policies
+-- 5. Cleaned mobile numbers from message content
+-- 6. REMOVED mobile and name columns from messages table (now in sender table only)
+-- 7. Created helper functions and views
+-- 8. Set up proper indexes and RLS policies
+-- 
+-- IMPORTANT: Messages table no longer has mobile/name columns!
+-- All contact info is in sender table, linked via sender_id foreign key.
