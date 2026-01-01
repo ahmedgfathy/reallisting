@@ -844,9 +844,16 @@ function App() {
                     
                     <div className="card-message">
                       {(() => {
-                        // Remove mobile numbers from message text
-                        const cleanMessage = msg.message.replace(/\b\d{11}\b/g, '***').replace(/\b01[0-2,5]\d{8}\b/g, '***');
-                        return cleanMessage.length > 150 ? cleanMessage.substring(0, 150) + '...' : cleanMessage;
+                        // For non-subscribed users: Remove ALL numbers (mobile, landline, Arabic digits)
+                        if (!isUserActive) {
+                          return msg.message
+                            .replace(/\b\d{7,}\b/g, '***')
+                            .replace(/[٠-٩]{7,}/g, '***')
+                            .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل')
+                            .substring(0, 150) + (msg.message.length > 150 ? '...' : '');
+                        }
+                        // For subscribed users: Show full message
+                        return msg.message.length > 150 ? msg.message.substring(0, 150) + '...' : msg.message;
                       })()}
                     </div>
                     
@@ -957,9 +964,15 @@ function App() {
                 <h3>💬 نص الإعلان</h3>
                 <div className="detail-message">
                   {(() => {
-                    // Remove mobile numbers from message text
-                    const cleanMessage = selectedUnit.message.replace(/\b\d{11}\b/g, '***').replace(/\b01[0-2,5]\d{8}\b/g, '***');
-                    return cleanMessage;
+                    // For non-subscribed users: Remove ALL numbers (mobile, landline, Arabic digits)
+                    if (!isUserActive) {
+                      return selectedUnit.message
+                        .replace(/\b\d{7,}\b/g, '***')
+                        .replace(/[\u0660-\u0669]{7,}/g, '***')
+                        .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
+                    }
+                    // For subscribed users: Show full message
+                    return selectedUnit.message;
                   })()}
                 </div>
               </div>
