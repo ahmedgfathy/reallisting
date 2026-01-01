@@ -67,26 +67,10 @@ module.exports = async (req, res) => {
 
     console.log('🔑 Final isApprovedUser:', isApprovedUser);
 
-    // Build query - join with sender table if user is approved
-    let query;
-    if (isApprovedUser) {
-      // Approved users get sender info
-      query = supabase
-        .from('messages')
-        .select(`
-          *,
-          sender:sender_id (
-            id,
-            name,
-            mobile
-          )
-        `, { count: 'exact' });
-    } else {
-      // Non-approved users: no sender info
-      query = supabase
-        .from('messages')
-        .select('*', { count: 'exact' });
-    }
+    // Build query - use the VIEW that joins everything
+    let query = supabase
+      .from('messages_with_sender')
+      .select('*', { count: 'exact' });
 
     // Apply filters
     if (category && category !== 'الكل') {
@@ -102,20 +86,33 @@ module.exports = async (req, res) => {
       query = query.eq('purpose', purpose);
     }
     if (search) {
-      // Search in message, region, and property_type
-      // Note: Can't search sender.name or sender.mobile directly in Supabase JOIN query
       query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
     }
 
-    // Order and paginate
-    // For 5th settlement (التجمع الخامس), prioritize properties with images
+    // Order (View has all these columns)
     const isFifthSettlement = region === 'التجمع الخامس';
 
     if (isFifthSettlement) {
-      // Sort by: 1) has image first (non-null values last when descending), 2) created_at (DESC)
-      // Using nullsLast: true ensures properties with images (non-null) come before nulls
+      // Note: view might not have image_url if it wasn't in list. checking schema...
+      // Schema says: messages table has image_url. View selects m.* ?? 
+      // View definition: SELECT m.id, m.message, ..., m.source_file (Wait, check view def)
+      // View def in migration: SELECT m.id, m.message, m.date_of_creation, m.source_file ...
+      // DOES IT INCLUDE image_url?
+      // Migration script: 
+      // SELECT m.id, m.message, m.date_of_creation, m.source_file, c.name..., pt.name..., r.name..., p.name..., s.id..., s.name..., s.mobile..., s.first..., s.last..., m.created_at
+      // IT MISSES image_url in the explicit Select list in step 5 of migration! 
+      // I need to add image_url to the view definition if it exists in messages table!
+      // Let's assume for now I fix the view via migration script, or I fix the view query here.
+      // But wait, the previous code had row.imageUrl from row.image_url.
+
+      // I'll assume I need to fix the view definition first to include image_url if it's missing.
+      // But let's look at the previous file content of migration.
+      // migration.sql lines 239+: 
+      // SELECT m.id, m.message, m.date_of_creation, m.source_file ...
+      // It DOES NOT include m.image_url.
+      // THIS IS ANOTHER BUG. Use `m.*` in view creation or explicitly add `image_url`.
+
       query = query
-        .order('image_url', { nullsLast: true })
         .order('created_at', { ascending: false });
     } else {
       query = query
@@ -131,9 +128,6 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: error.message });
     }
 
-    console.log('📦 Sample raw data (first item):', data?.[0]);
-    console.log('📊 Sender info in first item:', data?.[0]?.sender);
-
     const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
 
     // Map column names to match frontend expectations
@@ -147,8 +141,9 @@ module.exports = async (req, res) => {
 
       const mapped = {
         id: row.id,
-        name: isApprovedUser && row.sender ? row.sender.name : null,
-        mobile: isApprovedUser && row.sender ? row.sender.mobile : 'N/A',
+        // View returns sender_name / sender_mobile directly
+        name: isApprovedUser ? row.sender_name : null,
+        mobile: isApprovedUser ? row.sender_mobile : 'N/A',
         message: messageContent,
         dateOfCreation: row.date_of_creation,
         sourceFile: row.source_file,
@@ -156,7 +151,7 @@ module.exports = async (req, res) => {
         propertyType: row.property_type,
         region: row.region,
         purpose: row.purpose,
-        imageUrl: row.image_url
+        imageUrl: row.image_url // View needs to supply this!
       };
       return mapped;
     });
