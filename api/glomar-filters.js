@@ -12,35 +12,40 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Fetch regions
-    const { data: regions } = await supabase
-      .from('glomar_regions')
-      .select('name')
-      .order('name');
+    // Fetch all properties to extract unique filter values
+    const { data: properties, error } = await supabase
+      .from('glomar_properties')
+      .select('region_name, property_type_name, category_name, property_purpose_name');
 
-    // Fetch property types
-    const { data: propertyTypes } = await supabase
-      .from('glomar_property_types')
-      .select('name')
-      .order('name');
+    if (error) {
+      console.error('Error fetching properties for filters:', error);
+      return res.status(500).json({ error: error.message });
+    }
 
-    // Fetch categories
-    const { data: categories } = await supabase
-      .from('glomar_property_categories')
-      .select('name')
-      .order('name');
+    // Extract unique values
+    const regionsSet = new Set();
+    const propertyTypesSet = new Set();
+    const categoriesSet = new Set();
+    const purposesSet = new Set();
 
-    // Fetch purposes
-    const { data: purposes } = await supabase
-      .from('glomar_property_purposes')
-      .select('name')
-      .order('name');
+    properties.forEach(prop => {
+      if (prop.region_name) regionsSet.add(prop.region_name);
+      if (prop.property_type_name) propertyTypesSet.add(prop.property_type_name);
+      if (prop.category_name) categoriesSet.add(prop.category_name);
+      if (prop.property_purpose_name) purposesSet.add(prop.property_purpose_name);
+    });
+
+    // Convert to sorted arrays
+    const regions = Array.from(regionsSet).sort((a, b) => a.localeCompare(b, 'ar'));
+    const propertyTypes = Array.from(propertyTypesSet).sort((a, b) => a.localeCompare(b, 'ar'));
+    const categories = Array.from(categoriesSet).sort((a, b) => a.localeCompare(b, 'ar'));
+    const purposes = Array.from(purposesSet).sort((a, b) => a.localeCompare(b, 'ar'));
 
     res.status(200).json({
-      regions: regions?.map(r => r.name).filter(Boolean) || [],
-      propertyTypes: propertyTypes?.map(p => p.name).filter(Boolean) || [],
-      categories: categories?.map(c => c.name).filter(Boolean) || [],
-      purposes: purposes?.map(p => p.name).filter(Boolean) || []
+      regions,
+      propertyTypes,
+      categories,
+      purposes
     });
 
   } catch (error) {
@@ -48,3 +53,4 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
