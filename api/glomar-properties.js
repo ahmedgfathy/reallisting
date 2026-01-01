@@ -1,16 +1,7 @@
 // Glomar Properties API endpoint
-const { createClient } = require('@supabase/supabase-js');
+const { supabase, corsHeaders, verifyToken } = require('./_lib/supabase');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-};
+// Removed local client initialization since we use the shared one
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
@@ -18,15 +9,37 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { 
-      page = 1, 
-      limit = 50, 
-      search = '', 
+    const {
+      page = 1,
+      limit = 50,
+      search = '',
       region = 'الكل',
       propertyType = 'الكل',
       category = 'الكل',
       purpose = 'الكل'
     } = req.query;
+
+    // Check if user is authenticated and approved
+    const authHeader = req.headers.authorization;
+    let isApprovedUser = false;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const payload = verifyToken(token);
+
+      if (payload && payload.username) {
+        // Check if user is active
+        const { data: userData } = await supabase
+          .from('users')
+          .select('is_active, role')
+          .eq('mobile', payload.username)
+          .single();
+
+        if (userData) {
+          isApprovedUser = userData.role === 'admin' || userData.is_active === true;
+        }
+      }
+    }
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
 
@@ -68,18 +81,24 @@ module.exports = async (req, res) => {
 
     // Build image URLs from propertyimage field (JSON string)
     const properties = data.map(prop => {
-      // Remove sensitive contact information fields
-      const { mobileno, tel, ...safeProp } = prop;
-      
+      // Remove sensitive contact information fields if not approved
+      let safeProp;
+      if (isApprovedUser) {
+        safeProp = prop;
+      } else {
+        const { mobileno, tel, ...rest } = prop;
+        safeProp = rest;
+      }
+
       let images = [];
-      
+
       // Parse propertyimage field if it exists
       if (safeProp.propertyimage) {
         try {
-          const imgData = typeof safeProp.propertyimage === 'string' 
-            ? JSON.parse(safeProp.propertyimage) 
+          const imgData = typeof safeProp.propertyimage === 'string'
+            ? JSON.parse(safeProp.propertyimage)
             : safeProp.propertyimage;
-          
+
           if (Array.isArray(imgData)) {
             images = imgData.map(img => {
               // Use the ID from the image object to construct the URL

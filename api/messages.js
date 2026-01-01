@@ -18,14 +18,14 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { 
-      page = 1, 
-      limit = 50, 
-      search = '', 
-      category = '', 
-      propertyType = '', 
-      region = '', 
-      purpose = '' 
+    const {
+      page = 1,
+      limit = 50,
+      search = '',
+      category = '',
+      propertyType = '',
+      region = '',
+      purpose = ''
     } = req.query;
 
     const pageNum = parseInt(page);
@@ -36,27 +36,27 @@ module.exports = async (req, res) => {
     const authHeader = req.headers.authorization;
     let isApprovedUser = false;
     let userMobile = null;
-    
+
     console.log('🔐 Auth header:', authHeader ? 'Present' : 'Missing');
-    
+
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const payload = verifyToken(token);
-      
+
       console.log('🎫 Token payload:', payload);
-      
+
       if (payload && payload.username) {
         userMobile = payload.username;
-        
+
         // Check if user is active
         const { data: userData } = await supabase
           .from('users')
           .select('is_active, role')
           .eq('mobile', userMobile)
           .single();
-        
+
         console.log('👤 User data:', userData);
-        
+
         if (userData) {
           // Admin is always approved, or check is_active for regular users
           isApprovedUser = userData.role === 'admin' || userData.is_active === true;
@@ -64,7 +64,7 @@ module.exports = async (req, res) => {
         }
       }
     }
-    
+
     console.log('🔑 Final isApprovedUser:', isApprovedUser);
 
     // Build query - join with sender table if user is approved
@@ -110,7 +110,7 @@ module.exports = async (req, res) => {
     // Order and paginate
     // For 5th settlement (التجمع الخامس), prioritize properties with images
     const isFifthSettlement = region === 'التجمع الخامس';
-    
+
     if (isFifthSettlement) {
       // Sort by: 1) has image first (non-null values last when descending), 2) created_at (DESC)
       // Using nullsLast: true ensures properties with images (non-null) come before nulls
@@ -121,7 +121,7 @@ module.exports = async (req, res) => {
       query = query
         .order('created_at', { ascending: false });
     }
-    
+
     query = query.range(offset, offset + limitNum - 1);
 
     const { data, error, count } = await query;
@@ -130,17 +130,26 @@ module.exports = async (req, res) => {
       console.error('❌ Supabase error:', error);
       return res.status(500).json({ error: error.message });
     }
-    
+
     console.log('📦 Sample raw data (first item):', data?.[0]);
     console.log('📊 Sender info in first item:', data?.[0]?.sender);
 
+    const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
+
     // Map column names to match frontend expectations
     const mappedData = (data || []).map(row => {
+      let messageContent = row.message;
+
+      // Mask mobile numbers in message content if user is not approved
+      if (!isApprovedUser && messageContent) {
+        messageContent = messageContent.replace(MOBILE_REGEX, '***********');
+      }
+
       const mapped = {
         id: row.id,
         name: isApprovedUser && row.sender ? row.sender.name : null,
         mobile: isApprovedUser && row.sender ? row.sender.mobile : 'N/A',
-        message: row.message,
+        message: messageContent,
         dateOfCreation: row.date_of_creation,
         sourceFile: row.source_file,
         category: row.category,
@@ -151,7 +160,7 @@ module.exports = async (req, res) => {
       };
       return mapped;
     });
-    
+
     console.log('📤 Sample mapped data (first item):', mappedData[0]);
 
     res.status(200).json({
