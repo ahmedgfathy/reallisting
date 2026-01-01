@@ -102,13 +102,9 @@ module.exports = async (req, res) => {
       query = query.eq('purpose', purpose);
     }
     if (search) {
-      if (isApprovedUser) {
-        // Approved users can search sender info too
-        query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
-      } else {
-        // Non-approved users: search only message content
-        query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
-      }
+      // Search in message, region, and property_type
+      // Note: Can't search sender.name or sender.mobile directly in Supabase JOIN query
+      query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
     }
 
     // Order and paginate
