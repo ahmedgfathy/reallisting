@@ -1,4 +1,4 @@
-const { supabase, corsHeaders } = require('./_lib/supabase');
+const { supabase, corsHeaders, verifyToken } = require('./_lib/supabase');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -39,22 +39,22 @@ module.exports = async (req, res) => {
     
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
+      const payload = verifyToken(token);
       
-      try {
-        // Verify the custom JWT token using your auth endpoint
-        const verifyResponse = await fetch(`${req.headers.host ? `http://${req.headers.host}` : ''}/api/auth?path=verify`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+      if (payload && payload.username) {
+        userMobile = payload.username;
         
-        if (verifyResponse.ok) {
-          const authData = await verifyResponse.json();
-          if (authData.authenticated && authData.user) {
-            userMobile = authData.user.mobile;
-            isApprovedUser = authData.user.isActive === true;
-          }
+        // Check if user is active
+        const { data: userData } = await supabase
+          .from('users')
+          .select('is_active, role')
+          .eq('mobile', userMobile)
+          .single();
+        
+        if (userData) {
+          // Admin is always approved, or check is_active for regular users
+          isApprovedUser = userData.role === 'admin' || userData.is_active === true;
         }
-      } catch (error) {
-        console.error('Token verification error:', error);
       }
     }
 
