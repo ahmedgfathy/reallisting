@@ -591,11 +591,24 @@
 }
 
 @media (min-width: 1024px) {
+  .filters {
+    max-height: none;
+    opacity: 1;
+    padding: 28px;
+    border: 1px solid #e8edf5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 24px;
+  }
+
   .filters.filters-open {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     padding: 32px;
+  }
+
+  .filter-toggle-btn {
+    display: none;
   }
 
   .results-count {
