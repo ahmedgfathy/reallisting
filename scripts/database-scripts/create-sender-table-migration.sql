@@ -196,7 +196,11 @@ GRANT USAGE, SELECT ON SEQUENCE sender_id_seq TO service_role;
 -- Step 14: Enable RLS on sender table
 ALTER TABLE sender ENABLE ROW LEVEL SECURITY;
 
--- Create policy for sender table
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Allow public read sender" ON sender;
+DROP POLICY IF EXISTS "Allow service role full access sender" ON sender;
+
+-- Create policies for sender table
 CREATE POLICY "Allow public read sender" ON sender FOR SELECT USING (true);
 CREATE POLICY "Allow service role full access sender" ON sender FOR ALL USING (true);
 
