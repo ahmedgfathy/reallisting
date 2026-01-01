@@ -74,7 +74,7 @@ function App() {
 
   const formatDateArabic = useCallback((dateString) => {
     if (!dateString) return '';
-    
+
     // Parse date - handle both "DD/MM/YYYY" and ISO formats
     let date;
     if (dateString.includes('/')) {
@@ -83,15 +83,15 @@ function App() {
     } else {
       date = new Date(dateString);
     }
-    
+
     if (isNaN(date.getTime())) return dateString;
-    
+
     const arabicDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const dayName = arabicDays[date.getDay()];
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    
+
     return `${dayName} ${day}/${month}/${year}`;
   }, []);
 
@@ -207,6 +207,9 @@ function App() {
   const fetchRegions = useCallback(async () => {
     try {
       const response = await fetch('/api/regions');
+      if (!response.ok) {
+        throw new Error('Failed to fetch regions');
+      }
       const data = await response.json();
       setRegions(data);
     } catch (err) {
@@ -228,16 +231,16 @@ function App() {
       try {
         // Get auth token from localStorage
         const token = localStorage.getItem('token');
-        
+
         const headers = {
           'Content-Type': 'application/json'
         };
-        
+
         // Add Authorization header if user is logged in
         if (token) {
           headers['Authorization'] = `Bearer ${token}`;
         }
-        
+
         const response = await fetch(
           `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`,
           { headers }
@@ -474,11 +477,11 @@ function App() {
         closeUnitDetail();
       }
     };
-    
+
     if (selectedUnit) {
       window.history.pushState({ unitDetail: true }, '');
     }
-    
+
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, [selectedUnit]);
@@ -520,7 +523,7 @@ function App() {
 
   const handleDeleteSelected = async () => {
     if (selectedMessages.size === 0) return;
-    
+
     const confirmDelete = window.confirm(`هل أنت متأكد من حذف ${selectedMessages.size} رسالة؟`);
     if (!confirmDelete) return;
 
@@ -530,7 +533,7 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: Array.from(selectedMessages) })
       });
-      
+
       if (response.ok) {
         setSelectedMessages(new Set());
         setMessages([]);
@@ -559,8 +562,8 @@ function App() {
   // Show login modal
   if (showLogin) {
     return (
-      <Login 
-        onLogin={handleLogin} 
+      <Login
+        onLogin={handleLogin}
         onSwitchToRegister={handleShowRegister}
         onBackToHome={handleCloseAuth}
       />
@@ -570,7 +573,7 @@ function App() {
   // Show register modal
   if (showRegister) {
     return (
-      <Register 
+      <Register
         onRegister={handleRegister}
         onSwitchToLogin={handleShowLogin}
         onBackToHome={handleCloseAuth}
@@ -606,16 +609,16 @@ function App() {
             <img src={brandLogo} alt="كونتابو" className="brand-logo" />
             <h1>كونتابو</h1>
           </div>
-          
+
           <div className="nav-and-stats">
             <div className="nav-tabs-inline">
-              <button 
+              <button
                 onClick={() => { setShowProperties(false); setShowAdminDashboard(false); setShowProfile(false); }}
                 className={`nav-tab ${!showProperties ? 'active' : ''}`}
               >
                 العاشر من رمضان
               </button>
-              <button 
+              <button
                 onClick={() => { setShowProperties(true); setShowAdminDashboard(false); setShowProfile(false); }}
                 className={`nav-tab ${showProperties ? 'active' : ''}`}
               >
@@ -639,7 +642,7 @@ function App() {
                 aria-label="لوحة التحكم"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
-                  <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+                  <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
                 </svg>
               </button>
             )}
@@ -653,7 +656,7 @@ function App() {
                   aria-label="الملف الشخصي"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                   </svg>
                 </button>
                 <span className="user-info">{user?.username}</span>
@@ -671,7 +674,7 @@ function App() {
                 )}
                 <button onClick={handleLogout} className="header-btn-base logout-btn" aria-label="خروج">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" aria-hidden="true">
-                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                    <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
                   </svg>
                   <span>خروج</span>
                 </button>
@@ -694,232 +697,232 @@ function App() {
         <Properties user={user} />
       ) : (
         <div className="main-content">
-        <div className="controls">
-        <input
-          type="text"
-          placeholder="🔍 البحث بالاسم أو رقم الموبايل أو الرسالة..."
-          value={search}
-          onChange={handleSearch}
-          className="search-input"
-        />
-        <div className="mobile-btn-row">
-          <button onClick={handleRefresh} className="refresh-btn">
-            🔄 تحديث
-          </button>
-          <button onClick={handleReset} className="reset-btn">
-            ✖ مسح الفلاتر
-          </button>
-          <button 
-            onClick={() => setShowFilters(!showFilters)} 
-            className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
-          >
-            {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
-            {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
-          </button>
-        </div>
-          {isAdmin && selectedMessages.size > 0 && (
-          <button onClick={handleDeleteSelected} className="delete-btn">
-            🗑️ حذف المحدد ({selectedMessages.size})
-          </button>
-        )}
-      </div>
-
-      <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
-        <div className="filter-group">
-          <label className="filter-label">📋 نوع الإعلان</label>
-          <select 
-            value={category} 
-            onChange={handleCategoryChange}
-            className="filter-select"
-          >
-            <option value="الكل">جميع الأنواع</option>
-            <option value="مطلوب">مطلوب</option>
-            <option value="معروض">معروض</option>
-            <option value="أخرى">أخرى</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label className="filter-label">🏠 نوع العقار</label>
-          <select 
-            value={propertyType} 
-            onChange={handlePropertyTypeChange}
-            className="filter-select"
-          >
-            <option value="الكل">جميع الأنواع</option>
-            <option value="شقة">شقة</option>
-            <option value="أرض">أرض / قطعة</option>
-            <option value="مزرعة">مزرعة / فدان</option>
-            <option value="فيلا">فيلا</option>
-            <option value="بيت">بيت / منزل</option>
-            <option value="محل">محل / دكان</option>
-            <option value="مكتب">مكتب</option>
-            <option value="عمارة">عمارة</option>
-            <option value="استوديو">استوديو</option>
-            <option value="دوبلكس">دوبلكس</option>
-            <option value="بدروم">بدروم</option>
-            <option value="هنجر">هنجر</option>
-            <option value="مصنع">مصنع</option>
-            <option value="مخزن">مخزن</option>
-            <option value="جراج">جراج</option>
-            <option value="أخرى">أخرى</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label className="filter-label">📍 المنطقة</label>
-          <select 
-            value={region} 
-            onChange={handleRegionChange}
-            className="filter-select"
-          >
-            <option value="الكل">جميع المناطق</option>
-            {regions.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label className="filter-label">🎯 الغرض</label>
-          <select 
-            value={purpose} 
-            onChange={handlePurposeChange}
-            className="filter-select"
-          >
-            <option value="الكل">جميع الأغراض</option>
-            <option value="بيع">للبيع</option>
-            <option value="إيجار">للإيجار</option>
-            <option value="أخرى">أخرى</option>
-          </select>
-        </div>
-
-        <div className="results-count">
-          <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
-        </div>
-      </div>
-
-      {loading && messages.length === 0 ? (
-        <div className="loading">جاري تحميل الوحدات...</div>
-      ) : (
-        <>
-          {/* Grid View */}
-          <div className="grid-container">
-            {isAdmin && messages.length > 0 && (
-              <div className="grid-select-all">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={messages.length > 0 && selectedMessages.size === messages.length}
-                    onChange={handleSelectAll}
-                  />
-                  تحديد الكل
-                </label>
-              </div>
+          <div className="controls">
+            <input
+              type="text"
+              placeholder="🔍 البحث بالاسم أو رقم الموبايل أو الرسالة..."
+              value={search}
+              onChange={handleSearch}
+              className="search-input"
+            />
+            <div className="mobile-btn-row">
+              <button onClick={handleRefresh} className="refresh-btn">
+                🔄 تحديث
+              </button>
+              <button onClick={handleReset} className="reset-btn">
+                ✖ مسح الفلاتر
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
+              >
+                {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
+                {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
+              </button>
+            </div>
+            {isAdmin && selectedMessages.size > 0 && (
+              <button onClick={handleDeleteSelected} className="delete-btn">
+                🗑️ حذف المحدد ({selectedMessages.size})
+              </button>
             )}
-            
-            {messages.length === 0 ? (
-              <div className="no-data-grid">
-                لا توجد رسائل. أضف ملفات محادثات واتساب إلى مجلد data-source.
-              </div>
-            ) : (
-              <div className="properties-grid">
-                {messages.map((msg, index) => (
-                  <div 
-                    key={msg.id} 
-                    className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
-                    onClick={() => openUnitDetail(msg)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    {isAdmin && (
-                      <div className="card-checkbox" onClick={(e) => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={selectedMessages.has(msg.id)}
-                          onChange={() => handleSelectMessage(msg.id)}
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="card-index">#{index + 1}</div>
-                    
-                    {msg.imageUrl && (
-                      <img 
-                        src={msg.imageUrl} 
-                        alt={buildCardTitle(msg)} 
-                        className="card-image"
-                      />
-                    )}
-                    
-                    <div className="card-title">
-                      {buildCardTitle(msg)}
-                    </div>
-                    
-                    <div className="card-message">
-                      {(() => {
-                        let displayMessage = msg.message;
-                        
-                        // Remove security code messages (for ALL users)
-                        displayMessage = displayMessage
-                          .replace(/.*PM - Your security code.*/gi, '')
-                          .replace(/.*security code.*changed.*/gi, '')
-                          .replace(/.*verification code.*/gi, '')
-                          .replace(/.*Tap to learn more.*/gi, '')
-                          .replace(/.*sbdalslamsyd79.*/gi, '')
-                          .trim();
-                        
-                        // For non-subscribed users: Remove ALL numbers
-                        if (!isUserActive) {
-                          displayMessage = displayMessage
-                            .replace(/\b\d{7,}\b/g, '***')
-                            .replace(/[٠-٩]{7,}/g, '***')
-                            .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
-                        }
-                        
-                        return displayMessage.substring(0, 150) + (displayMessage.length > 150 ? '...' : '');
-                      })()}
-                    </div>
-                    
-                    <div className="card-footer">
-                      <div className="card-contact">
-                        {isUserActive ? (
-                          <>
-                            {msg.mobile && msg.mobile !== 'N/A' && (
-                              <a href={`tel:${msg.mobile}`} className="card-phone" dir="ltr">
-                                📱 {msg.mobile}
-                              </a>
-                            )}
-                          </>
-                        ) : (
-                          <span className="card-name">🔒 اشترك لرؤية رقم الوسيط</span>
-                        )}
-                      </div>
-                      <div className="card-date">
-                        🗓️ {formatDateArabic(msg.dateOfCreation)}
-                      </div>
-                    </div>
-                  </div>
+          </div>
+
+          <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
+            <div className="filter-group">
+              <label className="filter-label">📋 نوع الإعلان</label>
+              <select
+                value={category}
+                onChange={handleCategoryChange}
+                className="filter-select"
+              >
+                <option value="الكل">جميع الأنواع</option>
+                <option value="مطلوب">مطلوب</option>
+                <option value="معروض">معروض</option>
+                <option value="أخرى">أخرى</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label className="filter-label">🏠 نوع العقار</label>
+              <select
+                value={propertyType}
+                onChange={handlePropertyTypeChange}
+                className="filter-select"
+              >
+                <option value="الكل">جميع الأنواع</option>
+                <option value="شقة">شقة</option>
+                <option value="أرض">أرض / قطعة</option>
+                <option value="مزرعة">مزرعة / فدان</option>
+                <option value="فيلا">فيلا</option>
+                <option value="بيت">بيت / منزل</option>
+                <option value="محل">محل / دكان</option>
+                <option value="مكتب">مكتب</option>
+                <option value="عمارة">عمارة</option>
+                <option value="استوديو">استوديو</option>
+                <option value="دوبلكس">دوبلكس</option>
+                <option value="بدروم">بدروم</option>
+                <option value="هنجر">هنجر</option>
+                <option value="مصنع">مصنع</option>
+                <option value="مخزن">مخزن</option>
+                <option value="جراج">جراج</option>
+                <option value="أخرى">أخرى</option>
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label className="filter-label">📍 المنطقة</label>
+              <select
+                value={region}
+                onChange={handleRegionChange}
+                className="filter-select"
+              >
+                <option value="الكل">جميع المناطق</option>
+                {regions.map((r) => (
+                  <option key={r} value={r}>{r}</option>
                 ))}
-              </div>
-            )}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label className="filter-label">🎯 الغرض</label>
+              <select
+                value={purpose}
+                onChange={handlePurposeChange}
+                className="filter-select"
+              >
+                <option value="الكل">جميع الأغراض</option>
+                <option value="بيع">للبيع</option>
+                <option value="إيجار">للإيجار</option>
+                <option value="أخرى">أخرى</option>
+              </select>
+            </div>
+
+            <div className="results-count">
+              <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
+            </div>
           </div>
 
-          <div ref={loaderRef} className="infinite-loader">
-            {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
-            {!hasMore && messages.length > 0 && <span>تم عرض كل النتائج.</span>}
-          </div>
-        </>
-      )}
-      </div>
+          {loading && messages.length === 0 ? (
+            <div className="loading">جاري تحميل الوحدات...</div>
+          ) : (
+            <>
+              {/* Grid View */}
+              <div className="grid-container">
+                {isAdmin && messages.length > 0 && (
+                  <div className="grid-select-all">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={messages.length > 0 && selectedMessages.size === messages.length}
+                        onChange={handleSelectAll}
+                      />
+                      تحديد الكل
+                    </label>
+                  </div>
+                )}
+
+                {messages.length === 0 ? (
+                  <div className="no-data-grid">
+                    لا توجد رسائل. أضف ملفات محادثات واتساب إلى مجلد data-source.
+                  </div>
+                ) : (
+                  <div className="properties-grid">
+                    {messages.map((msg, index) => (
+                      <div
+                        key={msg.id}
+                        className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
+                        onClick={() => openUnitDetail(msg)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        {isAdmin && (
+                          <div className="card-checkbox" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={selectedMessages.has(msg.id)}
+                              onChange={() => handleSelectMessage(msg.id)}
+                            />
+                          </div>
+                        )}
+
+                        <div className="card-index">#{index + 1}</div>
+
+                        {msg.imageUrl && (
+                          <img
+                            src={msg.imageUrl}
+                            alt={buildCardTitle(msg)}
+                            className="card-image"
+                          />
+                        )}
+
+                        <div className="card-title">
+                          {buildCardTitle(msg)}
+                        </div>
+
+                        <div className="card-message">
+                          {(() => {
+                            let displayMessage = msg.message;
+
+                            // Remove security code messages (for ALL users)
+                            displayMessage = displayMessage
+                              .replace(/.*PM - Your security code.*/gi, '')
+                              .replace(/.*security code.*changed.*/gi, '')
+                              .replace(/.*verification code.*/gi, '')
+                              .replace(/.*Tap to learn more.*/gi, '')
+                              .replace(/.*sbdalslamsyd79.*/gi, '')
+                              .trim();
+
+                            // For non-subscribed users: Remove ALL numbers
+                            if (!isUserActive) {
+                              displayMessage = displayMessage
+                                .replace(/\b\d{7,}\b/g, '***')
+                                .replace(/[٠-٩]{7,}/g, '***')
+                                .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
+                            }
+
+                            return displayMessage.substring(0, 150) + (displayMessage.length > 150 ? '...' : '');
+                          })()}
+                        </div>
+
+                        <div className="card-footer">
+                          <div className="card-contact">
+                            {isUserActive ? (
+                              <>
+                                {msg.mobile && msg.mobile !== 'N/A' && (
+                                  <a href={`tel:${msg.mobile}`} className="card-phone" dir="ltr">
+                                    📱 {msg.mobile}
+                                  </a>
+                                )}
+                              </>
+                            ) : (
+                              <span className="card-name">🔒 اشترك لرؤية رقم الوسيط</span>
+                            )}
+                          </div>
+                          <div className="card-date">
+                            🗓️ {formatDateArabic(msg.dateOfCreation)}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div ref={loaderRef} className="infinite-loader">
+                {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
+                {!hasMore && messages.length > 0 && <span>تم عرض كل النتائج.</span>}
+              </div>
+            </>
+          )}
+        </div>
       )}
 
       {/* Unit Detail View */}
       {selectedUnit && (
-        <div 
+        <div
           className={`unit-detail-overlay ${detailClosing ? 'closing' : ''}`}
           onClick={closeUnitDetail}
         >
-          <div 
+          <div
             className={`unit-detail-panel ${detailClosing ? 'closing' : ''}`}
             ref={detailRef}
             onClick={(e) => e.stopPropagation()}
@@ -935,24 +938,24 @@ function App() {
               </button>
               <h2 className="detail-title">{buildCardTitle(selectedUnit)}</h2>
             </div>
-            
+
             <div className="unit-detail-content">
               {selectedUnit.imageUrl && (
                 <div className="detail-section">
-                  <img 
-                    src={selectedUnit.imageUrl} 
-                    alt={buildCardTitle(selectedUnit)} 
-                    style={{ 
-                      width: '100%', 
-                      maxHeight: '400px', 
-                      objectFit: 'cover', 
+                  <img
+                    src={selectedUnit.imageUrl}
+                    alt={buildCardTitle(selectedUnit)}
+                    style={{
+                      width: '100%',
+                      maxHeight: '400px',
+                      objectFit: 'cover',
                       borderRadius: '12px',
                       marginBottom: '20px'
                     }}
                   />
                 </div>
               )}
-              
+
               <div className="detail-section">
                 <h3>📋 تفاصيل الوحدة</h3>
                 <div className="detail-info-grid">
@@ -988,7 +991,7 @@ function App() {
                 <div className="detail-message">
                   {(() => {
                     let displayMessage = selectedUnit.message;
-                    
+
                     // Remove security code messages (for ALL users)
                     displayMessage = displayMessage
                       .replace(/.*PM - Your security code.*/gi, '')
@@ -997,7 +1000,7 @@ function App() {
                       .replace(/.*Tap to learn more.*/gi, '')
                       .replace(/.*sbdalslamsyd79.*/gi, '')
                       .trim();
-                    
+
                     // For non-subscribed users: Remove ALL numbers
                     if (!isUserActive) {
                       displayMessage = displayMessage
@@ -1005,7 +1008,7 @@ function App() {
                         .replace(/[\u0660-\u0669]{7,}/g, '***')
                         .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
                     }
-                    
+
                     return displayMessage;
                   })()}
                 </div>
@@ -1018,24 +1021,24 @@ function App() {
                     <>
                       {selectedUnit.mobile && selectedUnit.mobile !== 'N/A' && (
                         <div className="contact-buttons">
-                          <a 
-                            href={`tel:${selectedUnit.mobile}`} 
-                            className="contact-icon-btn call-btn" 
+                          <a
+                            href={`tel:${selectedUnit.mobile}`}
+                            className="contact-icon-btn call-btn"
                             title="اتصال"
                           >
                             <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
                             </svg>
                           </a>
-                          <a 
+                          <a
                             href={`https://wa.me/${selectedUnit.mobile.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`مرحباً، أستفسر عن هذه الوحدة:\n\n${buildCardTitle(selectedUnit)}\n\n${selectedUnit.message ? selectedUnit.message.substring(0, 200) + '...' : ''}`)}`}
-                            target="_blank" 
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="contact-icon-btn whatsapp-btn"
                             title="واتساب"
                           >
                             <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                             </svg>
                           </a>
                         </div>
@@ -1073,11 +1076,11 @@ function App() {
       {isAdmin && showAdminDashboard && (
         <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
       )}
-      
+
       {showProfile && isAuthenticated && (
         <Profile onClose={() => setShowProfile(false)} />
       )}
-      
+
       {/* PWA Install Prompt */}
       <InstallPrompt />
 
@@ -1085,7 +1088,7 @@ function App() {
       {showScrollTop && (
         <button className="scroll-top-btn" onClick={scrollToTop} title="العودة للأعلى">
           <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
           </svg>
         </button>
       )}

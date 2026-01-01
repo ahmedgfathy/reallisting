@@ -20,6 +20,19 @@ CREATE TABLE IF NOT EXISTS sender (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 1.5 Ensure messages table has image_url (Fixing missing column error)
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS image_url TEXT;
+
+-- 1.6 Create Storage Bucket 'properties' if it doesn't exist
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('properties', 'properties', true) 
+ON CONFLICT (id) DO NOTHING;
+
+-- 1.7 Allow public read access to storage
+CREATE POLICY "Public Read Access"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'properties' );
+
 -- 2. Add sender_id foreign key to messages table
 ALTER TABLE messages 
 ADD COLUMN IF NOT EXISTS sender_id INTEGER REFERENCES sender(id) ON DELETE SET NULL;
