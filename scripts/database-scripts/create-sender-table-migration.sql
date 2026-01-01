@@ -54,8 +54,8 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 -- Step 5: Extract and populate sender table from messages
 -- This finds unique mobile numbers in message content
 INSERT INTO sender (mobile, name, first_seen_date, first_seen_time)
-SELECT DISTINCT ON (extracted_mobile)
-  extracted_mobile as mobile,
+SELECT DISTINCT ON (mobile_number)
+  mobile_number as mobile,
   m.name as name,
   m.date_of_creation as first_seen_date,
   split_part(m.date_of_creation, ' ', 2) as first_seen_time
@@ -64,15 +64,17 @@ FROM (
     id,
     name,
     date_of_creation,
-    extract_egyptian_mobile(message) as extracted_mobile,
-    extract_egyptian_mobile(mobile) as mobile_from_field
+    COALESCE(
+      extract_egyptian_mobile(message),
+      extract_egyptian_mobile(mobile)
+    ) as mobile_number
   FROM messages
   WHERE message IS NOT NULL OR mobile IS NOT NULL
 ) m
-WHERE m.extracted_mobile IS NOT NULL 
-  OR m.mobile_from_field IS NOT NULL
-  AND COALESCE(m.extracted_mobile, m.mobile_from_field) NOT IN ('N/A', '')
-ORDER BY extracted_mobile, date_of_creation
+WHERE m.mobile_number IS NOT NULL
+  AND m.mobile_number NOT IN ('N/A', '')
+  AND m.mobile_number ~ '^[0-9+]{10,15}$'
+ORDER BY mobile_number, date_of_creation
 ON CONFLICT (mobile) DO NOTHING;
 
 -- Step 6: Also insert from the mobile field in messages table
