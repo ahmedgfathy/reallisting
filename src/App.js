@@ -226,8 +226,21 @@ function App() {
       }
 
       try {
+        // Get auth token from localStorage
+        const token = localStorage.getItem('token');
+        
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        // Add Authorization header if user is logged in
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
         const response = await fetch(
-          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`
+          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`,
+          { headers }
         );
         const data = await response.json();
 

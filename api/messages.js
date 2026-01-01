@@ -35,19 +35,26 @@ module.exports = async (req, res) => {
     // Check if user is authenticated and approved
     const authHeader = req.headers.authorization;
     let isApprovedUser = false;
+    let userMobile = null;
     
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
-      const { data: { user } } = await supabase.auth.getUser(token);
       
-      if (user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('is_active')
-          .eq('mobile', user.phone)
-          .single();
+      try {
+        // Verify the custom JWT token using your auth endpoint
+        const verifyResponse = await fetch(`${req.headers.host ? `http://${req.headers.host}` : ''}/api/auth?path=verify`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         
-        isApprovedUser = userData?.is_active === true;
+        if (verifyResponse.ok) {
+          const authData = await verifyResponse.json();
+          if (authData.authenticated && authData.user) {
+            userMobile = authData.user.mobile;
+            isApprovedUser = authData.user.isActive === true;
+          }
+        }
+      } catch (error) {
+        console.error('Token verification error:', error);
       }
     }
 
