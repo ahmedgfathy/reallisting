@@ -151,7 +151,6 @@ SELECT
   m.property_type,
   m.region,
   m.purpose,
-  m.image_url,
   s.id as sender_id,
   s.name as sender_name,
   s.mobile as sender_mobile,
