@@ -161,49 +161,34 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.logout-btn {
-  gap: 6px;
-  padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
-}
-
-.logout-btn:active {
-  transform: translateY(0);
-}
-
-.logout-btn svg {
-  flex-shrink: 0;
-}
-
 .admin-link,
-.profile-link {
+.profile-link,
+.logout-btn {
   width: 36px;
   height: 36px;
   padding: 0;
   border-radius: 50%;
 }
 
+.logout-btn span {
+  display: none;
+}
+
 .admin-link:hover,
-.profile-link:hover {
+.profile-link:hover,
+.logout-btn:hover {
   transform: translateY(-2px) scale(1.05);
 }
 
 .admin-link:active,
-.profile-link:active {
+.profile-link:active,
+.logout-btn:active {
   transform: translateY(0) scale(1);
 }
 
 .admin-link svg,
-.profile-link svg {
+.profile-link svg,
+.logout-btn svg {
   flex-shrink: 0;
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
@@ -1013,31 +998,22 @@ body {
     padding: 4px 8px;
   }
   
+  .admin-link,
+  .profile-link,
   .logout-btn {
     width: 32px;
     height: 32px;
     padding: 0;
     border-radius: 50%;
-    gap: 0;
   }
   
   .logout-btn span {
     display: none;
   }
   
-  .logout-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .admin-link,
-  .profile-link {
-    width: 32px;
-    height: 32px;
-  }
-  
   .admin-link svg,
-  .profile-link svg {
+  .profile-link svg,
+  .logout-btn svg {
     width: 18px;
     height: 18px;
   }
@@ -1456,25 +1432,23 @@ body {
   }
   
   .admin-link,
-  .profile-link {
+  .profile-link,
+  .logout-btn {
     width: 34px;
     height: 34px;
+    padding: 0;
+    border-radius: 50%;
   }
   
   .admin-link svg,
-  .profile-link svg {
+  .profile-link svg,
+  .logout-btn svg {
     width: 19px;
     height: 19px;
   }
   
-  .logout-btn {
-    padding: 6px 12px;
-    font-size: 0.75rem;
-  }
-  
-  .logout-btn svg {
-    width: 17px;
-    height: 17px;
+  .logout-btn span {
+    display: none;
   }
   
   .user-info {
