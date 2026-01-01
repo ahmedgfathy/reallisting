@@ -1,7 +1,7 @@
 const { supabase, corsHeaders } = require('./_lib/supabase');
 
-// This endpoint runs automatically via Vercel Cron (every hour)
-// Or you can call it manually: GET /api/clean-mobiles-cron
+// Manual cleaning endpoint - call this after importing new data
+// GET /api/clean-now
 
 /**
  * Enhanced contact information cleaning patterns
@@ -17,10 +17,9 @@ const patterns = {
   ],
   
   // Mobile numbers with various formats
-  // Must be 11 digits (Egyptian mobile) or 10 digits (without leading 0)
   mobileNumbers: /(\+?20)?0?1[0-9]{9}\b/g,
   
-  // Arabic digits (11 consecutive digits that start with ٠١ which is Egyptian mobile prefix)
+  // Arabic digits
   arabicDigits: /٠١[٠-٩]{9}/g,
   
   // Common contact patterns
@@ -32,11 +31,10 @@ const patterns = {
 function cleanText(text) {
   if (!text || typeof text !== 'string') return text;
   
-  const original = text;
   let cleaned = text;
   let hasContactInfo = false;
   
-  // Check and remove security code messages (all patterns)
+  // Remove security code messages (all patterns)
   patterns.securityCodePatterns.forEach(pattern => {
     if (pattern.test(cleaned)) {
       cleaned = cleaned.replace(pattern, '');
@@ -44,19 +42,19 @@ function cleanText(text) {
     }
   });
   
-  // Check and remove mobile numbers
+  // Remove mobile numbers
   if (patterns.mobileNumbers.test(cleaned)) {
     cleaned = cleaned.replace(patterns.mobileNumbers, '');
     hasContactInfo = true;
   }
   
-  // Check and remove Arabic digit sequences
+  // Remove Arabic digit sequences
   if (patterns.arabicDigits.test(cleaned)) {
     cleaned = cleaned.replace(patterns.arabicDigits, '');
     hasContactInfo = true;
   }
   
-  // Check and remove contact patterns
+  // Remove contact patterns
   patterns.contactPatterns.forEach(pattern => {
     if (pattern.test(cleaned)) {
       cleaned = cleaned.replace(pattern, '');
@@ -64,10 +62,9 @@ function cleanText(text) {
     }
   });
   
-  // Only clean up whitespace if we found contact info
+  // Clean up whitespace if we found contact info
   if (hasContactInfo) {
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
-    
     cleaned = cleaned.split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0 && /[a-zA-Zا-ي]/.test(line))
@@ -78,28 +75,19 @@ function cleanText(text) {
 }
 
 module.exports = async (req, res) => {
-  // Verify cron secret for security
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   const startTime = Date.now();
   
   try {
-    console.log('Starting enhanced contact information cleanup...');
+    console.log('🧹 Starting manual contact information cleanup...');
     
-    // Get recent messages (last 2 hours) that might contain contact info
-    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-    
+    // Get ALL messages
     const { data: messages, error: fetchError } = await supabase
       .from('messages')
       .select('id, message')
-      .gte('created_at', twoHoursAgo)
       .order('created_at', { ascending: false })
-      .limit(1000);
+      .limit(100000);
 
     if (fetchError) {
       console.error('Fetch error:', fetchError);
@@ -118,16 +106,17 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Update in parallel batches of 10
+    // Update in parallel batches of 20
     let updated = 0;
-    for (let i = 0; i < updates.length; i += 10) {
-      const batch = updates.slice(i, i + 10);
+    for (let i = 0; i < updates.length; i += 20) {
+      const batch = updates.slice(i, i + 20);
       await Promise.all(
         batch.map(u => 
           supabase.from('messages').update({ message: u.message }).eq('id', u.id)
         )
       );
       updated += batch.length;
+      console.log(`Progress: ${updated}/${updates.length}`);
     }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
@@ -138,11 +127,12 @@ module.exports = async (req, res) => {
       success: true,
       cleaned: updated,
       checked: messages?.length || 0,
-      duration: `${duration}s`
+      duration: `${duration}s`,
+      message: `Successfully cleaned ${updated} messages out of ${messages?.length || 0} checked`
     });
 
   } catch (error) {
-    console.error('Cron error:', error);
+    console.error('Cleaning error:', error);
     return res.status(500).json({ error: error.message });
   }
 };

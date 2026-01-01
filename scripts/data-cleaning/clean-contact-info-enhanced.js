@@ -9,18 +9,22 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
 // Enhanced patterns to remove contact information
 const patterns = {
-  // Security code messages (entire line)
-  securityCode: /.*security code.*changed.*/gi,
+  // Security code messages (multiple formats)
+  securityCodePatterns: [
+    /.*PM - Your security code.*/gi,
+    /.*security code.*changed.*/gi,
+    /.*verification code.*/gi,
+    /.*Tap to learn more.*/gi,
+    /.*sbdalslamsyd79.*/gi
+  ],
   
   // Mobile numbers with various formats:
   // - 01xxxxxxxxx (Egyptian format)
   // - +201xxxxxxxxx (International format)
   // - 201xxxxxxxxx (Without +)
-  // Must be 11 digits (Egyptian mobile) or 10 digits (without leading 0)
   mobileNumbers: /(\+?20)?0?1[0-9]{9}\b/g,
   
   // Arabic digits (11 consecutive digits that start with ٠١ which is Egyptian mobile prefix)
-  // This is more specific than matching any 10+ digits to avoid false positives
   arabicDigits: /٠١[٠-٩]{9}/g,
   
   // Common contact patterns (keywords followed by numbers)
@@ -39,11 +43,13 @@ function cleanText(text) {
   let cleaned = text;
   let hasContactInfo = false;
   
-  // Check and remove security code messages (entire line)
-  if (patterns.securityCode.test(cleaned)) {
-    cleaned = cleaned.replace(patterns.securityCode, '');
-    hasContactInfo = true;
-  }
+  // Check and remove security code messages (all patterns)
+  patterns.securityCodePatterns.forEach(pattern => {
+    if (pattern.test(cleaned)) {
+      cleaned = cleaned.replace(pattern, '');
+      hasContactInfo = true;
+    }
+  });
   
   // Check and remove mobile numbers in various formats
   if (patterns.mobileNumbers.test(cleaned)) {

@@ -844,16 +844,26 @@ function App() {
                     
                     <div className="card-message">
                       {(() => {
-                        // For non-subscribed users: Remove ALL numbers (mobile, landline, Arabic digits)
+                        let displayMessage = msg.message;
+                        
+                        // Remove security code messages (for ALL users)
+                        displayMessage = displayMessage
+                          .replace(/.*PM - Your security code.*/gi, '')
+                          .replace(/.*security code.*changed.*/gi, '')
+                          .replace(/.*verification code.*/gi, '')
+                          .replace(/.*Tap to learn more.*/gi, '')
+                          .replace(/.*sbdalslamsyd79.*/gi, '')
+                          .trim();
+                        
+                        // For non-subscribed users: Remove ALL numbers
                         if (!isUserActive) {
-                          return msg.message
+                          displayMessage = displayMessage
                             .replace(/\b\d{7,}\b/g, '***')
                             .replace(/[٠-٩]{7,}/g, '***')
-                            .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل')
-                            .substring(0, 150) + (msg.message.length > 150 ? '...' : '');
+                            .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
                         }
-                        // For subscribed users: Show full message
-                        return msg.message.length > 150 ? msg.message.substring(0, 150) + '...' : msg.message;
+                        
+                        return displayMessage.substring(0, 150) + (displayMessage.length > 150 ? '...' : '');
                       })()}
                     </div>
                     
@@ -964,15 +974,26 @@ function App() {
                 <h3>💬 نص الإعلان</h3>
                 <div className="detail-message">
                   {(() => {
-                    // For non-subscribed users: Remove ALL numbers (mobile, landline, Arabic digits)
+                    let displayMessage = selectedUnit.message;
+                    
+                    // Remove security code messages (for ALL users)
+                    displayMessage = displayMessage
+                      .replace(/.*PM - Your security code.*/gi, '')
+                      .replace(/.*security code.*changed.*/gi, '')
+                      .replace(/.*verification code.*/gi, '')
+                      .replace(/.*Tap to learn more.*/gi, '')
+                      .replace(/.*sbdalslamsyd79.*/gi, '')
+                      .trim();
+                    
+                    // For non-subscribed users: Remove ALL numbers
                     if (!isUserActive) {
-                      return selectedUnit.message
+                      displayMessage = displayMessage
                         .replace(/\b\d{7,}\b/g, '***')
                         .replace(/[\u0660-\u0669]{7,}/g, '***')
                         .replace(/\b(call|tel|phone|mobile|whatsapp|واتساب|اتصل|موبايل|تليفون|رقم)\s*:?\s*[+\d\s()-]+/gi, '*** للتواصل');
                     }
-                    // For subscribed users: Show full message
-                    return selectedUnit.message;
+                    
+                    return displayMessage;
                   })()}
                 </div>
               </div>
