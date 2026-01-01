@@ -88,7 +88,7 @@ module.exports = async (req, res) => {
     while (hasMore) {
       const { data: batch, error } = await supabase
         .from('messages')
-        .select('id, message, mobile, dateOfCreation')
+        .select('id, message, sender_id, date_of_creation')
         .range(offset, offset + BATCH_SIZE - 1)
         .order('id', { ascending: true });
 
@@ -96,7 +96,7 @@ module.exports = async (req, res) => {
       if (!batch || batch.length === 0) break;
 
       for (const msg of batch) {
-        const key = `${msg.message}|${msg.mobile}|${msg.dateOfCreation}`;
+        const key = `${msg.message}|${msg.sender_id}|${msg.date_of_creation}`;
         if (seenMessages.has(key)) {
           duplicateIds.push(msg.id);
         } else {
