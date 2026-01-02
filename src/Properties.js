@@ -133,15 +133,18 @@ function Properties({ user }) {
 
   const PropertyCard = ({ property }) => {
     const firstImage = property.images && property.images[0];
-    
+    const totalMedia = (property.images?.length || 0) + (property.videos?.length || 0);
+    const hasVideos = property.videos && property.videos.length > 0;
+
     return (
       <div className="property-card" onClick={() => setSelectedProperty(property)}>
         {firstImage && (
           <div className="property-image">
             <img src={firstImage} alt={property.title || property.name} loading="lazy" />
-            {property.images.length > 1 && (
+            {totalMedia > 1 && (
               <div className="image-count">
-                <i className="fas fa-images"></i> {property.images.length}
+                <i className="fas fa-images"></i> {totalMedia}
+                {hasVideos && <span style={{ marginLeft: '4px' }}>🎥</span>}
               </div>
             )}
           </div>
@@ -150,13 +153,13 @@ function Properties({ user }) {
           <h3 className="property-title">
             {property.compoundname || property.title || property.name || 'عقار'}
           </h3>
-          
+
           {property.totalprice && (
             <div className="property-price">
               {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
             </div>
           )}
-          
+
           <div className="property-details">
             {property.property_type_name && (
               <span className="detail-tag">
@@ -189,19 +192,27 @@ function Properties({ user }) {
   };
 
   const PropertyDetail = ({ property, onClose }) => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
-    const nextImage = () => {
-      setCurrentImageIndex((prev) => 
-        (prev + 1) % property.images.length
+    // Combine images and videos into a single media array
+    const media = [
+      ...(property.images || []).map(url => ({ type: 'image', url })),
+      ...(property.videos || []).map(url => ({ type: 'video', url }))
+    ];
+
+    const nextMedia = () => {
+      setCurrentMediaIndex((prev) =>
+        (prev + 1) % media.length
       );
     };
 
-    const prevImage = () => {
-      setCurrentImageIndex((prev) => 
-        prev === 0 ? property.images.length - 1 : prev - 1
+    const prevMedia = () => {
+      setCurrentMediaIndex((prev) =>
+        prev === 0 ? media.length - 1 : prev - 1
       );
     };
+
+    const currentMedia = media[currentMediaIndex];
 
     return (
       <div className="unit-detail-overlay" onClick={onClose}>
@@ -216,23 +227,42 @@ function Properties({ user }) {
             <h2 className="detail-title">{property.compoundname || property.title || property.name}</h2>
           </div>
 
-          {property.images && property.images.length > 0 && (
+          {media.length > 0 && (
             <div className="property-gallery">
-              <img 
-                src={property.images[currentImageIndex]} 
-                alt={property.title} 
-                className="gallery-image"
-              />
-              {property.images.length > 1 && (
+              {currentMedia.type === 'image' ? (
+                <img
+                  src={currentMedia.url}
+                  alt={property.title}
+                  className="gallery-image"
+                  onError={(e) => {
+                    console.error('Image failed to load:', currentMedia.url);
+                    e.target.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <video
+                  src={currentMedia.url}
+                  className="gallery-image"
+                  controls
+                  onError={(e) => {
+                    console.error('Video failed to load:', currentMedia.url);
+                    e.target.style.display = 'none';
+                  }}
+                >
+                  متصفحك لا يدعم تشغيل الفيديو
+                </video>
+              )}
+              {media.length > 1 && (
                 <>
-                  <button className="gallery-btn prev" onClick={prevImage}>
+                  <button className="gallery-btn prev" onClick={prevMedia}>
                     <i className="fas fa-chevron-right"></i>
                   </button>
-                  <button className="gallery-btn next" onClick={nextImage}>
+                  <button className="gallery-btn next" onClick={nextMedia}>
                     <i className="fas fa-chevron-left"></i>
                   </button>
                   <div className="gallery-indicator">
-                    {currentImageIndex + 1} / {property.images.length}
+                    {currentMediaIndex + 1} / {media.length}
+                    {currentMedia.type === 'video' && <span style={{ marginLeft: '8px' }}>🎥</span>}
                   </div>
                 </>
               )}
@@ -240,7 +270,7 @@ function Properties({ user }) {
           )}
 
           <div className="property-detail-content">
-            
+
             {property.totalprice && (
               <div className="detail-price">
                 {formatPrice(property.totalprice)} {property.currency_name || 'جنيه'}
@@ -343,15 +373,15 @@ function Properties({ user }) {
           className="search-input"
         />
         <div className="mobile-btn-row">
-          <button 
-            onClick={() => setShowFilters(!showFilters)} 
+          <button
+            onClick={() => setShowFilters(!showFilters)}
             className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
           >
             {showFilters ? '🔼 إخفاء الفلاتر' : '🔽 إظهار الفلاتر'}
             {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
           </button>
           {activeFiltersCount > 0 && (
-            <button 
+            <button
               onClick={() => {
                 setRegion('الكل');
                 setPropertyType('الكل');
@@ -369,8 +399,8 @@ function Properties({ user }) {
       <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
         <div className="filter-group">
           <label className="filter-label">📍 المنطقة</label>
-          <select 
-            value={region} 
+          <select
+            value={region}
             onChange={(e) => setRegion(e.target.value)}
             className="filter-select"
           >
@@ -383,8 +413,8 @@ function Properties({ user }) {
 
         <div className="filter-group">
           <label className="filter-label">🏠 نوع العقار</label>
-          <select 
-            value={propertyType} 
+          <select
+            value={propertyType}
             onChange={(e) => setPropertyType(e.target.value)}
             className="filter-select"
           >
@@ -397,8 +427,8 @@ function Properties({ user }) {
 
         <div className="filter-group">
           <label className="filter-label">📋 التصنيف</label>
-          <select 
-            value={category} 
+          <select
+            value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="filter-select"
           >
@@ -411,8 +441,8 @@ function Properties({ user }) {
 
         <div className="filter-group">
           <label className="filter-label">🎯 الغرض</label>
-          <select 
-            value={purpose} 
+          <select
+            value={purpose}
             onChange={(e) => setPurpose(e.target.value)}
             className="filter-select"
           >
@@ -450,9 +480,9 @@ function Properties({ user }) {
       )}
 
       {selectedProperty && (
-        <PropertyDetail 
-          property={selectedProperty} 
-          onClose={() => setSelectedProperty(null)} 
+        <PropertyDetail
+          property={selectedProperty}
+          onClose={() => setSelectedProperty(null)}
         />
       )}
     </div>

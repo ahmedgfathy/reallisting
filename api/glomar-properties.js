@@ -91,6 +91,7 @@ module.exports = async (req, res) => {
       }
 
       let images = [];
+      let videos = [];
 
       // Parse propertyimage field if it exists
       if (safeProp.propertyimage) {
@@ -121,10 +122,37 @@ module.exports = async (req, res) => {
         }
       }
 
+      // Parse videos field if it exists
+      if (safeProp.videos) {
+        try {
+          const vidData = typeof safeProp.videos === 'string'
+            ? JSON.parse(safeProp.videos)
+            : safeProp.videos;
+
+          if (Array.isArray(vidData)) {
+            videos = vidData.map(vid => {
+              // Use the ID from the video object to construct the URL
+              if (vid.id) {
+                // Point to Supabase Storage
+                return `${process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co'}/storage/v1/object/public/properties/property_${vid.id}.mp4`;
+              }
+              return null;
+            }).filter(Boolean);
+          }
+        } catch (e) {
+          // If parsing fails, try as plain string
+          if (typeof safeProp.videos === 'string' && safeProp.videos.startsWith('http')) {
+            videos = [safeProp.videos];
+          }
+        }
+      }
+
       return {
         ...safeProp,
         images,
-        hasImages: images.length > 0
+        videos,
+        hasImages: images.length > 0,
+        hasVideos: videos.length > 0
       };
     });
 
