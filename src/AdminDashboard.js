@@ -13,6 +13,10 @@ function AdminDashboard({ onClose }) {
   const [generatedPassword, setGeneratedPassword] = useState(null);
   const [subscriptionModal, setSubscriptionModal] = useState(null);
   const [subscriptionDays, setSubscriptionDays] = useState('30');
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importText, setImportText] = useState('');
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState(null);
 
   const token = localStorage.getItem('token') || '';
 
@@ -215,6 +219,43 @@ function AdminDashboard({ onClose }) {
     }
   };
 
+  const handleImportWhatsApp = async () => {
+    if (!token || !importText.trim()) {
+      setError('الرجاء إدخال نص الدردشة');
+      return;
+    }
+    
+    setImporting(true);
+    setError(null);
+    setImportResult(null);
+    
+    try {
+      const response = await fetch('/api/import-whatsapp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ text: importText })
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل في استيراد البيانات');
+      }
+      
+      setImportResult(result);
+      setImportText('');
+      setShowImportModal(false);
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const calculateRemainingDays = (endDate) => {
     if (!endDate) return null;
     const now = new Date();
@@ -255,6 +296,13 @@ function AdminDashboard({ onClose }) {
             disabled={deduplicating}
           >
             {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
+          </button>
+          <button 
+            type="button" 
+            className="admin-import-btn" 
+            onClick={() => setShowImportModal(true)}
+          >
+            📥 استيراد من واتساب
           </button>
         </div>
 
@@ -449,6 +497,73 @@ function AdminDashboard({ onClose }) {
                   ❌ إلغاء
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showImportModal && (
+          <div className="import-modal-overlay" onClick={() => setShowImportModal(false)}>
+            <div className="import-modal" onClick={e => e.stopPropagation()}>
+              <h3>📥 استيراد رسائل من واتساب</h3>
+              <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
+                الصق نص الدردشة المُصدر من واتساب هنا. يجب أن يكون بالصيغة:
+                <br />
+                <code>[DD/MM/YYYY, HH:MM:SS] الاسم: الرسالة</code>
+              </p>
+              <textarea
+                className="import-textarea"
+                value={importText}
+                onChange={e => setImportText(e.target.value)}
+                placeholder="مثال:&#10;[15/12/2024, 10:30:00] أحمد: شقة للبيع في العاشر من رمضان 120 متر اتصل 01234567890&#10;[15/12/2024, 10:35:00] محمد: مطلوب فيلا للإيجار"
+                rows="10"
+                disabled={importing}
+              />
+              <div className="import-modal-actions">
+                <button 
+                  className="import-confirm-btn" 
+                  onClick={handleImportWhatsApp}
+                  disabled={importing || !importText.trim()}
+                >
+                  {importing ? '⏳ جاري الاستيراد...' : '✅ استيراد'}
+                </button>
+                <button 
+                  className="import-cancel-btn" 
+                  onClick={() => setShowImportModal(false)}
+                  disabled={importing}
+                >
+                  ❌ إلغاء
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {importResult && (
+          <div className="import-result-overlay" onClick={() => setImportResult(null)}>
+            <div className="import-result-box" onClick={e => e.stopPropagation()}>
+              <h3>✅ نتيجة الاستيراد</h3>
+              <div className="import-stats">
+                <div className="import-stat">
+                  <span className="import-label">إجمالي الرسائل المستخرجة:</span>
+                  <span className="import-value">{importResult.stats?.totalParsed || 0}</span>
+                </div>
+                <div className="import-stat">
+                  <span className="import-label">تم استيرادها بنجاح:</span>
+                  <span className="import-value import-success">{importResult.stats?.imported || 0}</span>
+                </div>
+                <div className="import-stat">
+                  <span className="import-label">المرسلين الجدد:</span>
+                  <span className="import-value">{importResult.stats?.sendersCreated || 0}</span>
+                </div>
+                {importResult.stats?.errors > 0 && (
+                  <div className="import-stat">
+                    <span className="import-label">الأخطاء:</span>
+                    <span className="import-value import-error">{importResult.stats.errors}</span>
+                  </div>
+                )}
+              </div>
+              <p className="import-message">✅ {importResult.message}</p>
+              <button className="import-close-btn" onClick={() => setImportResult(null)}>إغلاق</button>
             </div>
           </div>
         )}
