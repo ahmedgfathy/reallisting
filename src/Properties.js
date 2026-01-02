@@ -256,26 +256,9 @@ function Properties({ user }) {
     };
 
     // Handle native share (Web Share API)
-    const handleNativeShare = async () => {
-      const shareContent = getShareContent();
-      
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: shareContent.title,
-            text: shareContent.text,
-            url: shareContent.url
-          });
-          setShowShareMenu(false);
-        } catch (err) {
-          if (err.name !== 'AbortError') {
-            console.error('Error sharing:', err);
-          }
-        }
-      } else {
-        // Fallback: show share menu with social options
-        setShowShareMenu(true);
-      }
+    const handleNativeShare = () => {
+      // Always show the share menu for consistent behavior
+      setShowShareMenu(!showShareMenu);
     };
 
     // Handle WhatsApp share
@@ -305,12 +288,34 @@ function Properties({ user }) {
     // Handle copy link
     const handleCopyLink = () => {
       const shareContent = getShareContent();
-      navigator.clipboard.writeText(shareContent.text).then(() => {
-        alert('تم نسخ التفاصيل إلى الحافظة!');
-        setShowShareMenu(false);
-      }).catch(err => {
-        console.error('Error copying to clipboard:', err);
-      });
+      
+      // Check if clipboard API is available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareContent.text).then(() => {
+          alert('تم نسخ التفاصيل إلى الحافظة!');
+          setShowShareMenu(false);
+        }).catch(err => {
+          console.error('Error copying to clipboard:', err);
+          alert('فشل نسخ التفاصيل. يرجى المحاولة مرة أخرى.');
+        });
+      } else {
+        // Fallback for browsers that don't support clipboard API
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = shareContent.text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('تم نسخ التفاصيل إلى الحافظة!');
+          setShowShareMenu(false);
+        } catch (err) {
+          console.error('Error copying to clipboard:', err);
+          alert('فشل نسخ التفاصيل. يرجى المحاولة مرة أخرى.');
+        }
+      }
     };
 
     return (
@@ -329,24 +334,31 @@ function Properties({ user }) {
                 className="share-btn" 
                 onClick={handleNativeShare}
                 title="مشاركة"
+                aria-label="مشاركة العقار"
+                aria-expanded={showShareMenu}
+                aria-haspopup="menu"
               >
                 <i className="fas fa-share-alt"></i>
               </button>
               {showShareMenu && (
-                <div className="share-menu">
-                  <button className="share-option whatsapp" onClick={handleWhatsAppShare}>
+                <div 
+                  className="share-menu"
+                  role="menu"
+                  aria-label="خيارات المشاركة"
+                >
+                  <button className="share-option whatsapp" onClick={handleWhatsAppShare} role="menuitem">
                     <i className="fab fa-whatsapp"></i>
                     <span>واتساب</span>
                   </button>
-                  <button className="share-option facebook" onClick={handleFacebookShare}>
+                  <button className="share-option facebook" onClick={handleFacebookShare} role="menuitem">
                     <i className="fab fa-facebook"></i>
                     <span>فيسبوك</span>
                   </button>
-                  <button className="share-option twitter" onClick={handleTwitterShare}>
+                  <button className="share-option twitter" onClick={handleTwitterShare} role="menuitem">
                     <i className="fab fa-twitter"></i>
                     <span>تويتر</span>
                   </button>
-                  <button className="share-option copy" onClick={handleCopyLink}>
+                  <button className="share-option copy" onClick={handleCopyLink} role="menuitem">
                     <i className="fas fa-copy"></i>
                     <span>نسخ</span>
                   </button>
