@@ -43,11 +43,11 @@ function parseWhatsAppChat(text) {
 
 // Extract mobile number from message text
 function extractMobile(text) {
-  // Egyptian mobile patterns
+  // Egyptian mobile patterns - without word boundaries for better Arabic support
   const patterns = [
-    /\b(01[0-9]{9})\b/,           // 01xxxxxxxxx
-    /\b(\+201[0-9]{9})\b/,        // +201xxxxxxxxx
-    /\b(00201[0-9]{9})\b/         // 00201xxxxxxxxx
+    /(\+201[0-9]{9})/,        // +201xxxxxxxxx
+    /(00201[0-9]{9})/,        // 00201xxxxxxxxx
+    /\b(01[0-9]{9})\b/        // 01xxxxxxxxx (word boundary OK for this)
   ];
   
   for (const pattern of patterns) {
@@ -77,11 +77,11 @@ function extractPropertyDetails(message) {
   
   const lowerMessage = message.toLowerCase();
   
-  // Extract category
-  if (lowerMessage.includes('معروض') || lowerMessage.includes('للبيع') || lowerMessage.includes('للإيجار')) {
-    details.category = 'معروض';
-  } else if (lowerMessage.includes('مطلوب')) {
+  // Extract category - check مطلوب first before معروض
+  if (lowerMessage.includes('مطلوب')) {
     details.category = 'مطلوب';
+  } else if (lowerMessage.includes('معروض') || lowerMessage.includes('للبيع') || lowerMessage.includes('للإيجار')) {
+    details.category = 'معروض';
   }
   
   // Extract property type
@@ -203,21 +203,55 @@ module.exports = async (req, res) => {
           if (senderCache.has(mobile)) {
             senderId = senderCache.get(mobile);
           } else {
-            // Use the get_or_create_sender RPC function
-            const { data: senderIdResult, error: senderError } = await supabase
-              .rpc('get_or_create_sender', {
-                p_mobile: mobile,
-                p_name: msg.sender || '',
-                p_date: msg.date
-              });
-            
-            if (senderError) {
-              console.error('Error creating sender:', senderError);
-            } else {
-              senderId = senderIdResult;
-              senderCache.set(mobile, senderId);
-              if (!stats.sendersCreated) stats.sendersCreated = 0;
-              stats.sendersCreated++;
+            // Try using the get_or_create_sender RPC function first
+            try {
+              const { data: senderIdResult, error: senderError } = await supabase
+                .rpc('get_or_create_sender', {
+                  p_mobile: mobile,
+                  p_name: msg.sender || '',
+                  p_date: msg.date
+                });
+              
+              if (!senderError && senderIdResult) {
+                senderId = senderIdResult;
+                senderCache.set(mobile, senderId);
+                if (!stats.sendersCreated) stats.sendersCreated = 0;
+                stats.sendersCreated++;
+              }
+            } catch (rpcError) {
+              // If RPC function doesn't exist, use direct insert/select approach
+              console.log('RPC function not available, using direct approach');
+              
+              // Try to find existing sender
+              const { data: existingSender } = await supabase
+                .from('sender')
+                .select('id')
+                .eq('mobile', mobile)
+                .single();
+              
+              if (existingSender) {
+                senderId = existingSender.id;
+                senderCache.set(mobile, senderId);
+              } else {
+                // Create new sender
+                const { data: newSender, error: insertError } = await supabase
+                  .from('sender')
+                  .insert([{
+                    mobile: mobile,
+                    name: msg.sender || '',
+                    first_seen_date: msg.date,
+                    first_seen_time: msg.time
+                  }])
+                  .select('id')
+                  .single();
+                
+                if (!insertError && newSender) {
+                  senderId = newSender.id;
+                  senderCache.set(mobile, senderId);
+                  if (!stats.sendersCreated) stats.sendersCreated = 0;
+                  stats.sendersCreated++;
+                }
+              }
             }
           }
         }
@@ -229,19 +263,81 @@ module.exports = async (req, res) => {
         }
         
         // Insert message into database
+        // First, try to get IDs for normalized schema if it exists
+        let regionId = null, categoryId = null, propertyTypeId = null, purposeId = null;
+        
+        // Try to look up normalized IDs (if tables exist)
+        try {
+          const { data: regionData } = await supabase
+            .from('regions')
+            .select('id')
+            .eq('name', details.region)
+            .single();
+          if (regionData) regionId = regionData.id;
+          
+          const { data: categoryData } = await supabase
+            .from('categories')
+            .select('id')
+            .eq('name', details.category)
+            .single();
+          if (categoryData) categoryId = categoryData.id;
+          
+          const { data: typeData } = await supabase
+            .from('property_types')
+            .select('id')
+            .eq('name', details.propertyType)
+            .single();
+          if (typeData) propertyTypeId = typeData.id;
+          
+          const { data: purposeData } = await supabase
+            .from('purposes')
+            .select('id')
+            .eq('name', details.purpose)
+            .single();
+          if (purposeData) purposeId = purposeData.id;
+        } catch (lookupError) {
+          // Normalized tables don't exist, will use text columns
+          console.log('Using non-normalized schema (text columns)');
+        }
+        
         const messageData = {
           id: generateMessageId(),
           message: cleanMessage,
           sender_id: senderId,
-          mobile: mobile || 'N/A',
           date_of_creation: msg.date,
           source_file: 'whatsapp_import',
-          category: details.category,
-          property_type: details.propertyType,
-          region: details.region,
-          purpose: details.purpose,
           created_at: new Date().toISOString()
         };
+        
+        // Add fields based on schema (normalized or not)
+        if (regionId) {
+          messageData.region_id = regionId;
+        } else {
+          messageData.region = details.region;
+        }
+        
+        if (categoryId) {
+          messageData.category_id = categoryId;
+        } else {
+          messageData.category = details.category;
+        }
+        
+        if (propertyTypeId) {
+          messageData.property_type_id = propertyTypeId;
+        } else {
+          messageData.property_type = details.propertyType;
+        }
+        
+        if (purposeId) {
+          messageData.purpose_id = purposeId;
+        } else {
+          messageData.purpose = details.purpose;
+        }
+        
+        // Add mobile if not using normalized schema
+        if (!senderId || !regionId) {
+          messageData.mobile = mobile || 'N/A';
+        }
         
         const { error: insertError } = await supabase
           .from('messages')
