@@ -89,15 +89,23 @@ function Properties({ user }) {
     }
   }, [search, category, propertyType, region, purpose]);
 
+  // Reset state when filters change
   useEffect(() => {
     setProperties([]);
     setHasMore(true);
     setPage(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setSelectedProperty(null); // Close detail view when filters change
   }, [search, category, propertyType, region, purpose]);
 
+  // Fetch properties when page changes
   useEffect(() => {
-    fetchProperties(page, { append: page > 1 });
+    if (page === 1) {
+      // Initial load - don't append
+      fetchProperties(1, { append: false });
+    } else {
+      // Load more - append to existing
+      fetchProperties(page, { append: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
