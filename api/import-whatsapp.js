@@ -23,7 +23,7 @@ function parseWhatsAppChat(text) {
   
   // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Name: Message
   // or: DD/MM/YYYY, HH:MM - Name: Message
-  const whatsappRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*[-–]?\s*([^:]+):\s*(.+)$/;
+  const whatsappRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*[-–—]?\s*([^:]+):\s*(.+)$/;
   
   for (const line of lines) {
     const match = line.match(whatsappRegex);
@@ -136,7 +136,11 @@ function extractPropertyDetails(message) {
 
 // Generate unique message ID
 function generateMessageId() {
-  return `whatsapp_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  // Use timestamp + random + counter for better uniqueness
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 11);
+  const counter = Math.floor(Math.random() * 10000);
+  return `whatsapp_${timestamp}_${random}_${counter}`;
 }
 
 module.exports = async (req, res) => {
@@ -205,6 +209,15 @@ module.exports = async (req, res) => {
           } else {
             // Try using the get_or_create_sender RPC function first
             try {
+              // First check if sender exists
+              const { data: existingSenderCheck } = await supabase
+                .from('sender')
+                .select('id')
+                .eq('mobile', mobile)
+                .single();
+              
+              const senderExists = !!existingSenderCheck;
+              
               const { data: senderIdResult, error: senderError } = await supabase
                 .rpc('get_or_create_sender', {
                   p_mobile: mobile,
@@ -215,7 +228,10 @@ module.exports = async (req, res) => {
               if (!senderError && senderIdResult) {
                 senderId = senderIdResult;
                 senderCache.set(mobile, senderId);
-                stats.sendersCreated++;
+                // Only increment if sender didn't exist before
+                if (!senderExists) {
+                  stats.sendersCreated++;
+                }
               }
             } catch (rpcError) {
               // If RPC function doesn't exist, use direct insert/select approach
