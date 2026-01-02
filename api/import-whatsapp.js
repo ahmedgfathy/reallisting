@@ -215,7 +215,6 @@ module.exports = async (req, res) => {
               if (!senderError && senderIdResult) {
                 senderId = senderIdResult;
                 senderCache.set(mobile, senderId);
-                if (!stats.sendersCreated) stats.sendersCreated = 0;
                 stats.sendersCreated++;
               }
             } catch (rpcError) {
@@ -248,7 +247,6 @@ module.exports = async (req, res) => {
                 if (!insertError && newSender) {
                   senderId = newSender.id;
                   senderCache.set(mobile, senderId);
-                  if (!stats.sendersCreated) stats.sendersCreated = 0;
                   stats.sendersCreated++;
                 }
               }
@@ -259,7 +257,8 @@ module.exports = async (req, res) => {
         // Clean message - remove mobile numbers for privacy
         let cleanMessage = msg.message;
         if (mobile) {
-          cleanMessage = cleanMessage.replace(new RegExp(mobile.replace(/[+]/g, '\\+'), 'g'), '***');
+          const mobileEscaped = mobile.replace(/[+]/g, '\\+');
+          cleanMessage = cleanMessage.replace(new RegExp(mobileEscaped, 'g'), '***');
         }
         
         // Insert message into database
@@ -358,7 +357,7 @@ module.exports = async (req, res) => {
     
     return res.status(200).json({
       success: true,
-      message: `Import completed successfully`,
+      message: 'Import completed successfully',
       stats: {
         totalParsed: stats.total,
         imported: stats.imported,

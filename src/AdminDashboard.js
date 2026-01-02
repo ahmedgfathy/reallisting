@@ -17,6 +17,8 @@ function AdminDashboard({ onClose }) {
   const [importText, setImportText] = useState('');
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  
+  const IMPORT_PLACEHOLDER = 'مثال:\n[15/12/2024, 10:30:00] أحمد: شقة للبيع في العاشر من رمضان 120 متر اتصل 01234567890\n[15/12/2024, 10:35:00] محمد: مطلوب فيلا للإيجار';
 
   const token = localStorage.getItem('token') || '';
 
@@ -514,7 +516,7 @@ function AdminDashboard({ onClose }) {
                 className="import-textarea"
                 value={importText}
                 onChange={e => setImportText(e.target.value)}
-                placeholder="مثال:&#10;[15/12/2024, 10:30:00] أحمد: شقة للبيع في العاشر من رمضان 120 متر اتصل 01234567890&#10;[15/12/2024, 10:35:00] محمد: مطلوب فيلا للإيجار"
+                placeholder={IMPORT_PLACEHOLDER}
                 rows="10"
                 disabled={importing}
               />
