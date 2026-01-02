@@ -257,7 +257,8 @@ module.exports = async (req, res) => {
         // Clean message - remove mobile numbers for privacy
         let cleanMessage = msg.message;
         if (mobile) {
-          const mobileEscaped = mobile.replace(/[+]/g, '\\+');
+          // Escape all special regex characters for safe replacement
+          const mobileEscaped = mobile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           cleanMessage = cleanMessage.replace(new RegExp(mobileEscaped, 'g'), '***');
         }
         
