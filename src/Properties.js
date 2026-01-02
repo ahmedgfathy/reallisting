@@ -89,23 +89,24 @@ function Properties({ user }) {
     }
   }, [search, category, propertyType, region, purpose]);
 
-  // Reset state when filters change
+  // Reset state and fetch when filters change
   useEffect(() => {
+    // Don't fetch if viewing property details
+    if (selectedProperty) return;
+    
     setProperties([]);
     setHasMore(true);
     setPage(1);
-    setSelectedProperty(null); // Close detail view when filters change
+    fetchProperties(1, { append: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, category, propertyType, region, purpose]);
 
-  // Fetch properties when page changes
+  // Fetch properties when page changes (for pagination only)
   useEffect(() => {
-    if (page === 1) {
-      // Initial load - don't append
-      fetchProperties(1, { append: false });
-    } else {
-      // Load more - append to existing
-      fetchProperties(page, { append: true });
-    }
+    // Don't fetch if viewing property details or if page is 1 (handled by filter effect)
+    if (page === 1 || selectedProperty) return;
+    
+    fetchProperties(page, { append: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 

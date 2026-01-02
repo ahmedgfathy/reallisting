@@ -373,11 +373,15 @@ function App() {
   }, [page, fetchMessages]);
 
   useEffect(() => {
+    // Only auto-refresh stats when on first tab and not viewing unit details
+    if (showProperties || selectedUnit) {
+      return;
+    }
     const interval = setInterval(() => {
       fetchStats();
     }, 5000);
     return () => clearInterval(interval);
-  }, [fetchStats]);
+  }, [fetchStats, showProperties, selectedUnit]);
 
   useEffect(() => {
     const node = loaderRef.current;
