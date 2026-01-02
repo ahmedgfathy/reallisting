@@ -104,9 +104,8 @@ module.exports = async (req, res) => {
             images = imgData.map(img => {
               // Use the ID from the image object to construct the URL
               if (img.id) {
-                // Point to Supabase Storage
-                // Assuming all migrated images are .jpg based on previous remote checks
-                return `${process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co'}/storage/v1/object/public/properties/property_${img.id}.jpg`;
+                // Point to Supabase Storage - files are named as {id}.jpg
+                return `${process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co'}/storage/v1/object/public/properties/${img.id}.jpg`;
               }
               return null;
             }).filter(Boolean);
@@ -114,9 +113,6 @@ module.exports = async (req, res) => {
         } catch (e) {
           // If parsing fails, try as plain string
           if (typeof safeProp.propertyimage === 'string' && safeProp.propertyimage.startsWith('http')) {
-            // It might be a full URL already (legacy). 
-            // In a full migration, we might want to regex replace this too, but for now leave legacy external refs?
-            // Actually, if it's pointing to the old server, we should probably check.
             images = [safeProp.propertyimage];
           }
         }
@@ -133,8 +129,8 @@ module.exports = async (req, res) => {
             videos = vidData.map(vid => {
               // Use the ID from the video object to construct the URL
               if (vid.id) {
-                // Point to Supabase Storage
-                return `${process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co'}/storage/v1/object/public/properties/property_${vid.id}.mp4`;
+                // Point to Supabase Storage - files are named as {id}.mp4
+                return `${process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co'}/storage/v1/object/public/properties/${vid.id}.mp4`;
               }
               return null;
             }).filter(Boolean);
