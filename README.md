@@ -45,6 +45,8 @@ reallisting/
 - [Implementation Summary](docs/technical/IMPLEMENTATION_SUMMARY.md)
 - [Contact Info Cleaning](docs/technical/CONTACT_CLEANING_README.md)
 - [Password Reset Feature](docs/technical/PASSWORD_RESET_IMPLEMENTATION.md)
+- [WhatsApp Import Guide](docs/technical/WHATSAPP_IMPORT_GUIDE.md) 📥 NEW
+- [WhatsApp Import Quick Start](docs/WHATSAPP_IMPORT_README.md) 📥 NEW
 
 ## 🛠️ Tech Stack
 
