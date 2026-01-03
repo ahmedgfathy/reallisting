@@ -114,8 +114,8 @@ function App() {
             clearAuthState();
           }
         } else {
-          // No cached user data available - log warning but don't clear token yet
-          // This allows retry on next mount if network is restored
+          // No cached user data available - keep token but remain logged out
+          // User will need to log in again to restore session and cache user data
           console.warn('No cached user data available, cannot restore session');
         }
       };
