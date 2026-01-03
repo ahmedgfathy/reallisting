@@ -1,6 +1,6 @@
 const { supabase, verifyToken, corsHeaders } = require('./_lib/supabase');
 
-// Helper to parse request body for multipart/form-data or text
+// Helper to parse request body
 async function parseBody(req) {
   if (req.body) return req.body;
   return new Promise((resolve) => {
@@ -21,8 +21,6 @@ function parseWhatsAppChat(text) {
   const lines = text.split('\n');
   const messages = [];
   
-  // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Name: Message
-  // or: DD/MM/YYYY, HH:MM - Name: Message
   const whatsappRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?)\]?\s*[-–—]?\s*([^:]+):\s*(.+)$/;
   
   for (const line of lines) {
@@ -169,10 +167,43 @@ module.exports = async (req, res) => {
   
   try {
     const body = await parseBody(req);
-    const chatText = body.text || body.content || '';
+    
+    // Accept both 'text' (old format) and 'fileContent' (new format)
+    let chatText = body.text || body.fileContent || body.content || '';
+    const filename = body.filename || `import_${Date.now()}.txt`;
     
     if (!chatText) {
       return res.status(400).json({ error: 'No chat text provided' });
+    }
+    
+    // If this is a file upload, store it in Supabase Storage
+    if (body.fileContent && body.filename) {
+      try {
+        const timestamp = Date.now();
+        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const filePath = `${payload.username}/${timestamp}_${safeName}`;
+        
+        // Upload to Supabase Storage
+        await supabase.storage
+          .from('whatsapp-chats')
+          .upload(filePath, chatText, {
+            contentType: 'text/plain',
+            upsert: false
+          });
+        
+        // Record upload in database
+        await supabase
+          .from('chat_uploads')
+          .insert([{
+            filename: filename,
+            file_path: filePath,
+            uploaded_by: payload.username,
+            status: 'processing'
+          }]);
+      } catch (storageError) {
+        console.log('Storage upload skipped:', storageError.message);
+        // Continue even if storage fails
+      }
     }
     
     // Parse WhatsApp chat
@@ -369,6 +400,28 @@ module.exports = async (req, res) => {
       } catch (error) {
         console.error('Error processing message:', error);
         stats.errors++;
+      }
+    }
+    
+    // Update chat_uploads status if this was a file upload
+    if (body.fileContent && body.filename) {
+      try {
+        await supabase
+          .from('chat_uploads')
+          .update({
+            status: 'completed',
+            processed_at: new Date().toISOString(),
+            total_parsed: stats.total,
+            total_imported: stats.imported,
+            senders_created: stats.sendersCreated,
+            errors: stats.errors
+          })
+          .eq('uploaded_by', payload.username)
+          .eq('filename', filename)
+          .order('uploaded_at', { ascending: false })
+          .limit(1);
+      } catch (updateError) {
+        console.log('Failed to update chat_uploads:', updateError.message);
       }
     }
     

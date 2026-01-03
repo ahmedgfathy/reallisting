@@ -254,8 +254,8 @@ function AdminDashboard({ onClose }) {
       
       setUploadProgress(30);
       
-      // Step 1: Upload file
-      const uploadResponse = await fetch('/api/upload-whatsapp', {
+      // Upload and process in one call
+      const response = await fetch('/api/import-whatsapp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -267,32 +267,14 @@ function AdminDashboard({ onClose }) {
         })
       });
       
-      const uploadResult = await uploadResponse.json();
+      const result = await response.json();
       
-      if (!uploadResponse.ok) {
-        throw new Error(uploadResult.error || 'فشل في رفع الملف');
-      }
-      
-      setUploadProgress(60);
-      
-      // Step 2: Process file
-      const processResponse = await fetch('/api/process-whatsapp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ uploadId: uploadResult.uploadId })
-      });
-      
-      const processResult = await processResponse.json();
-      
-      if (!processResponse.ok) {
-        throw new Error(processResult.error || 'فشل في معالجة الملف');
+      if (!response.ok) {
+        throw new Error(result.error || 'فشل في استيراد الملف');
       }
       
       setUploadProgress(100);
-      setImportResult(processResult);
+      setImportResult(result);
       setSelectedFile(null);
       setShowImportModal(false);
       
