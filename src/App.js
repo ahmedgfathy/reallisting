@@ -87,10 +87,38 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
       if (!token) {
         setAuthLoading(false);
         return;
       }
+
+      // Helper to clear authentication state
+      const clearAuthState = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setIsAuthenticated(false);
+        setUser(null);
+      };
+
+      // Helper to restore cached user data
+      const restoreCachedUser = () => {
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setIsAuthenticated(true);
+            setUser(userData);
+          } catch (parseErr) {
+            console.error('Failed to parse stored user, clearing auth:', parseErr);
+            clearAuthState();
+          }
+        } else {
+          // No cached user data available - keep token but remain logged out
+          // User will need to log in again to restore session and cache user data
+          console.warn('No cached user data available, cannot restore session');
+        }
+      };
 
       try {
         const response = await fetch('/api/auth/verify', {
@@ -104,13 +132,22 @@ function App() {
           if (data.authenticated) {
             setIsAuthenticated(true);
             setUser(data.user);
+          } else {
+            // Server successfully validated request but token is invalid
+            clearAuthState();
           }
+        } else if (response.status === 401) {
+          // Unauthorized - clear invalid token
+          clearAuthState();
         } else {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          // Other HTTP errors (4xx except 401, 5xx) - keep user logged in with stored data
+          console.warn('Auth verification failed, using cached user data');
+          restoreCachedUser();
         }
       } catch (err) {
-        console.error('Auth check failed:', err);
+        // Network error - keep user logged in with stored data
+        console.warn('Auth check network error, using cached user data:', err.message);
+        restoreCachedUser();
       } finally {
         setAuthLoading(false);
       }
