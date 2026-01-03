@@ -1,4 +1,4 @@
-const { supabase, corsHeaders } = require('./_lib/supabase');
+const { supabase, corsHeaders } = require('../lib/supabase');
 
 // Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {
@@ -20,48 +20,41 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Use the PostgreSQL function for efficient distinct regions
-    const { data, error } = await supabase.rpc('get_distinct_regions');
+    // Query the normalized regions table directly
+    const { data: regionsData, error } = await supabase
+      .from('regions')
+      .select('name')
+      .order('name');
 
     if (error) {
-      console.error('Supabase RPC error:', error);
-      // Fallback: try direct query if RPC fails
-      const { data: fallbackData, error: fallbackError } = await supabase
-        .from('messages')
-        .select('region');
-      
-      if (fallbackError) {
-        return res.status(500).json({ error: fallbackError.message });
-      }
-      
-      const uniqueRegions = [...new Set((fallbackData || []).map(r => r.region).filter(Boolean))];
-      return res.status(200).json(uniqueRegions);
+      console.error('Supabase error:', error);
+      return res.status(500).json({ error: error.message });
     }
 
-    const regions = (data || []).map(r => r.region).filter(Boolean);
+    const regions = (regionsData || []).map(r => r.name).filter(Boolean);
 
     // Sort regions - put الحي numbers first, then مجاورة, then named areas, then أخرى at the end
     const sortedRegions = regions.sort((a, b) => {
       if (a === 'أخرى') return 1;
       if (b === 'أخرى') return -1;
-      
+
       const aIsHayy = a && a.startsWith('الحي');
       const bIsHayy = b && b.startsWith('الحي');
       const aIsMug = a && a.startsWith('مجاورة');
       const bIsMug = b && b.startsWith('مجاورة');
-      
+
       if (aIsHayy && !bIsHayy) return -1;
       if (!aIsHayy && bIsHayy) return 1;
       if (aIsMug && !bIsMug) return -1;
       if (!aIsMug && bIsMug) return 1;
-      
+
       // Extract numbers for numeric sorting
       const aNum = parseInt((a || '').match(/\d+/)?.[0] || '999');
       const bNum = parseInt((b || '').match(/\d+/)?.[0] || '999');
-      
+
       if (aIsHayy && bIsHayy) return aNum - bNum;
       if (aIsMug && bIsMug) return aNum - bNum;
-      
+
       return (a || '').localeCompare(b || '', 'ar');
     });
 

@@ -1,70 +1,84 @@
-# Getting Started with Create React App
+# Reallisting - Real Estate Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Modern real estate listing platform built with React and Supabase.
 
-## Available Scripts
+## 🚀 Quick Start
 
-In the project directory, you can run:
+```bash
+# Install dependencies
+npm install
 
-### `npm start`
+# Start development server
+./scripts/start.sh
+# or
+npm start
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# Build for production
+npm run build
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 📁 Project Structure
 
-### `npm test`
+```
+reallisting/
+├── api/                           # Serverless API endpoints
+│   ├── clean-mobiles-cron.js     # Automated mobile number cleaning
+│   └── ...
+├── src/                           # React application source
+├── public/                        # Static assets
+├── scripts/                       # Utility scripts
+│   ├── start.sh                  # Development server startup
+│   ├── data-cleaning/            # Contact info cleaning scripts
+│   │   ├── clean-mobile-numbers-fast.js
+│   │   ├── clean-contact-info-enhanced.js
+│   │   └── ...
+│   ├── database-scripts/         # Database schema & migrations
+│   ├── generate-icons.js         # Icon generation
+│   └── archive/                  # Legacy migration scripts
+├── docs/                          # Documentation
+│   └── technical/                # Technical documentation
+└── build/                        # Production build output
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🗂️ Documentation
 
-### `npm run build`
+- [Implementation Summary](docs/technical/IMPLEMENTATION_SUMMARY.md)
+- [Contact Info Cleaning](docs/technical/CONTACT_CLEANING_README.md)
+- [Password Reset Feature](docs/technical/PASSWORD_RESET_IMPLEMENTATION.md)
+- [WhatsApp Import Guide](docs/technical/WHATSAPP_IMPORT_GUIDE.md) 📥 NEW
+- [WhatsApp Import Quick Start](docs/WHATSAPP_IMPORT_README.md) 📥 NEW
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Tech Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Frontend**: React, CSS
+- **Backend**: Vercel Serverless Functions
+- **Database**: Supabase (PostgreSQL)
+- **Deployment**: Vercel
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔐 Environment Variables
 
-### `npm run eject`
+Copy `.env.example` to `.env` and configure:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```env
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+JWT_SECRET=your_jwt_secret
+ADMIN_PASSWORD=your_admin_password
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📦 Available Scripts
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run tests
+- `npm run eject` - Eject from Create React App
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🌐 Deployment
 
-## Learn More
+The app is configured for Vercel deployment. Push to the `glomart` branch to deploy.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 📝 License
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Private - All rights reserved

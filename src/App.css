@@ -26,19 +26,38 @@ body {
   box-shadow: 0 4px 15px rgba(59, 89, 152, 0.3);
 }
 
-/* Row 1: Brand + Auth */
+/* Row 1: Brand + Tabs/Stats + Auth */
 .header-row-1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 15px;
-  margin-bottom: 8px;
 }
 
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
+}
+
+.nav-and-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.nav-tabs-inline {
+  display: flex;
+  gap: 8px;
+}
+
+.stats-inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 
 .brand-logo {
@@ -104,45 +123,108 @@ body {
   border-radius: 12px;
 }
 
-.logout-btn {
+.subscription-countdown {
+  font-size: 0.75rem;
   padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  font-weight: 600;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Base button styling for header actions */
+.header-btn-base {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  border: none;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-family: 'Cairo', sans-serif;
-  font-size: 0.75rem;
-  transition: all 0.2s;
 }
 
-.logout-btn:hover {
+.header-btn-base:hover {
   background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.admin-link {
-  padding: 4px 8px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+.header-btn-base:active {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.admin-link:hover {
-  background: rgba(255, 255, 255, 0.25);
+.admin-link,
+.profile-link,
+.logout-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
 }
 
-/* Row 2: Stats */
+.logout-btn span {
+  display: none;
+}
+
+.admin-link:hover,
+.profile-link:hover,
+.logout-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+}
+
+.admin-link:active,
+.profile-link:active,
+.logout-btn:active {
+  transform: translateY(0) scale(1);
+}
+
+.admin-link svg,
+.profile-link svg,
+.logout-btn svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+/* Row 2: Navigation Tabs + Stats */
 .header-row-2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 12px;
   padding: 6px 0 2px;
   border-top: 1px solid rgba(255, 255, 255, 0.15);
+  flex-wrap: wrap;
+}
+
+.nav-tab {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-tab:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.nav-tab.active {
+  background: white;
+  color: #4267B2;
+  border-color: white;
 }
 
 .stat-item {
@@ -165,53 +247,10 @@ body {
 }
 
 .user-info {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  white-space: nowrap;
-}
-
-.logout-btn {
+  font-size: 0.8rem;
+  padding: 4px 10px;
   background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  font-size: 0.85rem;
-  transition: all 0.3s;
-  white-space: nowrap;
-}
-
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
-}
-
-.admin-link {
-  color: white;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  font-family: 'Cairo', sans-serif;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  outline: none;
-  background-clip: padding-box;
-}
-
-.admin-link:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
 }
 
 .main-content {
@@ -677,25 +716,42 @@ body {
 }
 
 .property-card {
-  background: #fff;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  padding: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  border: 2px solid #e8edf2;
+  border-radius: 16px;
+  padding: 20px;
   position: relative;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.property-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #4267B2 0%, #5b7bc7 50%, #4267B2 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.property-card:hover::before {
+  opacity: 1;
 }
 
 .property-card:hover {
-  border-color: #3b5998;
-  box-shadow: 0 8px 25px rgba(59, 89, 152, 0.15);
-  transform: translateY(-3px);
+  border-color: #4267B2;
+  box-shadow: 0 12px 32px rgba(59, 89, 152, 0.18), 0 4px 12px rgba(59, 89, 152, 0.1);
+  transform: translateY(-5px);
 }
 
 .property-card.selected-card {
-  border-color: #3b5998;
-  background: #f0f6ff;
-  box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.2);
+  border-color: #4267B2;
+  background: linear-gradient(145deg, #f0f6ff 0%, #e7f1ff 100%);
+  box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.25), 0 8px 24px rgba(59, 89, 152, 0.15);
 }
 
 .card-checkbox {
@@ -713,41 +769,69 @@ body {
 }
 
 .card-index {
-  background: linear-gradient(135deg, #3b5998, #2d4373);
+  background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
   color: white;
-  padding: 6px 14px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 700;
   display: inline-block;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 8px rgba(59, 89, 152, 0.25);
+  letter-spacing: 0.5px;
+}
+
+.card-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
   margin-bottom: 12px;
 }
 
 .card-title {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
-  color: #2d4373;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid #e7f3ff;
-  line-height: 1.5;
+  color: #1a2b4d;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #e7f1ff;
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::before {
+  content: '🏠';
+  font-size: 1.3rem;
+  flex-shrink: 0;
 }
 
 .card-message {
-  color: #333;
+  color: #4a5568;
   font-size: 0.95rem;
-  line-height: 1.6;
-  margin-bottom: 15px;
-  min-height: 60px;
+  line-height: 1.7;
+  margin-bottom: 16px;
+  min-height: 65px;
   word-break: break-word;
+  position: relative;
+  padding: 12px;
+  background: #f8fafb;
+  border-radius: 10px;
+  border-right: 3px solid #e7f1ff;
 }
 
 .card-footer {
-  border-top: 1px solid #eee;
-  padding-top: 12px;
+  border-top: 2px solid #e7f1ff;
+  padding-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  background: linear-gradient(180deg, transparent 0%, #fafbfc 100%);
+  margin: 0 -20px -20px -20px;
+  padding: 14px 20px 20px 20px;
+  border-radius: 0 0 16px 16px;
 }
 
 .card-contact {
@@ -765,23 +849,37 @@ body {
 }
 
 .card-phone {
-  background: #25d366;
+  background: linear-gradient(135deg, #25d366 0%, #20bd5a 100%);
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 24px;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  transition: background 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .card-phone:hover {
-  background: #128c7e;
+  background: linear-gradient(135deg, #128c7e 0%, #0d6e5c 100%);
+  box-shadow: 0 4px 12px rgba(18, 140, 126, 0.4);
+  transform: translateY(-2px);
 }
 
 .card-date {
-  color: #888;
-  font-size: 0.85rem;
+  color: #718096;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e7f1ff;
 }
 
 .no-data-grid {
@@ -817,10 +915,54 @@ body {
      ========================================== */
   .header {
     padding: 8px 12px;
+    margin-bottom: 10px;
   }
   
   .header-row-1 {
-    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .brand {
+    gap: 6px;
+    order: 1;
+  }
+  
+  .header-actions {
+    order: 2;
+    gap: 5px;
+  }
+  
+  .nav-and-stats {
+    order: 3;
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  
+  .nav-tabs-inline {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stats-inline {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .nav-tab {
+    padding: 5px 14px;
+    font-size: 0.75rem;
+  }
+  
+  .stat-item {
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
   }
   
   .brand {
@@ -852,18 +994,28 @@ body {
   }
   
   .user-info {
-    font-size: 0.65rem;
-    padding: 3px 6px;
+    font-size: 0.7rem;
+    padding: 4px 8px;
   }
   
+  .admin-link,
+  .profile-link,
   .logout-btn {
-    padding: 3px 8px;
-    font-size: 0.65rem;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
   }
   
-  .admin-link {
-    padding: 3px 6px;
-    font-size: 0.85rem;
+  .logout-btn span {
+    display: none;
+  }
+  
+  .admin-link svg,
+  .profile-link svg,
+  .logout-btn svg {
+    width: 18px;
+    height: 18px;
   }
   
   .header-row-2 {
@@ -880,16 +1032,18 @@ body {
      MOBILE MAIN CONTENT
      ========================================== */
   .main-content {
-    padding: 0 12px 20px;
+    padding: 0 10px 20px;
   }
   
   /* Controls Mobile */
   .controls {
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 12px;
   }
   
   .search-input {
+    width: 100%;
     min-width: 100%;
     padding: 12px 15px;
     font-size: 1rem;
@@ -999,7 +1153,7 @@ body {
     display: flex;
     max-height: 1000px;
     opacity: 1;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     animation: slideDown 0.3s ease-out;
   }
   
@@ -1066,8 +1220,12 @@ body {
   }
   
   .property-card {
-    padding: 14px;
-    border-radius: 10px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .property-card::before {
+    height: 3px;
   }
   
   .card-index {
@@ -1076,15 +1234,20 @@ body {
   }
   
   .card-title {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+  }
+  
+  .card-title::before {
+    font-size: 1.2rem;
   }
   
   .card-message {
     font-size: 0.9rem;
-    line-height: 1.5;
-    min-height: 50px;
+    line-height: 1.6;
+    min-height: 55px;
+    padding: 10px;
   }
   
   .card-footer {
@@ -1110,7 +1273,8 @@ body {
   }
   
   .card-date {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
     text-align: center;
     width: 100%;
   }
@@ -1257,18 +1421,39 @@ body {
   }
   
   .card-date {
-    font-size: 0.75rem;
-  }
-  
-  .auth-buttons {
-    flex-direction: row;
-    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
   }
   
   .auth-btn {
-    padding: 8px 12px;
-    font-size: 0.8rem;
+    padding: 8px 14px;
+    font-size: 0.85rem;
     flex: 1;
+  }
+  
+  .admin-link,
+  .profile-link,
+  .logout-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  
+  .admin-link svg,
+  .profile-link svg,
+  .logout-btn svg {
+    width: 19px;
+    height: 19px;
+  }
+  
+  .logout-btn span {
+    display: none;
+  }
+  
+  .user-info {
+    font-size: 0.72rem;
+    padding: 4px 9px;
   }
 }
 
@@ -1371,7 +1556,7 @@ body {
 }
 
 /* ==========================================
-   Unit Detail View - Slide from RTL
+   Unit Detail View - Fade from Right
    ========================================== */
 
 .unit-detail-overlay {
@@ -1407,8 +1592,8 @@ body {
   width: 100%;
   max-width: 600px;
   height: 100%;
-  background: #fff;
-  box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
   z-index: 1001;
   display: flex;
   flex-direction: column;
@@ -1422,7 +1607,7 @@ body {
 
 @keyframes slideInFromRight {
   from {
-    transform: translateX(100%);
+    transform: translateX(50px);
     opacity: 0;
   }
   to {
@@ -1437,7 +1622,7 @@ body {
     opacity: 1;
   }
   to {
-    transform: translateX(100%);
+    transform: translateX(50px);
     opacity: 0;
   }
 }
@@ -1445,11 +1630,12 @@ body {
 .unit-detail-header {
   background: linear-gradient(135deg, #4267B2 0%, #3b5998 100%);
   color: white;
-  padding: 15px 20px;
+  padding: 18px 24px;
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(59, 89, 152, 0.2);
 }
 
 .detail-close-btn {
@@ -1513,11 +1699,15 @@ body {
 }
 
 .detail-section h3 {
-  font-size: 1rem;
-  color: #3b5998;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e0e0e0;
+  font-size: 1.05rem;
+  color: #4267B2;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #e7f1ff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .detail-info-grid {
@@ -1527,34 +1717,46 @@ body {
 }
 
 .detail-info-item {
-  background: #f8f9fa;
-  padding: 12px 15px;
-  border-radius: 10px;
-  border-right: 3px solid #3b5998;
+  background: linear-gradient(145deg, #f8fafb 0%, #ffffff 100%);
+  padding: 14px 18px;
+  border-radius: 12px;
+  border-right: 4px solid #4267B2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+.detail-info-item:hover {
+  transform: translateX(-2px);
+  box-shadow: 0 4px 12px rgba(59, 89, 152, 0.12);
 }
 
 .detail-label {
   display: block;
   font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 4px;
+  color: #718096;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
 }
 
 .detail-value {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a2b4d;
 }
 
 .detail-message {
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 12px;
-  line-height: 1.8;
+  background: linear-gradient(145deg, #f8fafb 0%, #ffffff 100%);
+  padding: 24px;
+  border-radius: 14px;
+  line-height: 1.9;
   font-size: 1rem;
-  color: #333;
+  color: #4a5568;
   white-space: pre-wrap;
   word-break: break-word;
+  border: 2px solid #e7f1ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .detail-contact {
@@ -1605,22 +1807,42 @@ body {
 /* Contact Icon Buttons - Call & WhatsApp */
 .contact-buttons {
   display: flex;
-  gap: 20px;
+  gap: 24px;
   justify-content: center;
-  margin-top: 15px;
+  margin-top: 18px;
 }
 
 .contact-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 70px;
-  height: 70px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   color: white;
   text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+
+.contact-icon-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0;
+  transition: all 0.4s ease;
+  transform: scale(1.2);
+}
+
+.contact-icon-btn:hover::before {
+  opacity: 0.3;
+  transform: scale(1.5);
 }
 
 .contact-icon-btn.call-btn {
@@ -1632,12 +1854,12 @@ body {
 }
 
 .contact-icon-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+  transform: scale(1.15) translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .contact-icon-btn:active {
-  transform: scale(0.95);
+  transform: scale(1);
 }
 
 .contact-icon-btn svg {
@@ -1711,8 +1933,9 @@ body {
   display: flex;
   gap: 20px;
   flex-wrap: wrap;
-  color: #666;
-  font-size: 0.9rem;
+  color: #444;
+  font-size: 1.05rem;
+  font-weight: 600;
   padding: 15px;
   background: #f8f9fa;
   border-radius: 10px;
@@ -1774,17 +1997,17 @@ body {
   }
   
   .contact-icon-btn {
-    width: 60px;
-    height: 60px;
+    width: 65px;
+    height: 65px;
   }
   
   .contact-icon-btn svg {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
   }
   
   .contact-buttons {
-    gap: 25px;
+    gap: 28px;
   }
 }
 
