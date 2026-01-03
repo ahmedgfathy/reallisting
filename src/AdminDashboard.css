@@ -742,6 +742,61 @@
   cursor: not-allowed;
 }
 
+/* Import Mode Tabs */
+.import-mode-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.import-tab {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+
+.import-tab:hover:not(:disabled) {
+  color: #27ae60;
+  background: #f8fff9;
+}
+
+.import-tab.active {
+  color: #27ae60;
+  border-bottom-color: #27ae60;
+  background: #f8fff9;
+}
+
+.import-tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Text Import Area */
+.text-import-area {
+  margin: 20px 0;
+}
+
+.text-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: #666;
+}
+
 .import-modal-actions {
   display: flex;
   gap: 10px;
