@@ -2,13 +2,15 @@ const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 
-// Prisma/Contabo database URL
-const DATABASE_URL = process.env.PRISMA_DATABASE_URL || process.env.POSTGRES_URL;
+// Prisma/Contabo database URL - use direct connection (not Accelerate)
+const DATABASE_URL = process.env.POSTGRES_URL || 'postgres://823080337c52dde06bed87482988e662df9d9a17e2daab10a9c5a514001dd5e1:sk_iv0LK6rujPpicqk6uuUaE@db.prisma.io:5432/postgres?sslmode=require';
 
 if (!DATABASE_URL) {
   console.error('❌ Error: PRISMA_DATABASE_URL or POSTGRES_URL must be set');
   process.exit(1);
 }
+
+console.log('🔗 Connecting to Prisma database...');
 
 const client = new Client({
   connectionString: DATABASE_URL,
