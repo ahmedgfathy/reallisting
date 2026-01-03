@@ -1,4 +1,4 @@
-const { supabase, corsHeaders, verifyToken } = require('../lib/supabase');
+const { supabase, corsHeaders, verifyToken, isConfigured, getConfigError } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -12,6 +12,11 @@ module.exports = async (req, res) => {
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
+
+  // Check if Supabase is configured
+  if (!isConfigured()) {
+    return res.status(500).json(getConfigError());
+  }
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

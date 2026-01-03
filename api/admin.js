@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders } = require('../lib/supabase');
+const { supabase, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
 
 function generateTempPassword(length = 8) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -28,6 +28,14 @@ async function parseBody(req) {
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
     Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+    return res.status(200).end();
+  }
+  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+
+  // Check if Supabase is configured
+  if (!isConfigured()) {
+    return res.status(500).json(getConfigError());
+  }
     return res.status(200).end();
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));

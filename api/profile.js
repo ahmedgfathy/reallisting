@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders } = require('../lib/supabase');
+const { supabase, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
@@ -6,6 +6,11 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+
+  // Check if Supabase is configured
+  if (!isConfigured()) {
+    return res.status(500).json(getConfigError());
+  }
 
   // Verify user token
   const token = req.headers.authorization?.replace('Bearer ', '');

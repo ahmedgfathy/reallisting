@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, generateToken, corsHeaders } = require('../lib/supabase');
+const { supabase, verifyToken, hashPassword, generateToken, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -22,6 +22,11 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
+
+  // Check if Supabase is configured
+  if (!isConfigured()) {
+    return res.status(500).json(getConfigError());
+  }
 
   const path = req.query.path || req.url.split('?')[0].replace('/api/auth', '');
 

@@ -1,4 +1,4 @@
-const { supabase, corsHeaders } = require('../lib/supabase');
+const { supabase, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
 
 // Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {
@@ -14,6 +14,11 @@ module.exports = async (req, res) => {
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
+
+  // Check if Supabase is configured
+  if (!isConfigured()) {
+    return res.status(500).json(getConfigError());
+  }
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
