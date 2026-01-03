@@ -1,4 +1,4 @@
-const { supabase, verifyToken, corsHeaders } = require('../lib/supabase');
+const { query, verifyToken, corsHeaders } = require('../lib/database');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -155,7 +155,7 @@ module.exports = async (req, res) => {
   if (!token) {
     return res.status(401).json({ error: 'No token provided' });
   }
-  
+
   const payload = verifyToken(token);
   if (!payload || payload.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' });
@@ -176,34 +176,12 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'No chat text provided' });
     }
     
-    // If this is a file upload, store it in Supabase Storage
+    // Record upload in database (without external storage)
     if (body.fileContent && body.filename) {
-      try {
-        const timestamp = Date.now();
-        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
-        const filePath = `${payload.username}/${timestamp}_${safeName}`;
-        
-        // Upload to Supabase Storage
-        await supabase.storage
-          .from('whatsapp-chats')
-          .upload(filePath, chatText, {
-            contentType: 'text/plain',
-            upsert: false
-          });
-        
-        // Record upload in database
-        await supabase
-          .from('chat_uploads')
-          .insert([{
-            filename: filename,
-            file_path: filePath,
-            uploaded_by: payload.username,
-            status: 'processing'
-          }]);
-      } catch (storageError) {
-        console.log('Storage upload skipped:', storageError.message);
-        // Continue even if storage fails
-      }
+      await query(
+        'INSERT INTO chat_uploads (filename, file_path, uploaded_by, status) VALUES ($1, $2, $3, $4)',
+        [filename, filename, payload.username, 'processing']
+      );
     }
     
     // Parse WhatsApp chat
@@ -241,13 +219,28 @@ module.exports = async (req, res) => {
       }
     }
     
+    // Helper to insert rows in batches using VALUES
+    const insertBatch = async (table, columns, rows) => {
+      if (!rows.length) return { data: [], error: null };
+      const values = [];
+      const params = [];
+      let paramIndex = 1;
+      for (const row of rows) {
+        const placeholders = columns.map(() => `$${paramIndex++}`);
+        values.push(`(${placeholders.join(', ')})`);
+        columns.forEach(col => params.push(row[col]));
+      }
+      const sql = `INSERT INTO ${table} (${columns.join(', ')}) VALUES ${values.join(', ')} RETURNING id, mobile`;
+      return query(sql, params);
+    };
+
     // Get existing senders
     if (uniqueMobiles.size > 0) {
       const mobilesArray = Array.from(uniqueMobiles.keys());
-      const { data: existingSenders } = await supabase
-        .from('sender')
-        .select('id, mobile')
-        .in('mobile', mobilesArray);
+      const { data: existingSenders } = await query(
+        'SELECT id, mobile FROM sender WHERE mobile = ANY($1::text[])',
+        [mobilesArray]
+      );
       
       if (existingSenders) {
         existingSenders.forEach(s => senderCache.set(s.mobile, s.id));
@@ -267,10 +260,11 @@ module.exports = async (req, res) => {
       }
       
       if (newSenders.length > 0) {
-        const { data: createdSenders, error: senderError } = await supabase
-          .from('sender')
-          .insert(newSenders)
-          .select('id, mobile');
+        const { data: createdSenders, error: senderError } = await insertBatch(
+          'sender',
+          ['mobile', 'name', 'first_seen_date', 'first_seen_time'],
+          newSenders
+        );
         
         if (!senderError && createdSenders) {
           createdSenders.forEach(s => senderCache.set(s.mobile, s.id));
@@ -314,9 +308,20 @@ module.exports = async (req, res) => {
       
       // Batch insert messages
       if (messagesToInsert.length > 0) {
-        const { error: insertError } = await supabase
-          .from('messages')
-          .insert(messagesToInsert);
+        const columns = ['id', 'message', 'sender_id', 'name', 'mobile', 'date_of_creation', 'source_file', 'category', 'property_type', 'region', 'purpose', 'created_at'];
+        const { error: insertError } = await (async () => {
+          const values = [];
+          const params = [];
+          let paramIndex = 1;
+          for (const row of messagesToInsert) {
+            const placeholders = columns.map(() => `$${paramIndex++}`);
+            values.push(`(${placeholders.join(', ')})`);
+            columns.forEach(col => params.push(row[col]));
+          }
+          const sql = `INSERT INTO messages (${columns.join(', ')}) VALUES ${values.join(', ')}`;
+          const { error } = await query(sql, params);
+          return { error };
+        })();
         
         if (insertError) {
           console.error('Batch insert error:', insertError);
@@ -330,20 +335,13 @@ module.exports = async (req, res) => {
     // Update chat_uploads status if this was a file upload
     if (body.fileContent && body.filename) {
       try {
-        await supabase
-          .from('chat_uploads')
-          .update({
-            status: 'completed',
-            processed_at: new Date().toISOString(),
-            total_parsed: stats.total,
-            total_imported: stats.imported,
-            senders_created: stats.sendersCreated,
-            errors: stats.errors
-          })
-          .eq('uploaded_by', payload.username)
-          .eq('filename', filename)
-          .order('uploaded_at', { ascending: false })
-          .limit(1);
+        await query(
+          `UPDATE chat_uploads
+           SET status = 'completed', processed_at = $1, total_parsed = $2,
+               total_imported = $3, senders_created = $4, errors = $5
+           WHERE uploaded_by = $6 AND filename = $7`,
+          [new Date().toISOString(), stats.total, stats.imported, stats.sendersCreated, stats.errors, payload.username, filename]
+        );
       } catch (updateError) {
         console.log('Failed to update chat_uploads:', updateError.message);
       }

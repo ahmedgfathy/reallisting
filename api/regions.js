@@ -1,4 +1,4 @@
-const { supabase, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 // Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
     res.setHeader(key, value);
   });
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -26,14 +26,11 @@ module.exports = async (req, res) => {
 
   try {
     // Query the normalized regions table directly
-    const { data: regionsData, error } = await supabase
-      .from('regions')
-      .select('name')
-      .order('name');
+    const { data: regionsData, error } = await query('SELECT name FROM regions ORDER BY name');
 
     if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ error: error.message });
+      console.error('Database error:', error);
+      return res.status(500).json({ error });
     }
 
     const regions = (regionsData || []).map(r => r.name).filter(Boolean);

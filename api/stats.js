@@ -1,4 +1,4 @@
-const { supabase, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     res.setHeader(key, value);
   });
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -24,35 +24,21 @@ module.exports = async (req, res) => {
 
   try {
     // Get total count
-    const { count, error } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true });
+    const [{ data: messageCountRows, error: messageError }, { data: senderCountRows, error: senderError }, { data: subscriberCountRows, error: subscriberError }] = await Promise.all([
+      query('SELECT COUNT(*)::int AS cnt FROM messages'),
+      query('SELECT COUNT(*)::int AS cnt FROM sender'),
+      query("SELECT COUNT(*)::int AS cnt FROM users WHERE is_active = true")
+    ]);
 
-    if (error) {
-      console.error('Supabase error:', error);
-      return res.status(500).json({ error: error.message });
+    if (messageError || senderError || subscriberError) {
+      console.error('Database error:', messageError || senderError || subscriberError);
+      return res.status(500).json({ error: messageError || senderError || subscriberError });
     }
-
-    // Get unique senders count from sender table
-    const { count: sendersCount, error: sendersError } = await supabase
-      .from('sender')
-      .select('*', { count: 'exact', head: true });
-    
-    if (sendersError) {
-      console.error('Supabase error:', sendersError);
-      return res.status(500).json({ error: sendersError.message });
-    }
-
-    // Get active subscribers count
-    const { count: subscribersCount, error: subError } = await supabase
-      .from('users')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_active', true);
 
     res.status(200).json({
-      totalMessages: count || 0,
-      totalFiles: sendersCount || 0,
-      totalSubscribers: subscribersCount || 0,
+      totalMessages: messageCountRows?.[0]?.cnt || 0,
+      totalFiles: senderCountRows?.[0]?.cnt || 0,
+      totalSubscribers: subscriberCountRows?.[0]?.cnt || 0,
       files: []
     });
   } catch (error) {

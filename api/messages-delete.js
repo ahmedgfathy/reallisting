@@ -1,4 +1,4 @@
-const { supabase, verifyToken, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     res.setHeader(key, value);
   });
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -30,25 +30,24 @@ module.exports = async (req, res) => {
     }
 
     // Delete messages
-    const { error } = await supabase
-      .from('messages')
-      .delete()
-      .in('id', ids);
+    const { error } = await query(
+      'DELETE FROM messages WHERE id = ANY($1::text[])',
+      [ids]
+    );
 
     if (error) {
       console.error('Delete error:', error);
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error });
     }
 
     // Get remaining count
-    const { count } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true });
+    const { data: countRows, error: countError } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
+    if (countError) return res.status(500).json({ error: countError });
 
     res.status(200).json({
       success: true,
       deletedCount: ids.length,
-      remainingMessages: count || 0
+      remainingMessages: countRows?.[0]?.cnt || 0
     });
   } catch (error) {
     console.error('Delete error:', error);

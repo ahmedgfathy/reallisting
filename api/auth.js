@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, generateToken, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, verifyToken, hashPassword, generateToken, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -45,12 +45,10 @@ module.exports = async (req, res) => {
     // DEBUG: Log the hash
     console.log('Login attempt:', { loginIdentifier, hashedPassword: hashedPassword.substring(0, 20) + '...' });
     
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('mobile', loginIdentifier)
-      .eq('password', hashedPassword)
-      .limit(1);
+    const { data: users, error } = await query(
+      'SELECT * FROM users WHERE mobile = $1 AND password = $2 LIMIT 1',
+      [loginIdentifier, hashedPassword]
+    );
 
     if (error || !users || users.length === 0) {
       console.log('Login failed:', { error, usersFound: users?.length || 0 });
@@ -74,20 +72,20 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
 
-    const { data: existing } = await supabase
-      .from('users')
-      .select('mobile')
-      .eq('mobile', mobile)
-      .limit(1);
+    const { data: existing } = await query(
+      'SELECT mobile FROM users WHERE mobile = $1 LIMIT 1',
+      [mobile]
+    );
 
     if (existing && existing.length > 0) {
       return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
     }
 
     const hashedPassword = hashPassword(password);
-    const { error } = await supabase
-      .from('users')
-      .insert([{ mobile, password: hashedPassword, role: 'broker', is_active: false }]);
+    const { error } = await query(
+      'INSERT INTO users (mobile, password, role, is_active) VALUES ($1, $2, $3, $4)',
+      [mobile, hashedPassword, 'broker', false]
+    );
 
     if (error) {
       return res.status(500).json({ error: 'فشل التسجيل' });
@@ -105,31 +103,30 @@ module.exports = async (req, res) => {
     if (!payload) return res.status(401).json({ authenticated: false });
 
     if (payload.role !== 'admin') {
-      const { data: users, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('mobile', payload.username)
-        .limit(1);
+      const { data: users, error } = await query(
+        'SELECT * FROM users WHERE mobile = $1 LIMIT 1',
+        [payload.username]
+      );
 
       if (!error && users && users.length > 0) {
         const user = users[0];
         let isActive = !!user.is_active;
-        
+
         if (isActive && user.subscription_end_date) {
           const now = new Date();
           const endDate = new Date(user.subscription_end_date);
           if (endDate < now) {
-            await supabase.from('users').update({ is_active: false }).eq('mobile', user.mobile);
+            await query('UPDATE users SET is_active = false WHERE mobile = $1', [user.mobile]);
             isActive = false;
           }
         }
-        
+
         return res.status(200).json({
           authenticated: true,
-          user: { 
-            username: user.mobile, 
-            role: user.role, 
-            isActive: isActive,
+          user: {
+            username: user.mobile,
+            role: user.role,
+            isActive,
             subscriptionEndDate: user.subscription_end_date
           }
         });
@@ -148,25 +145,24 @@ module.exports = async (req, res) => {
     const { mobile } = body || {};
     if (!mobile) return res.status(400).json({ error: 'رقم الموبايل مطلوب' });
 
-    const { data: users } = await supabase.from('users').select('mobile').eq('mobile', mobile).limit(1);
+    const { data: users } = await query('SELECT mobile FROM users WHERE mobile = $1 LIMIT 1', [mobile]);
     if (!users || users.length === 0) {
       return res.status(404).json({ error: 'رقم الموبايل غير مسجل' });
     }
 
-    const { data: existing } = await supabase
-      .from('password_reset_requests')
-      .select('*')
-      .eq('mobile', mobile)
-      .eq('status', 'pending')
-      .limit(1);
+    const { data: existing } = await query(
+      'SELECT * FROM password_reset_requests WHERE mobile = $1 AND status = $2 LIMIT 1',
+      [mobile, 'pending']
+    );
 
     if (existing && existing.length > 0) {
       return res.status(400).json({ error: 'يوجد طلب قيد المراجعة بالفعل' });
     }
 
-    const { error } = await supabase
-      .from('password_reset_requests')
-      .insert([{ mobile, status: 'pending' }]);
+    const { error } = await query(
+      'INSERT INTO password_reset_requests (mobile, status) VALUES ($1, $2)',
+      [mobile, 'pending']
+    );
 
     if (error) return res.status(500).json({ error: 'فشل في إرسال الطلب' });
 

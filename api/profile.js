@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -23,14 +23,13 @@ module.exports = async (req, res) => {
 
   // GET: Get user profile
   if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('users')
-      .select('mobile, role, is_active, created_at')
-      .eq('mobile', userMobile)
-      .single();
+    const { data, error } = await query(
+      'SELECT mobile, role, is_active, created_at FROM users WHERE mobile = $1 LIMIT 1',
+      [userMobile]
+    );
 
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ user: data });
+    if (error) return res.status(500).json({ error });
+    return res.status(200).json({ user: data?.[0] });
   }
 
   // PUT: Update user profile (password only)
@@ -46,16 +45,15 @@ module.exports = async (req, res) => {
       }
 
       // Verify current password
-      const { data: user, error } = await supabase
-        .from('users')
-        .select('password')
-        .eq('mobile', userMobile)
-        .single();
+      const { data: user, error } = await query(
+        'SELECT password FROM users WHERE mobile = $1 LIMIT 1',
+        [userMobile]
+      );
 
       if (error) return res.status(500).json({ error: 'Database error' });
 
       const hashedCurrent = hashPassword(currentPassword);
-      if (user.password !== hashedCurrent) {
+      if (user?.[0]?.password !== hashedCurrent) {
         return res.status(401).json({ error: 'كلمة المرور الحالية غير صحيحة' });
       }
 
@@ -68,10 +66,10 @@ module.exports = async (req, res) => {
     }
 
     // Update user
-    const { error: updateError } = await supabase
-      .from('users')
-      .update(updates)
-      .eq('mobile', userMobile);
+    const { error: updateError } = await query(
+      'UPDATE users SET password = $1 WHERE mobile = $2',
+      [updates.password, userMobile]
+    );
 
     if (updateError) return res.status(500).json({ error: 'فشل التحديث' });
 

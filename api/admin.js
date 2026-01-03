@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
 
 function generateTempPassword(length = 8) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -32,13 +32,10 @@ module.exports = async (req, res) => {
   }
   Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
-  // Check if Supabase is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
-    return res.status(200).end();
-  }
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'No token provided' });
@@ -52,10 +49,9 @@ module.exports = async (req, res) => {
 
   // GET USERS
   if ((path === 'users' || path === '/users') && req.method === 'GET') {
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('id, mobile, role, is_active, created_at, subscription_end_date')
-      .order('created_at', { ascending: false });
+    const { data: users, error } = await query(
+      'SELECT id, mobile, role, is_active, created_at, subscription_end_date FROM users ORDER BY created_at DESC'
+    );
 
     if (error) return res.status(500).json({ error: 'Failed to load users' });
 
@@ -76,10 +72,7 @@ module.exports = async (req, res) => {
     const match = path.match(/users\/(\d+)\/status/);
     const userId = match[1];
     
-    const { error } = await supabase
-      .from('users')
-      .update({ is_active: true })
-      .eq('id', userId);
+    const { error } = await query('UPDATE users SET is_active = true WHERE id = $1', [userId]);
 
     if (error) return res.status(500).json({ error: 'Failed to activate user' });
     return res.status(200).json({ success: true });
@@ -87,67 +80,46 @@ module.exports = async (req, res) => {
 
   // DEDUPLICATE
   if ((path === 'deduplicate' || path === '/deduplicate') && req.method === 'POST') {
-    const BATCH_SIZE = 10000;
-    let offset = 0;
-    let hasMore = true;
-    const seenMessages = new Map();
-    const duplicateIds = [];
+    const { data: originalCounts } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
+    const originalCount = originalCounts?.[0]?.cnt || 0;
 
-    while (hasMore) {
-      const { data: batch, error } = await supabase
-        .from('messages')
-        .select('id, message, sender_id, date_of_creation')
-        .range(offset, offset + BATCH_SIZE - 1)
-        .order('id', { ascending: true });
+    // Find duplicates using window function and delete them
+    const { data: deleted, error: deleteError } = await query(
+      `WITH dupes AS (
+         SELECT id
+         FROM (
+           SELECT id,
+                  ROW_NUMBER() OVER (PARTITION BY message, sender_id, date_of_creation ORDER BY id) AS rn
+           FROM messages
+         ) t
+         WHERE rn > 1
+       )
+       DELETE FROM messages WHERE id IN (SELECT id FROM dupes)
+       RETURNING id`
+    );
 
-      if (error) return res.status(500).json({ error: error.message });
-      if (!batch || batch.length === 0) break;
+    if (deleteError) return res.status(500).json({ error: deleteError });
 
-      for (const msg of batch) {
-        const key = `${msg.message}|${msg.sender_id}|${msg.date_of_creation}`;
-        if (seenMessages.has(key)) {
-          duplicateIds.push(msg.id);
-        } else {
-          seenMessages.set(key, msg.id);
-        }
-      }
-
-      hasMore = batch.length === BATCH_SIZE;
-      offset += BATCH_SIZE;
-    }
-
-    const originalCount = seenMessages.size + duplicateIds.length;
-
-    if (duplicateIds.length > 0) {
-      const DELETE_BATCH = 1000;
-      for (let i = 0; i < duplicateIds.length; i += DELETE_BATCH) {
-        const batchToDelete = duplicateIds.slice(i, i + DELETE_BATCH);
-        await supabase.from('messages').delete().in('id', batchToDelete);
-      }
-    }
-
-    const { count: newCount } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true });
+    const duplicatesRemoved = deleted ? deleted.length : 0;
+    const { data: newCounts } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
+    const newTotalCount = newCounts?.[0]?.cnt || 0;
 
     return res.status(200).json({
       success: true,
       originalCount,
-      duplicatesRemoved: duplicateIds.length,
-      newTotalCount: newCount,
-      message: `تم حذف ${duplicateIds.length.toLocaleString('ar-EG')} رسالة مكررة`
+      duplicatesRemoved,
+      newTotalCount,
+      message: `تم حذف ${duplicatesRemoved.toLocaleString('ar-EG')} رسالة مكررة`
     });
   }
 
   // RESET REQUESTS - GET
   if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('password_reset_requests')
-      .select('*')
-      .eq('status', 'pending')
-      .order('requested_at', { ascending: false });
+    const { data, error } = await query(
+      "SELECT * FROM password_reset_requests WHERE status = 'pending' ORDER BY requested_at DESC"
+    );
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: error });
     return res.status(200).json({ requests: data || [] });
   }
 
@@ -160,32 +132,28 @@ module.exports = async (req, res) => {
       const tempPassword = generateTempPassword(8);
       const hashedPassword = hashPassword(tempPassword);
 
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ password: hashedPassword })
-        .eq('mobile', mobile);
+      const { error: updateError } = await query(
+        'UPDATE users SET password = $1 WHERE mobile = $2',
+        [hashedPassword, mobile]
+      );
 
-      if (updateError) return res.status(500).json({ error: updateError.message });
+      if (updateError) return res.status(500).json({ error: updateError });
 
-      await supabase
-        .from('password_reset_requests')
-        .update({ 
-          status: 'approved', 
-          approved_at: new Date().toISOString(),
-          temp_password: tempPassword 
-        })
-        .eq('mobile', mobile)
-        .eq('status', 'pending');
+      await query(
+        `UPDATE password_reset_requests
+         SET status = 'approved', approved_at = $1, temp_password = $2
+         WHERE mobile = $3 AND status = 'pending'`,
+        [new Date().toISOString(), tempPassword, mobile]
+      );
 
       return res.status(200).json({ success: true, tempPassword });
     }
 
     if (action === 'reject') {
-      await supabase
-        .from('password_reset_requests')
-        .update({ status: 'rejected' })
-        .eq('mobile', mobile)
-        .eq('status', 'pending');
+      await query(
+        "UPDATE password_reset_requests SET status = 'rejected' WHERE mobile = $1 AND status = 'pending'",
+        [mobile]
+      );
 
       return res.status(200).json({ success: true });
     }
@@ -210,16 +178,15 @@ module.exports = async (req, res) => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + daysNum);
 
-    const { data, error } = await supabase
-      .from('users')
-      .update({
-        subscription_end_date: endDate.toISOString(),
-        is_active: true
-      })
-      .eq('mobile', mobile)
-      .select('mobile, subscription_end_date, is_active');
+    const { data, error } = await query(
+      `UPDATE users
+       SET subscription_end_date = $1, is_active = true
+       WHERE mobile = $2
+       RETURNING mobile, subscription_end_date, is_active`,
+      [endDate.toISOString(), mobile]
+    );
 
-    if (error) return res.status(500).json({ error: error.message });
+    if (error) return res.status(500).json({ error: error });
     if (!data || data.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }

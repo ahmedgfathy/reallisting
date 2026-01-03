@@ -1,4 +1,4 @@
-const { supabase, corsHeaders, verifyToken, isConfigured, getConfigError } = require('../lib/supabase');
+const { query, corsHeaders, verifyToken, isConfigured, getConfigError } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     res.setHeader(key, value);
   });
 
-    // Check if database is configured
+  // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -37,151 +37,75 @@ module.exports = async (req, res) => {
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
 
-      // Check if user is authenticated and approved
-      const authHeader = req.headers.authorization;
-      let isApprovedUser = false;
-      let userMobile = null;
+    // Check if user is authenticated and approved
+    const authHeader = req.headers.authorization;
+    let isApprovedUser = false;
+    let userMobile = null;
 
-      if (authHeader?.startsWith('Bearer ')) {
-        const token = authHeader.substring(7);
-        const payload = verifyToken(token);
-        if (payload?.username) {
-          userMobile = payload.username;
-          const { data: userRows } = await query(
-            'SELECT is_active, role FROM users WHERE mobile = $1 LIMIT 1',
-            [userMobile]
-          );
-          const userData = userRows && userRows[0];
-          if (userData) {
-            isApprovedUser = userData.role === 'admin' || userData.is_active === true;
-          }
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const payload = verifyToken(token);
+      if (payload?.username) {
+        userMobile = payload.username;
+        const { data: userRows } = await query(
+          'SELECT is_active, role FROM users WHERE mobile = $1 LIMIT 1',
+          [userMobile]
+        );
+        const userData = userRows && userRows[0];
+        if (userData) {
+          isApprovedUser = userData.role === 'admin' || userData.is_active === true;
         }
       }
+    }
+    // Build SQL filters
+    const conditions = [];
+    const params = [];
 
-      // Build SQL filters
-      const conditions = [];
-      const params = [];
-
-      if (category && category !== 'الكل') {
-        params.push(category);
-        conditions.push(`category = $${params.length}`);
-      }
-      if (propertyType && propertyType !== 'الكل') {
-        params.push(propertyType);
-        conditions.push(`property_type = $${params.length}`);
-      }
-      if (region && region !== 'الكل') {
-        params.push(region);
-        conditions.push(`region = $${params.length}`);
-      }
-      if (purpose && purpose !== 'الكل') {
-        params.push(purpose);
-        conditions.push(`purpose = $${params.length}`);
-      }
-      if (search) {
-        params.push(`%${search}%`);
-        params.push(`%${search}%`);
-        params.push(`%${search}%`);
-        conditions.push(`(message ILIKE $${params.length - 2} OR region ILIKE $${params.length - 1} OR property_type ILIKE $${params.length})`);
-      }
-
-      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-      // Count
-      const { data: countRows, error: countErr } = await query(
-        `SELECT COUNT(*)::int as total FROM messages_with_sender ${whereClause}`,
-        params
-      );
-      if (countErr) throw new Error(countErr);
-      const total = countRows?.[0]?.total || 0;
-
-      // Data with pagination
-      params.push(limitNum, offset);
-      const { data, error } = await query(
-        `SELECT id, message, date_of_creation, source_file, image_url, category, property_type, region, purpose,
-                sender_id, sender_name, sender_mobile, created_at
-           FROM messages_with_sender
-           ${whereClause}
-           ORDER BY created_at DESC
-           LIMIT $${params.length - 1} OFFSET $${params.length}`,
-        params
-      );
-      if (error) throw new Error(error);
-
-    // Build query - use the messages_with_sender view that joins all tables
-    let query = supabase
-      .from('messages_with_sender')
-      .select(`
-        id,
-        message,
-        date_of_creation,
-        source_file,
-        image_url,
-        category,
-        property_type,
-        region,
-        purpose,
-        sender_id,
-        sender_name,
-        sender_mobile,
-        created_at
-      `, { count: 'exact' });
-
-    // Apply filters
     if (category && category !== 'الكل') {
-      query = query.eq('category', category);
+      params.push(category);
+      conditions.push(`category = $${params.length}`);
     }
     if (propertyType && propertyType !== 'الكل') {
-      query = query.eq('property_type', propertyType);
+      params.push(propertyType);
+      conditions.push(`property_type = $${params.length}`);
     }
     if (region && region !== 'الكل') {
-      query = query.eq('region', region);
+      params.push(region);
+      conditions.push(`region = $${params.length}`);
     }
     if (purpose && purpose !== 'الكل') {
-      query = query.eq('purpose', purpose);
+      params.push(purpose);
+      conditions.push(`purpose = $${params.length}`);
     }
     if (search) {
-      query = query.or(`message.ilike.%${search}%,region.ilike.%${search}%,property_type.ilike.%${search}%`);
+      params.push(`%${search}%`);
+      params.push(`%${search}%`);
+      params.push(`%${search}%`);
+      conditions.push(`(message ILIKE $${params.length - 2} OR region ILIKE $${params.length - 1} OR property_type ILIKE $${params.length})`);
     }
 
-    // Order (View has all these columns)
-    const isFifthSettlement = region === 'التجمع الخامس';
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    if (isFifthSettlement) {
-      // Note: view might not have image_url if it wasn't in list. checking schema...
-      // Schema says: messages table has image_url. View selects m.* ?? 
-      // View definition: SELECT m.id, m.message, ..., m.source_file (Wait, check view def)
-      // View def in migration: SELECT m.id, m.message, m.date_of_creation, m.source_file ...
-      // DOES IT INCLUDE image_url?
-      // Migration script: 
-      // SELECT m.id, m.message, m.date_of_creation, m.source_file, c.name..., pt.name..., r.name..., p.name..., s.id..., s.name..., s.mobile..., s.first..., s.last..., m.created_at
-      // IT MISSES image_url in the explicit Select list in step 5 of migration! 
-      // I need to add image_url to the view definition if it exists in messages table!
-      // Let's assume for now I fix the view via migration script, or I fix the view query here.
-      // But wait, the previous code had row.imageUrl from row.image_url.
+    // Count
+    const { data: countRows, error: countErr } = await query(
+      `SELECT COUNT(*)::int as total FROM messages_with_sender ${whereClause}`,
+      params
+    );
+    if (countErr) throw new Error(countErr);
+    const total = countRows?.[0]?.total || 0;
 
-      // I'll assume I need to fix the view definition first to include image_url if it's missing.
-      // But let's look at the previous file content of migration.
-      // migration.sql lines 239+: 
-      // SELECT m.id, m.message, m.date_of_creation, m.source_file ...
-      // It DOES NOT include m.image_url.
-      // THIS IS ANOTHER BUG. Use `m.*` in view creation or explicitly add `image_url`.
-
-      query = query
-        .order('created_at', { ascending: false });
-    } else {
-      query = query
-        .order('created_at', { ascending: false });
-    }
-
-    query = query.range(offset, offset + limitNum - 1);
-
-    const { data, error, count } = await query;
-
-    if (error) {
-      console.error('❌ Supabase error:', error);
-      return res.status(500).json({ error: error.message });
-    }
+    // Data with pagination
+    params.push(limitNum, offset);
+    const { data, error } = await query(
+      `SELECT id, message, date_of_creation, source_file, image_url, category, property_type, region, purpose,
+              sender_id, sender_name, sender_mobile, created_at
+         FROM messages_with_sender
+         ${whereClause}
+         ORDER BY created_at DESC
+         LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+    if (error) throw new Error(error);
 
     const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
 
@@ -217,10 +141,10 @@ module.exports = async (req, res) => {
     console.log('📤 Sample mapped data (first item):', mappedData[0]);
 
     res.status(200).json({
-      total: count || 0,
+      total,
       page: pageNum,
       limit: limitNum,
-      totalPages: Math.ceil((count || 0) / limitNum),
+      totalPages: Math.ceil(total / limitNum),
       data: mappedData
     });
   } catch (error) {

@@ -1,11 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
-
-// Use environment variables if available
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://gxyrpboyubpycejlkxue.supabase.co';
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd4eXJwYm95dWJweWNlamxreHVlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzEwNjU5OSwiZXhwIjoyMDgyNjgyNTk5fQ.jaQO9OmympAlJqrClhxQ-NFkmp74tB-IpRPqRf0eXvk';
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+const { query } = require('../../lib/database');
 
 /**
  * Verify the sender table migration
@@ -15,14 +8,11 @@ async function verifyMigration() {
   
   try {
     // Check if sender table exists
-    const { data: senders, error: senderError } = await supabase
-      .from('sender')
-      .select('*')
-      .limit(5);
+    const { data: senders, error: senderError } = await query('SELECT * FROM sender LIMIT 5');
     
     if (senderError) {
       console.error('❌ Sender table not found or error accessing it:');
-      console.error(senderError.message);
+      console.error(senderError);
       console.log('\n💡 Run the migration SQL first:');
       console.log('   scripts/database-scripts/create-sender-table-migration.sql\n');
       return false;
@@ -35,18 +25,15 @@ async function verifyMigration() {
     });
     
     // Check sender count
-    const { count: senderCount } = await supabase
-      .from('sender')
-      .select('*', { count: 'exact', head: true });
+    const { data: senderCountRows } = await query('SELECT COUNT(*)::int AS cnt FROM sender');
+    const senderCount = senderCountRows?.[0]?.cnt || 0;
     
-    console.log(`\n📊 Total senders: ${senderCount?.toLocaleString()}`);
+    console.log(`\n📊 Total senders: ${senderCount.toLocaleString()}`);
     
     // Check messages with sender_id
-    const { data: messagesWithSender, error: msgError } = await supabase
-      .from('messages')
-      .select('id, sender_id, mobile, message')
-      .not('sender_id', 'is', null)
-      .limit(5);
+    const { data: messagesWithSender, error: msgError } = await query(
+      'SELECT id, sender_id, mobile, message FROM messages WHERE sender_id IS NOT NULL LIMIT 5'
+    );
     
     if (!msgError) {
       console.log(`\n✅ Messages linked to senders (sample):`);
@@ -56,17 +43,14 @@ async function verifyMigration() {
     }
     
     // Count messages with and without sender
-    const { count: withSender } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true })
-      .not('sender_id', 'is', null);
-    
-    const { count: totalMessages } = await supabase
-      .from('messages')
-      .select('*', { count: 'exact', head: true });
-    
+    const { data: withSenderRows } = await query('SELECT COUNT(*)::int AS cnt FROM messages WHERE sender_id IS NOT NULL');
+    const { data: totalMessagesRows } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
+
+    const withSender = withSenderRows?.[0]?.cnt || 0;
+    const totalMessages = totalMessagesRows?.[0]?.cnt || 0;
+
     const withoutSender = totalMessages - withSender;
-    const percentage = ((withSender / totalMessages) * 100).toFixed(1);
+    const percentage = totalMessages ? ((withSender / totalMessages) * 100).toFixed(1) : '0.0';
     
     console.log(`\n📈 Message Statistics:`);
     console.log(`   Total messages: ${totalMessages?.toLocaleString()}`);
@@ -74,10 +58,9 @@ async function verifyMigration() {
     console.log(`   Without sender: ${withoutSender?.toLocaleString()}`);
     
     // Check messages_with_sender view
-    const { data: viewData, error: viewError } = await supabase
-      .from('messages_with_sender')
-      .select('*')
-      .limit(3);
+    const { data: viewData, error: viewError } = await query(
+      'SELECT id, message, sender_name, sender_mobile FROM messages_with_sender LIMIT 3'
+    );
     
     if (!viewError) {
       console.log(`\n✅ messages_with_sender view works`);
@@ -108,11 +91,9 @@ async function extractMissingSenders() {
   
   try {
     // Get messages without sender
-    const { data: messages, error } = await supabase
-      .from('messages')
-      .select('id, message, mobile, name, date_of_creation')
-      .is('sender_id', null)
-      .limit(1000);
+    const { data: messages, error } = await query(
+      'SELECT id, message, mobile, name, date_of_creation FROM messages WHERE sender_id IS NULL LIMIT 1000'
+    );
     
     if (error) {
       console.error('Error fetching messages:', error);
@@ -131,37 +112,28 @@ async function extractMissingSenders() {
       
       if (mobile && mobile !== 'N/A' && mobile.length >= 10) {
         // Check if sender exists
-        let { data: sender } = await supabase
-          .from('sender')
-          .select('id')
-          .eq('mobile', mobile)
-          .single();
+        const { data: existingSender } = await query(
+          'SELECT id FROM sender WHERE mobile = $1 LIMIT 1',
+          [mobile]
+        );
+        let senderId = existingSender?.[0]?.id;
         
         // If not exists, create
-        if (!sender) {
-          const { data: newSender, error: insertError } = await supabase
-            .from('sender')
-            .insert({
-              mobile: mobile,
-              name: msg.name || null,
-              first_seen_date: msg.date_of_creation,
-              first_seen_time: msg.date_of_creation?.split(' ')[1]
-            })
-            .select('id')
-            .single();
+        if (!senderId) {
+          const { data: newSender, error: insertError } = await query(
+            'INSERT INTO sender (mobile, name, first_seen_date, first_seen_time) VALUES ($1, $2, $3, $4) RETURNING id',
+            [mobile, msg.name || null, msg.date_of_creation, msg.date_of_creation?.split(' ')[1] || null]
+          );
           
           if (!insertError && newSender) {
-            sender = newSender;
+            senderId = newSender[0].id;
             extracted++;
           }
         }
         
         // Link message to sender
-        if (sender) {
-          await supabase
-            .from('messages')
-            .update({ sender_id: sender.id })
-            .eq('id', msg.id);
+        if (senderId) {
+          await query('UPDATE messages SET sender_id = $1 WHERE id = $2', [senderId, msg.id]);
           linked++;
         }
       }
