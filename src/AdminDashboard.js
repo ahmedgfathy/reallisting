@@ -306,16 +306,8 @@ function AdminDashboard({ onClose }) {
   };
 
   return (
-    <div className="admin-dashboard-overlay" role="dialog" aria-modal="true">
-      <div className="admin-dashboard">
-        <div className="admin-dashboard-header">
-          <h2>لوحة تحكم المشتركين</h2>
-          <button type="button" className="admin-dashboard-close" onClick={onClose}>
-            ✖
-          </button>
-        </div>
-
-        <div className="admin-dashboard-actions">
+    <div className="admin-dashboard">
+      <div className="admin-dashboard-actions">
           <button type="button" className="admin-dashboard-refresh" onClick={loadUsers} disabled={loading}>
             🔄 تحديث القائمة
           </button>

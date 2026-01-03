@@ -827,8 +827,23 @@ function App() {
         </div>
       )}
 
-        {isAdmin && showAdminDashboard && (
-        <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+      {isAdmin && showAdminDashboard && (
+        <div className="unit-detail-overlay" onClick={() => setShowAdminDashboard(false)}>
+          <div 
+            className="unit-detail-panel admin-dashboard-panel" 
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="unit-detail-header">
+              <button className="detail-close-btn" onClick={() => setShowAdminDashboard(false)}>
+                ✕
+              </button>
+              <h2 className="detail-title">⚙️ لوحة التحكم</h2>
+            </div>
+            <div className="unit-detail-content">
+              <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+            </div>
+          </div>
+        </div>
       )}
       
       {/* PWA Install Prompt */}

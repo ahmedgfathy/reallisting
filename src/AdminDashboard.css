@@ -1,50 +1,10 @@
-.admin-dashboard-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 60px 20px;
-  z-index: 1000;
-  overflow-y: auto;
-}
-
 .admin-dashboard {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 900px;
   width: 100%;
+  height: 100%;
   padding: 25px;
-  position: relative;
   direction: rtl;
-}
-
-.admin-dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.admin-dashboard-header h2 {
-  margin: 0;
-  font-size: 1.4rem;
-  color: #3b5998;
-}
-
-.admin-dashboard-close {
-  background: transparent;
-  border: none;
-  color: #888;
-  font-size: 1.4rem;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.admin-dashboard-close:hover {
-  color: #c0392b;
+  overflow-y: auto;
 }
 
 .admin-dashboard-actions {
