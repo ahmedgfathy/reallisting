@@ -140,7 +140,15 @@ async function createSchema() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
-    -- Create indexes
+  `;
+  
+  await prismaClient.query(schema);
+  console.log('✅ Schema created successfully!');
+}
+
+async function createIndexesAndView() {
+  const sql = `
+    -- Indexes
     CREATE INDEX IF NOT EXISTS idx_sender_mobile ON sender(mobile);
     CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
     CREATE INDEX IF NOT EXISTS idx_messages_region_id ON messages(region_id);
@@ -149,7 +157,7 @@ async function createSchema() {
     CREATE INDEX IF NOT EXISTS idx_messages_purpose_id ON messages(purpose_id);
     CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile);
 
-    -- Create view
+    -- View
     CREATE OR REPLACE VIEW messages_with_sender AS
     SELECT 
       m.id,
@@ -174,9 +182,8 @@ async function createSchema() {
     LEFT JOIN categories c ON m.category_id = c.id
     LEFT JOIN purposes p ON m.purpose_id = p.id;
   `;
-  
-  await prismaClient.query(schema);
-  console.log('✅ Schema created successfully!');
+  await prismaClient.query(sql);
+  console.log('✅ Indexes and view created');
 }
 
 async function importData(tableName, data) {
@@ -194,20 +201,31 @@ async function importData(tableName, data) {
     return;
   }
 
-  const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-  const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`;
-
+  // Bigger chunk size for sender/messages
+  const chunkSize = ['sender', 'messages'].includes(tableName) ? 2000 : 500;
   let imported = 0;
-  for (const row of data) {
+
+  for (let i = 0; i < data.length; i += chunkSize) {
+    const chunk = data.slice(i, i + chunkSize);
+    const values = [];
+    const rowsPlaceholders = chunk.map((row, rowIdx) => {
+      const rowVals = columns.map(col => row[col]);
+      values.push(...rowVals);
+      const base = rowIdx * columns.length;
+      const ph = columns.map((_, colIdx) => `$${base + colIdx + 1}`).join(', ');
+      return `(${ph})`;
+    }).join(', ');
+
+    const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES ${rowsPlaceholders} ON CONFLICT DO NOTHING`;
+
     try {
-      const values = columns.map(col => row[col]);
       await prismaClient.query(query, values);
-      imported++;
+      imported += chunk.length;
     } catch (error) {
-      console.error(`Error importing row to ${tableName}:`, error.message);
+      console.error(`Error importing batch to ${tableName}:`, error.message);
     }
   }
-  
+
   console.log(`✅ Imported ${imported}/${data.length} rows into ${tableName}`);
 }
 
@@ -233,6 +251,9 @@ async function migrate() {
     // Messages last (has foreign keys)
     const messages = await exportTable('messages');
     await importData('messages', messages);
+
+    // Create indexes and view after data load for speed
+    await createIndexesAndView();
     
     console.log('\n🎉 Migration completed successfully!\n');
     console.log('📋 Next steps:');
