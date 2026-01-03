@@ -67,10 +67,28 @@ module.exports = async (req, res) => {
 
     console.log('🔑 Final isApprovedUser:', isApprovedUser);
 
-    // Build query - use the VIEW that joins everything
+    // Build query - query messages with sender join
     let query = supabase
-      .from('messages_with_sender')
-      .select('*', { count: 'exact' });
+      .from('messages')
+      .select(`
+        id,
+        name,
+        mobile,
+        message,
+        date_of_creation,
+        source_file,
+        category,
+        property_type,
+        region,
+        purpose,
+        image_url,
+        created_at,
+        sender:sender_id (
+          id,
+          name,
+          mobile
+        )
+      `, { count: 'exact' });
 
     // Apply filters
     if (category && category !== 'الكل') {
@@ -139,11 +157,14 @@ module.exports = async (req, res) => {
         messageContent = messageContent.replace(MOBILE_REGEX, '***********');
       }
 
+      // Get sender info from relationship or fallback to message fields
+      const senderName = row.sender?.name || row.name || '';
+      const senderMobile = row.sender?.mobile || row.mobile || 'N/A';
+
       const mapped = {
         id: row.id,
-        // View returns sender_name / sender_mobile directly
-        name: isApprovedUser ? row.sender_name : null,
-        mobile: isApprovedUser ? row.sender_mobile : 'N/A',
+        name: isApprovedUser ? senderName : '',
+        mobile: isApprovedUser ? senderMobile : 'N/A',
         message: messageContent,
         dateOfCreation: row.date_of_creation,
         sourceFile: row.source_file,
@@ -151,7 +172,7 @@ module.exports = async (req, res) => {
         propertyType: row.property_type,
         region: row.region,
         purpose: row.purpose,
-        imageUrl: row.image_url // View needs to supply this!
+        imageUrl: row.image_url
       };
       return mapped;
     });
