@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './InstallPrompt.css';
-import brandLogo from './logo.svg';
 
 function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -73,7 +72,7 @@ function InstallPrompt() {
         <button className="install-close" onClick={handleDismiss}>✕</button>
         
         <div className="install-icon">
-          <img src={brandLogo} alt="كونتابو" />
+          <img src="/logo192.png" alt="كونتابو" />
         </div>
         
         <h2>تثبيت كونتابو</h2>

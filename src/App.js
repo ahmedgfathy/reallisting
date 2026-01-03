@@ -5,7 +5,6 @@ import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
 import InstallPrompt from './InstallPrompt';
-import brandLogo from './logo.svg';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -468,7 +467,7 @@ function App() {
       <div className="app">
         <div className="error-container">
           <div className="brand">
-            <img src={brandLogo} alt="كونتابو" className="brand-logo" />
+            <img src="/logo192.png" alt="كونتابو" className="brand-logo" />
             <h1>كونتابو</h1>
           </div>
           <div className="error-message">
@@ -487,7 +486,7 @@ function App() {
       <header className="header">
         <div className="header-row-1">
           <div className="brand">
-            <img src={brandLogo} alt="كونتابو" className="brand-logo" />
+            <img src="/logo192.png" alt="كونتابو" className="brand-logo" />
             <h1>كونتابو</h1>
           </div>
           <div className="header-actions">
