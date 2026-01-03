@@ -260,7 +260,7 @@ function App() {
           setFilteredCount(0);
           setTotalPages(1);
           setHasMore(false);
-          setError('Error connecting to server. Make sure the backend is running on port 3001.');
+          setError('Unable to connect to the API. Please check your internet connection, Vercel deployment settings (environment variables), or try again later.\nخطأ في الاتصال بالـ API. يرجى التحقق من اتصال الإنترنت، إعدادات النشر (متغيرات البيئة) على Vercel، أو المحاولة مرة أخرى لاحقاً.');
         }
       } finally {
         if (isInitialLoad) {
@@ -508,9 +508,18 @@ function App() {
             <h1>كونتابو</h1>
           </div>
           <div className="error-message">
-            <p>خطأ في الاتصال بالخادم. تأكد من تشغيل الخادم على المنفذ 3001</p>
-            <p>قم بتشغيل الخادم:</p>
-            <code>cd server && npm install && npm start</code>
+            <p style={{ marginBottom: '10px', fontSize: '16px', lineHeight: '1.6' }}>
+              {error}
+            </p>
+            <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+              <p style={{ marginBottom: '10px', fontWeight: 'bold' }}>💡 Troubleshooting steps / خطوات استكشاف الأخطاء:</p>
+              <ul style={{ textAlign: 'right', lineHeight: '1.8', paddingRight: '20px' }}>
+                <li>Check your internet connection / تحقق من اتصالك بالإنترنت</li>
+                <li>Verify Vercel environment variables are set / تأكد من ضبط متغيرات البيئة على Vercel</li>
+                <li>Check Vercel deployment status / تحقق من حالة النشر على Vercel</li>
+                <li>Try refreshing the page / حاول تحديث الصفحة</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
