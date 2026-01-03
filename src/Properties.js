@@ -496,6 +496,46 @@ function Properties({ user }) {
                 <strong>📍 الموقع:</strong> {property.location}
               </div>
             )}
+
+            {/* Contact Information - Only visible for admin users */}
+            {(property.mobileno || property.tel || property.name) && (
+              <div className="property-contact-info">
+                <h3 className="contact-title">📞 معلومات الاتصال</h3>
+                <div className="contact-details">
+                  {property.name && (
+                    <div className="contact-item">
+                      <strong>👤 الاسم:</strong>
+                      <span className="contact-value">{property.name}</span>
+                    </div>
+                  )}
+                  {property.mobileno && (
+                    <div className="contact-item">
+                      <strong>📱 رقم الموبايل:</strong>
+                      <a href={`tel:${property.mobileno}`} className="contact-link">
+                        {property.mobileno}
+                      </a>
+                      <a 
+                        href={`https://wa.me/${property.mobileno.replace(/\D/g, '')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="whatsapp-contact-btn"
+                        title="تواصل عبر واتساب"
+                      >
+                        <i className="fab fa-whatsapp"></i>
+                      </a>
+                    </div>
+                  )}
+                  {property.tel && (
+                    <div className="contact-item">
+                      <strong>☎️ الهاتف:</strong>
+                      <a href={`tel:${property.tel}`} className="contact-link">
+                        {property.tel}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

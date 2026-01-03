@@ -674,6 +674,117 @@
   margin-left: 8px;
 }
 
+/* Contact Information Styles */
+.property-contact-info {
+  margin-top: 20px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contact-title {
+  font-family: 'Cairo', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 16px 0;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  font-family: 'Cairo', sans-serif;
+  transition: all 0.3s ease;
+  flex-wrap: wrap;
+}
+
+.contact-item:hover {
+  background: #ffffff;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.contact-item strong {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 15px;
+  min-width: 110px;
+}
+
+.contact-value {
+  color: #34495e;
+  font-weight: 500;
+  font-size: 16px;
+  flex: 1;
+}
+
+.contact-link {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  direction: ltr;
+  display: inline-block;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.contact-link:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}
+
+.whatsapp-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.whatsapp-contact-btn:hover {
+  background: #128C7E;
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.5);
+}
+
+.whatsapp-contact-btn i {
+  font-size: 22px;
+}
+
+
 @media (max-width: 768px) {
   .properties-grid {
     grid-template-columns: 1fr;

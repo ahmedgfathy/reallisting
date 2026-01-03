@@ -1,10 +1,5 @@
 // Get single property details with images and videos
-const { createClient } = require('@supabase/supabase-js');
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const { supabase, verifyToken } = require('./_lib/supabase');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
@@ -16,6 +11,28 @@ module.exports = async (req, res) => {
 
     if (!id) {
       return res.status(400).json({ error: 'Property ID required' });
+    }
+
+    // Check if user is authenticated and is admin
+    const authHeader = req.headers.authorization;
+    let isAdmin = false;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      const payload = verifyToken(token);
+
+      if (payload && payload.username) {
+        // Check if user is admin
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('mobile', payload.username)
+          .single();
+
+        if (userData) {
+          isAdmin = userData.role === 'admin';
+        }
+      }
     }
 
     // Fetch property with images and videos
@@ -30,8 +47,14 @@ module.exports = async (req, res) => {
       return res.status(404).json({ error: 'Property not found' });
     }
 
-    // Remove sensitive contact information fields
-    const { mobileno, tel, ...safeProperty } = property;
+    // Remove sensitive contact information fields for non-admin users
+    let safeProperty;
+    if (isAdmin) {
+      safeProperty = property;
+    } else {
+      const { mobileno, tel, ...rest } = property;
+      safeProperty = rest;
+    }
 
     // Parse images from propertyimage field (JSON string)
     let imageUrls = [];
