@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
     res.setHeader(key, value);
   });
 
-  // Check if Supabase is configured
+    // Check if database is configured
   if (!isConfigured()) {
     return res.status(500).json(getConfigError());
   }
@@ -37,40 +37,76 @@ module.exports = async (req, res) => {
     const limitNum = parseInt(limit);
     const offset = (pageNum - 1) * limitNum;
 
-    // Check if user is authenticated and approved
-    const authHeader = req.headers.authorization;
-    let isApprovedUser = false;
-    let userMobile = null;
+      // Check if user is authenticated and approved
+      const authHeader = req.headers.authorization;
+      let isApprovedUser = false;
+      let userMobile = null;
 
-    console.log('🔐 Auth header:', authHeader ? 'Present' : 'Missing');
-
-    if (authHeader?.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const payload = verifyToken(token);
-
-      console.log('🎫 Token payload:', payload);
-
-      if (payload && payload.username) {
-        userMobile = payload.username;
-
-        // Check if user is active
-        const { data: userData } = await supabase
-          .from('users')
-          .select('is_active, role')
-          .eq('mobile', userMobile)
-          .single();
-
-        console.log('👤 User data:', userData);
-
-        if (userData) {
-          // Admin is always approved, or check is_active for regular users
-          isApprovedUser = userData.role === 'admin' || userData.is_active === true;
-          console.log('✅ User approved:', isApprovedUser, '(role:', userData.role, ', is_active:', userData.is_active, ')');
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        const payload = verifyToken(token);
+        if (payload?.username) {
+          userMobile = payload.username;
+          const { data: userRows } = await query(
+            'SELECT is_active, role FROM users WHERE mobile = $1 LIMIT 1',
+            [userMobile]
+          );
+          const userData = userRows && userRows[0];
+          if (userData) {
+            isApprovedUser = userData.role === 'admin' || userData.is_active === true;
+          }
         }
       }
-    }
 
-    console.log('🔑 Final isApprovedUser:', isApprovedUser);
+      // Build SQL filters
+      const conditions = [];
+      const params = [];
+
+      if (category && category !== 'الكل') {
+        params.push(category);
+        conditions.push(`category = $${params.length}`);
+      }
+      if (propertyType && propertyType !== 'الكل') {
+        params.push(propertyType);
+        conditions.push(`property_type = $${params.length}`);
+      }
+      if (region && region !== 'الكل') {
+        params.push(region);
+        conditions.push(`region = $${params.length}`);
+      }
+      if (purpose && purpose !== 'الكل') {
+        params.push(purpose);
+        conditions.push(`purpose = $${params.length}`);
+      }
+      if (search) {
+        params.push(`%${search}%`);
+        params.push(`%${search}%`);
+        params.push(`%${search}%`);
+        conditions.push(`(message ILIKE $${params.length - 2} OR region ILIKE $${params.length - 1} OR property_type ILIKE $${params.length})`);
+      }
+
+      const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+      // Count
+      const { data: countRows, error: countErr } = await query(
+        `SELECT COUNT(*)::int as total FROM messages_with_sender ${whereClause}`,
+        params
+      );
+      if (countErr) throw new Error(countErr);
+      const total = countRows?.[0]?.total || 0;
+
+      // Data with pagination
+      params.push(limitNum, offset);
+      const { data, error } = await query(
+        `SELECT id, message, date_of_creation, source_file, image_url, category, property_type, region, purpose,
+                sender_id, sender_name, sender_mobile, created_at
+           FROM messages_with_sender
+           ${whereClause}
+           ORDER BY created_at DESC
+           LIMIT $${params.length - 1} OFFSET $${params.length}`,
+        params
+      );
+      if (error) throw new Error(error);
 
     // Build query - use the messages_with_sender view that joins all tables
     let query = supabase
