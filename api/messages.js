@@ -72,27 +72,23 @@ module.exports = async (req, res) => {
 
     console.log('🔑 Final isApprovedUser:', isApprovedUser);
 
-    // Build query - query messages with sender join
+    // Build query - use the messages_with_sender view that joins all tables
     let query = supabase
-      .from('messages')
+      .from('messages_with_sender')
       .select(`
         id,
-        name,
-        mobile,
         message,
         date_of_creation,
         source_file,
+        image_url,
         category,
         property_type,
         region,
         purpose,
-        image_url,
-        created_at,
-        sender:sender_id (
-          id,
-          name,
-          mobile
-        )
+        sender_id,
+        sender_name,
+        sender_mobile,
+        created_at
       `, { count: 'exact' });
 
     // Apply filters
@@ -162,9 +158,9 @@ module.exports = async (req, res) => {
         messageContent = messageContent.replace(MOBILE_REGEX, '***********');
       }
 
-      // Get sender info from relationship or fallback to message fields
-      const senderName = row.sender?.name || row.name || '';
-      const senderMobile = row.sender?.mobile || row.mobile || 'N/A';
+      // Use sender fields from the view
+      const senderName = row.sender_name || '';
+      const senderMobile = row.sender_mobile || 'N/A';
 
       const mapped = {
         id: row.id,
