@@ -87,6 +87,8 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('token');
+      const storedUser = localStorage.getItem('user');
+      
       if (!token) {
         setAuthLoading(false);
         return;
@@ -104,13 +106,40 @@ function App() {
           if (data.authenticated) {
             setIsAuthenticated(true);
             setUser(data.user);
+          } else {
+            // Server explicitly says token is invalid
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
           }
-        } else {
+        } else if (response.status === 401) {
+          // Unauthorized - clear invalid token
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+        } else {
+          // Other errors (5xx, network issues) - keep user logged in with stored data
+          console.warn('Auth verification failed, using cached user data');
+          if (storedUser) {
+            try {
+              const userData = JSON.parse(storedUser);
+              setIsAuthenticated(true);
+              setUser(userData);
+            } catch (parseErr) {
+              console.error('Failed to parse stored user:', parseErr);
+            }
+          }
         }
       } catch (err) {
-        console.error('Auth check failed:', err);
+        // Network error - keep user logged in with stored data
+        console.warn('Auth check network error, using cached user data:', err.message);
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setIsAuthenticated(true);
+            setUser(userData);
+          } catch (parseErr) {
+            console.error('Failed to parse stored user:', parseErr);
+          }
+        }
       } finally {
         setAuthLoading(false);
       }
