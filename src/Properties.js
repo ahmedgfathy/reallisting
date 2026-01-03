@@ -202,6 +202,7 @@ function Properties({ user }) {
 
   const PropertyDetail = ({ property, onClose }) => {
     const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+    const [showShareMenu, setShowShareMenu] = useState(false);
 
     // Combine images and videos into a single media array
     const media = [
@@ -223,6 +224,100 @@ function Properties({ user }) {
 
     const currentMedia = media[currentMediaIndex];
 
+    // Generate shareable content
+    const getShareContent = () => {
+      const title = property.compoundname || property.title || property.name || 'عقار';
+      const price = property.totalprice ? `${formatPrice(property.totalprice)} ${property.currency_name || 'جنيه'}` : '';
+      const propertyType = property.property_type_name || '';
+      const region = property.region_name || '';
+      const rooms = property.rooms ? `${property.rooms} غرفة` : '';
+      const area = property.built_area ? `${property.built_area}م²` : '';
+      
+      let description = `${title}\n\n`;
+      if (price) description += `💰 السعر: ${price}\n`;
+      if (propertyType) description += `🏠 النوع: ${propertyType}\n`;
+      if (region) description += `📍 المنطقة: ${region}\n`;
+      if (rooms) description += `🛏️ الغرف: ${rooms}\n`;
+      if (area) description += `📐 المساحة: ${area}\n`;
+      
+      if (property.description) {
+        description += `\n📝 الوصف:\n${property.description.substring(0, 200)}${property.description.length > 200 ? '...' : ''}`;
+      }
+      
+      // Add app link - using current URL as base
+      const appUrl = window.location.origin;
+      description += `\n\n🔗 للمزيد من التفاصيل:\n${appUrl}`;
+      
+      return {
+        title,
+        text: description,
+        url: appUrl
+      };
+    };
+
+    // Handle native share (Web Share API)
+    const handleNativeShare = () => {
+      // Always show the share menu for consistent behavior
+      setShowShareMenu(!showShareMenu);
+    };
+
+    // Handle WhatsApp share
+    const handleWhatsAppShare = () => {
+      const shareContent = getShareContent();
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareContent.text)}`;
+      window.open(whatsappUrl, '_blank');
+      setShowShareMenu(false);
+    };
+
+    // Handle Facebook share
+    const handleFacebookShare = () => {
+      const shareContent = getShareContent();
+      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareContent.url)}&quote=${encodeURIComponent(shareContent.text)}`;
+      window.open(facebookUrl, '_blank');
+      setShowShareMenu(false);
+    };
+
+    // Handle Twitter share
+    const handleTwitterShare = () => {
+      const shareContent = getShareContent();
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareContent.text)}&url=${encodeURIComponent(shareContent.url)}`;
+      window.open(twitterUrl, '_blank');
+      setShowShareMenu(false);
+    };
+
+    // Handle copy link
+    const handleCopyLink = () => {
+      const shareContent = getShareContent();
+      
+      // Check if clipboard API is available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareContent.text).then(() => {
+          alert('تم نسخ التفاصيل إلى الحافظة!');
+          setShowShareMenu(false);
+        }).catch(err => {
+          console.error('Error copying to clipboard:', err);
+          alert('فشل نسخ التفاصيل. يرجى المحاولة مرة أخرى.');
+        });
+      } else {
+        // Fallback for browsers that don't support clipboard API
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = shareContent.text;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('تم نسخ التفاصيل إلى الحافظة!');
+          setShowShareMenu(false);
+        } catch (err) {
+          console.error('Error copying to clipboard:', err);
+          alert('فشل نسخ التفاصيل. يرجى المحاولة مرة أخرى.');
+        }
+      }
+    };
+
     return (
       <div className="unit-detail-overlay" onClick={onClose}>
         <div className="unit-detail-panel" onClick={(e) => e.stopPropagation()}>
@@ -234,6 +329,42 @@ function Properties({ user }) {
               → رجوع
             </button>
             <h2 className="detail-title">{property.compoundname || property.title || property.name}</h2>
+            <div className="share-container">
+              <button 
+                className="share-btn" 
+                onClick={handleNativeShare}
+                title="مشاركة"
+                aria-label="مشاركة العقار"
+                aria-expanded={showShareMenu}
+                aria-haspopup="menu"
+              >
+                <i className="fas fa-share-alt"></i>
+              </button>
+              {showShareMenu && (
+                <div 
+                  className="share-menu"
+                  role="menu"
+                  aria-label="خيارات المشاركة"
+                >
+                  <button className="share-option whatsapp" onClick={handleWhatsAppShare} role="menuitem">
+                    <i className="fab fa-whatsapp"></i>
+                    <span>واتساب</span>
+                  </button>
+                  <button className="share-option facebook" onClick={handleFacebookShare} role="menuitem">
+                    <i className="fab fa-facebook"></i>
+                    <span>فيسبوك</span>
+                  </button>
+                  <button className="share-option twitter" onClick={handleTwitterShare} role="menuitem">
+                    <i className="fab fa-twitter"></i>
+                    <span>تويتر</span>
+                  </button>
+                  <button className="share-option copy" onClick={handleCopyLink} role="menuitem">
+                    <i className="fas fa-copy"></i>
+                    <span>نسخ</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {media.length > 0 && (
