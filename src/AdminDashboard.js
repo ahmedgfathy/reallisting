@@ -14,11 +14,10 @@ function AdminDashboard({ onClose }) {
   const [subscriptionModal, setSubscriptionModal] = useState(null);
   const [subscriptionDays, setSubscriptionDays] = useState('30');
   const [showImportModal, setShowImportModal] = useState(false);
-  const [importText, setImportText] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState(null);
-  
-  const IMPORT_PLACEHOLDER = 'مثال:\n[15/12/2024, 10:30:00] أحمد: شقة للبيع في العاشر من رمضان 120 متر اتصل 01234567890\n[15/12/2024, 10:35:00] محمد: مطلوب فيلا للإيجار';
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const token = localStorage.getItem('token') || '';
 
@@ -221,40 +220,87 @@ function AdminDashboard({ onClose }) {
     }
   };
 
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.name.endsWith('.txt')) {
+        setError('الرجاء اختيار ملف نصي (.txt)');
+        return;
+      }
+      setSelectedFile(file);
+      setError(null);
+    }
+  };
+
   const handleImportWhatsApp = async () => {
-    if (!token || !importText.trim()) {
-      setError('الرجاء إدخال نص الدردشة');
+    if (!token || !selectedFile) {
+      setError('الرجاء اختيار ملف للاستيراد');
       return;
     }
     
     setImporting(true);
     setError(null);
     setImportResult(null);
+    setUploadProgress(0);
     
     try {
-      const response = await fetch('/api/import-whatsapp', {
+      // Read file content
+      const fileContent = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsText(selectedFile);
+      });
+      
+      setUploadProgress(30);
+      
+      // Step 1: Upload file
+      const uploadResponse = await fetch('/api/upload-whatsapp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ text: importText })
+        body: JSON.stringify({
+          fileContent: fileContent,
+          filename: selectedFile.name
+        })
       });
       
-      const result = await response.json();
+      const uploadResult = await uploadResponse.json();
       
-      if (!response.ok) {
-        throw new Error(result.error || 'فشل في استيراد البيانات');
+      if (!uploadResponse.ok) {
+        throw new Error(uploadResult.error || 'فشل في رفع الملف');
       }
       
-      setImportResult(result);
-      setImportText('');
+      setUploadProgress(60);
+      
+      // Step 2: Process file
+      const processResponse = await fetch('/api/process-whatsapp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ uploadId: uploadResult.uploadId })
+      });
+      
+      const processResult = await processResponse.json();
+      
+      if (!processResponse.ok) {
+        throw new Error(processResult.error || 'فشل في معالجة الملف');
+      }
+      
+      setUploadProgress(100);
+      setImportResult(processResult);
+      setSelectedFile(null);
       setShowImportModal(false);
       
     } catch (err) {
       setError(err.message);
     } finally {
       setImporting(false);
+      setUploadProgress(0);
     }
   };
 
@@ -506,31 +552,55 @@ function AdminDashboard({ onClose }) {
         {showImportModal && (
           <div className="import-modal-overlay" onClick={() => setShowImportModal(false)}>
             <div className="import-modal" onClick={e => e.stopPropagation()}>
-              <h3>📥 استيراد رسائل من واتساب</h3>
-              <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
-                الصق نص الدردشة المُصدر من واتساب هنا. يجب أن يكون بالصيغة:
-                <br />
-                <code>[DD/MM/YYYY, HH:MM:SS] الاسم: الرسالة</code>
+              <h3>📥 استيراد من واتساب</h3>
+              <p style={{ fontSize: 14, color: '#666', marginBottom: 16 }}>
+                اختر ملف TXT المُصدَّر من واتساب (تنسيق: [التاريخ، الوقت] الاسم: الرسالة)
               </p>
-              <textarea
-                className="import-textarea"
-                value={importText}
-                onChange={e => setImportText(e.target.value)}
-                placeholder={IMPORT_PLACEHOLDER}
-                rows="10"
-                disabled={importing}
-              />
+              
+              <div className="file-upload-area">
+                <input
+                  type="file"
+                  id="whatsapp-file"
+                  accept=".txt"
+                  onChange={handleFileSelect}
+                  disabled={importing}
+                  style={{ display: 'none' }}
+                />
+                <label htmlFor="whatsapp-file" className="file-upload-label">
+                  <i className="fas fa-file-upload"></i>
+                  <span>{selectedFile ? selectedFile.name : 'اختر ملف TXT'}</span>
+                </label>
+                {selectedFile && (
+                  <div className="selected-file-info">
+                    <span>📄 {selectedFile.name}</span>
+                    <span className="file-size">{(selectedFile.size / 1024).toFixed(2)} KB</span>
+                  </div>
+                )}
+              </div>
+
+              {importing && uploadProgress > 0 && (
+                <div className="upload-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+                  </div>
+                  <span className="progress-text">{uploadProgress}%</span>
+                </div>
+              )}
+              
               <div className="import-modal-actions">
                 <button 
                   className="import-confirm-btn" 
                   onClick={handleImportWhatsApp}
-                  disabled={importing || !importText.trim()}
+                  disabled={importing || !selectedFile}
                 >
                   {importing ? '⏳ جاري الاستيراد...' : '✅ استيراد'}
                 </button>
                 <button 
                   className="import-cancel-btn" 
-                  onClick={() => setShowImportModal(false)}
+                  onClick={() => {
+                    setShowImportModal(false);
+                    setSelectedFile(null);
+                  }}
                   disabled={importing}
                 >
                   ❌ إلغاء
