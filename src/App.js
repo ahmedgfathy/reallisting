@@ -94,6 +94,14 @@ function App() {
         return;
       }
 
+      // Helper to clear authentication state
+      const clearAuthState = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setIsAuthenticated(false);
+        setUser(null);
+      };
+
       // Helper to restore cached user data
       const restoreCachedUser = () => {
         if (storedUser) {
@@ -103,17 +111,12 @@ function App() {
             setUser(userData);
           } catch (parseErr) {
             console.error('Failed to parse stored user, clearing auth:', parseErr);
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setIsAuthenticated(false);
-            setUser(null);
+            clearAuthState();
           }
         } else {
           // No cached user data, clear everything
           console.warn('No cached user data available, clearing auth');
-          localStorage.removeItem('token');
-          setIsAuthenticated(false);
-          setUser(null);
+          clearAuthState();
         }
       };
 
@@ -131,19 +134,13 @@ function App() {
             setUser(data.user);
           } else {
             // Server explicitly says token is invalid
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setIsAuthenticated(false);
-            setUser(null);
+            clearAuthState();
           }
         } else if (response.status === 401) {
           // Unauthorized - clear invalid token
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setIsAuthenticated(false);
-          setUser(null);
+          clearAuthState();
         } else {
-          // Other errors (5xx, network issues) - keep user logged in with stored data
+          // Other HTTP errors (4xx except 401, 5xx) - keep user logged in with stored data
           console.warn('Auth verification failed, using cached user data');
           restoreCachedUser();
         }
