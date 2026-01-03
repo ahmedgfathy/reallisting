@@ -114,9 +114,9 @@ function App() {
             clearAuthState();
           }
         } else {
-          // No cached user data, clear everything
-          console.warn('No cached user data available, clearing auth');
-          clearAuthState();
+          // No cached user data available - log warning but don't clear token yet
+          // This allows retry on next mount if network is restored
+          console.warn('No cached user data available, cannot restore session');
         }
       };
 
@@ -133,7 +133,7 @@ function App() {
             setIsAuthenticated(true);
             setUser(data.user);
           } else {
-            // Server explicitly says token is invalid
+            // Server successfully validated request but token is invalid
             clearAuthState();
           }
         } else if (response.status === 401) {
