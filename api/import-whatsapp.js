@@ -223,183 +223,107 @@ module.exports = async (req, res) => {
       sendersCreated: 0
     };
     
+    // Batch processing for better performance
+    const BATCH_SIZE = 100;
     const senderCache = new Map();
     
-    // Process each message
+    // First, extract all unique mobiles and create senders in batch
+    const uniqueMobiles = new Map(); // mobile -> {sender, date, time}
+    
     for (const msg of parsedMessages) {
-      try {
-        const mobile = extractMobile(msg.message);
-        const details = extractPropertyDetails(msg.message);
-        
-        let senderId = null;
-        
-        // If mobile found, create/get sender
-        if (mobile) {
-          if (senderCache.has(mobile)) {
-            senderId = senderCache.get(mobile);
-          } else {
-            // Try using the get_or_create_sender RPC function first
-            try {
-              // First check if sender exists
-              const { data: existingSenderCheck } = await supabase
-                .from('sender')
-                .select('id')
-                .eq('mobile', mobile)
-                .single();
-              
-              const senderExists = !!existingSenderCheck;
-              
-              const { data: senderIdResult, error: senderError } = await supabase
-                .rpc('get_or_create_sender', {
-                  p_mobile: mobile,
-                  p_name: msg.sender || '',
-                  p_date: msg.date
-                });
-              
-              if (!senderError && senderIdResult) {
-                senderId = senderIdResult;
-                senderCache.set(mobile, senderId);
-                // Only increment if sender didn't exist before
-                if (!senderExists) {
-                  stats.sendersCreated++;
-                }
-              }
-            } catch (rpcError) {
-              // If RPC function doesn't exist, use direct insert/select approach
-              console.log('RPC function not available, using direct approach');
-              
-              // Try to find existing sender
-              const { data: existingSender } = await supabase
-                .from('sender')
-                .select('id')
-                .eq('mobile', mobile)
-                .single();
-              
-              if (existingSender) {
-                senderId = existingSender.id;
-                senderCache.set(mobile, senderId);
-              } else {
-                // Create new sender
-                const { data: newSender, error: insertError } = await supabase
-                  .from('sender')
-                  .insert([{
-                    mobile: mobile,
-                    name: msg.sender || '',
-                    first_seen_date: msg.date,
-                    first_seen_time: msg.time
-                  }])
-                  .select('id')
-                  .single();
-                
-                if (!insertError && newSender) {
-                  senderId = newSender.id;
-                  senderCache.set(mobile, senderId);
-                  stats.sendersCreated++;
-                }
-              }
-            }
-          }
+      const mobile = extractMobile(msg.message);
+      if (mobile && !uniqueMobiles.has(mobile)) {
+        uniqueMobiles.set(mobile, {
+          sender: msg.sender || '',
+          date: msg.date,
+          time: msg.time
+        });
+      }
+    }
+    
+    // Get existing senders
+    if (uniqueMobiles.size > 0) {
+      const mobilesArray = Array.from(uniqueMobiles.keys());
+      const { data: existingSenders } = await supabase
+        .from('sender')
+        .select('id, mobile')
+        .in('mobile', mobilesArray);
+      
+      if (existingSenders) {
+        existingSenders.forEach(s => senderCache.set(s.mobile, s.id));
+      }
+      
+      // Create new senders in batch
+      const newSenders = [];
+      for (const [mobile, info] of uniqueMobiles) {
+        if (!senderCache.has(mobile)) {
+          newSenders.push({
+            mobile: mobile,
+            name: info.sender,
+            first_seen_date: info.date,
+            first_seen_time: info.time
+          });
         }
+      }
+      
+      if (newSenders.length > 0) {
+        const { data: createdSenders, error: senderError } = await supabase
+          .from('sender')
+          .insert(newSenders)
+          .select('id, mobile');
         
-        // Clean message - remove mobile numbers for privacy
-        let cleanMessage = msg.message;
-        if (mobile) {
-          // Escape all special regex characters for safe replacement
-          const mobileEscaped = mobile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          cleanMessage = cleanMessage.replace(new RegExp(mobileEscaped, 'g'), '***');
+        if (!senderError && createdSenders) {
+          createdSenders.forEach(s => senderCache.set(s.mobile, s.id));
+          stats.sendersCreated = createdSenders.length;
         }
-        
-        // Insert message into database
-        // First, try to get IDs for normalized schema if it exists
-        let regionId = null, categoryId = null, propertyTypeId = null, purposeId = null;
-        
-        // Try to look up normalized IDs (if tables exist)
+      }
+    }
+    
+    // Now process messages in batches
+    for (let i = 0; i < parsedMessages.length; i += BATCH_SIZE) {
+      const batch = parsedMessages.slice(i, i + BATCH_SIZE);
+      const messagesToInsert = [];
+      
+      for (const msg of batch) {
         try {
-          const { data: regionData } = await supabase
-            .from('regions')
-            .select('id')
-            .eq('name', details.region)
-            .single();
-          if (regionData) regionId = regionData.id;
+          const mobile = extractMobile(msg.message);
+          const details = extractPropertyDetails(msg.message);
+          const senderId = mobile ? senderCache.get(mobile) : null;
           
-          const { data: categoryData } = await supabase
-            .from('categories')
-            .select('id')
-            .eq('name', details.category)
-            .single();
-          if (categoryData) categoryId = categoryData.id;
+          const messageData = {
+            id: generateMessageId(),
+            message: msg.message,
+            sender_id: senderId,
+            name: msg.sender || '',
+            mobile: mobile || 'N/A',
+            date_of_creation: msg.date,
+            source_file: filename || 'whatsapp_import',
+            category: details.category,
+            property_type: details.propertyType,
+            region: details.region,
+            purpose: details.purpose,
+            created_at: new Date().toISOString()
+          };
           
-          const { data: typeData } = await supabase
-            .from('property_types')
-            .select('id')
-            .eq('name', details.propertyType)
-            .single();
-          if (typeData) propertyTypeId = typeData.id;
-          
-          const { data: purposeData } = await supabase
-            .from('purposes')
-            .select('id')
-            .eq('name', details.purpose)
-            .single();
-          if (purposeData) purposeId = purposeData.id;
-        } catch (lookupError) {
-          // Normalized tables don't exist, will use text columns
-          console.log('Using non-normalized schema (text columns)');
+          messagesToInsert.push(messageData);
+        } catch (error) {
+          console.error('Error preparing message:', error);
+          stats.errors++;
         }
-        
-        const messageData = {
-          id: generateMessageId(),
-          message: cleanMessage,
-          sender_id: senderId,
-          date_of_creation: msg.date,
-          source_file: 'whatsapp_import',
-          created_at: new Date().toISOString()
-        };
-        
-        // Add fields based on schema (normalized or not)
-        if (regionId) {
-          messageData.region_id = regionId;
-        } else {
-          messageData.region = details.region;
-        }
-        
-        if (categoryId) {
-          messageData.category_id = categoryId;
-        } else {
-          messageData.category = details.category;
-        }
-        
-        if (propertyTypeId) {
-          messageData.property_type_id = propertyTypeId;
-        } else {
-          messageData.property_type = details.propertyType;
-        }
-        
-        if (purposeId) {
-          messageData.purpose_id = purposeId;
-        } else {
-          messageData.purpose = details.purpose;
-        }
-        
-        // Add mobile if not using normalized schema
-        if (!senderId || !regionId) {
-          messageData.mobile = mobile || 'N/A';
-        }
-        
+      }
+      
+      // Batch insert messages
+      if (messagesToInsert.length > 0) {
         const { error: insertError } = await supabase
           .from('messages')
-          .insert([messageData]);
+          .insert(messagesToInsert);
         
         if (insertError) {
-          console.error('Error inserting message:', insertError);
-          stats.errors++;
+          console.error('Batch insert error:', insertError);
+          stats.errors += messagesToInsert.length;
         } else {
-          stats.imported++;
+          stats.imported += messagesToInsert.length;
         }
-        
-      } catch (error) {
-        console.error('Error processing message:', error);
-        stats.errors++;
       }
     }
     
