@@ -630,3 +630,206 @@
 .subscription-cancel-btn:hover {
   background: #e0e0e0;
 }
+
+/* Import WhatsApp Button */
+.admin-import-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.admin-import-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+/* Import Modal */
+.import-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 20px;
+}
+
+.import-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  direction: rtl;
+}
+
+.import-modal h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+  color: #27ae60;
+}
+
+.import-textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.9rem;
+  resize: vertical;
+  margin-bottom: 15px;
+  direction: rtl;
+}
+
+.import-textarea:focus {
+  outline: none;
+  border-color: #27ae60;
+}
+
+.import-textarea:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.import-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.import-confirm-btn,
+.import-cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.import-confirm-btn {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  color: white;
+}
+
+.import-confirm-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+}
+
+.import-confirm-btn:disabled {
+  background: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.import-cancel-btn {
+  background: #ecf0f1;
+  color: #2c3e50;
+}
+
+.import-cancel-btn:hover:not(:disabled) {
+  background: #bdc3c7;
+}
+
+/* Import Result */
+.import-result-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 20px;
+}
+
+.import-result-box {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  direction: rtl;
+}
+
+.import-result-box h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+  color: #27ae60;
+}
+
+.import-stats {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.import-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.import-stat:last-child {
+  border-bottom: none;
+}
+
+.import-label {
+  font-weight: 600;
+  color: #555;
+}
+
+.import-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.import-value.import-success {
+  color: #27ae60;
+}
+
+.import-value.import-error {
+  color: #e74c3c;
+}
+
+.import-message {
+  text-align: center;
+  color: #27ae60;
+  font-size: 1rem;
+  margin: 10px 0;
+}
+
+.import-close-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #27ae60;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.import-close-btn:hover {
+  background: #229954;
+  transform: translateY(-2px);
+}
