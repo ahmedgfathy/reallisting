@@ -195,7 +195,7 @@ async function importData(tableName, data) {
   }
 
   const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-  const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
+  const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`;
 
   let imported = 0;
   for (const row of data) {
