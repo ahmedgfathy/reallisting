@@ -13,6 +13,18 @@ console.log('🚀 Starting One-Command Migration...\n');
 // Initialize clients
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 const prismaClient = new Client({ connectionString: PRISMA_URL });
+const tableColumnsCache = new Map();
+
+async function getTableColumns(tableName) {
+  if (tableColumnsCache.has(tableName)) return tableColumnsCache.get(tableName);
+  const res = await prismaClient.query(
+    `SELECT column_name FROM information_schema.columns WHERE table_schema='public' AND table_name=$1`,
+    [tableName]
+  );
+  const cols = res.rows.map(r => r.column_name);
+  tableColumnsCache.set(tableName, cols);
+  return cols;
+}
 
 async function exportTable(tableName) {
   console.log(`📤 Exporting ${tableName}...`);
@@ -48,6 +60,7 @@ async function createSchema() {
   
   const schema = `
     -- Drop existing tables
+    DROP VIEW IF EXISTS messages_with_sender CASCADE;
     DROP TABLE IF EXISTS messages CASCADE;
     DROP TABLE IF EXISTS purposes CASCADE;
     DROP TABLE IF EXISTS categories CASCADE;
@@ -55,94 +68,105 @@ async function createSchema() {
     DROP TABLE IF EXISTS regions CASCADE;
     DROP TABLE IF EXISTS sender CASCADE;
     DROP TABLE IF EXISTS users CASCADE;
-    DROP VIEW IF EXISTS messages_with_sender CASCADE;
 
-    -- Create users table
-    CREATE TABLE users (
+    -- Create users table (matches Supabase export)
+    CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
-      username VARCHAR(255) UNIQUE NOT NULL,
-      password_hash VARCHAR(255) NOT NULL,
-      email VARCHAR(255),
-      phone VARCHAR(50),
-      is_admin BOOLEAN DEFAULT FALSE,
-      subscription_end_date TIMESTAMP,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      mobile VARCHAR(20) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      name TEXT,
+      role VARCHAR(20) DEFAULT 'broker',
+      is_active BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      subscription_end_date TIMESTAMP WITH TIME ZONE,
+      username TEXT,
+      password_hash TEXT,
+      email TEXT,
+      phone TEXT,
+      is_admin BOOLEAN
     );
 
     -- Create sender table
-    CREATE TABLE sender (
+    CREATE TABLE IF NOT EXISTS sender (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) NOT NULL,
-      mobile VARCHAR(50) NOT NULL,
-      email VARCHAR(255),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name TEXT NOT NULL,
+      mobile TEXT UNIQUE NOT NULL,
+      first_seen_date TEXT,
+      first_seen_time TEXT,
+      updated_at TIMESTAMP WITH TIME ZONE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
     -- Create regions table
-    CREATE TABLE regions (
+    CREATE TABLE IF NOT EXISTS regions (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
     -- Create property_types table
-    CREATE TABLE property_types (
+    CREATE TABLE IF NOT EXISTS property_types (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
     -- Create categories table
-    CREATE TABLE categories (
+    CREATE TABLE IF NOT EXISTS categories (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
     -- Create purposes table
-    CREATE TABLE purposes (
+    CREATE TABLE IF NOT EXISTS purposes (
       id SERIAL PRIMARY KEY,
-      name VARCHAR(255) UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      name TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
-    -- Create messages table
-    CREATE TABLE messages (
-      id SERIAL PRIMARY KEY,
-      message_text TEXT,
-      sender_id INTEGER REFERENCES sender(id) ON DELETE SET NULL,
-      region_id INTEGER REFERENCES regions(id) ON DELETE SET NULL,
-      property_type_id INTEGER REFERENCES property_types(id) ON DELETE SET NULL,
-      category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
-      purpose_id INTEGER REFERENCES purposes(id) ON DELETE SET NULL,
-      area NUMERIC,
-      location VARCHAR(255),
-      price NUMERIC,
-      mobile_number VARCHAR(50),
-      whatsapp_number VARCHAR(50),
+    -- Create messages table (matches Supabase export)
+    CREATE TABLE IF NOT EXISTS messages (
+      id TEXT PRIMARY KEY,
+      message TEXT,
+      date_of_creation TEXT,
+      source_file TEXT,
       image_url TEXT,
-      date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      sender_id INTEGER REFERENCES sender(id),
+      region_id INTEGER REFERENCES regions(id),
+      property_type_id INTEGER REFERENCES property_types(id),
+      category_id INTEGER REFERENCES categories(id),
+      purpose_id INTEGER REFERENCES purposes(id),
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 
     -- Create indexes
-    CREATE INDEX idx_messages_sender ON messages(sender_id);
-    CREATE INDEX idx_messages_region ON messages(region_id);
-    CREATE INDEX idx_messages_property_type ON messages(property_type_id);
-    CREATE INDEX idx_messages_category ON messages(category_id);
-    CREATE INDEX idx_messages_purpose ON messages(purpose_id);
-    CREATE INDEX idx_messages_date ON messages(date);
+    CREATE INDEX IF NOT EXISTS idx_sender_mobile ON sender(mobile);
+    CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_region_id ON messages(region_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_property_type_id ON messages(property_type_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_category_id ON messages(category_id);
+    CREATE INDEX IF NOT EXISTS idx_messages_purpose_id ON messages(purpose_id);
+    CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile);
 
     -- Create view
-    CREATE VIEW messages_with_sender AS
+    CREATE OR REPLACE VIEW messages_with_sender AS
     SELECT 
-      m.*,
+      m.id,
+      m.message,
+      m.date_of_creation,
+      m.source_file,
+      m.image_url,
+      c.name as category,
+      pt.name as property_type,
+      r.name as region,
+      p.name as purpose,
+      s.id as sender_id,
       s.name as sender_name,
       s.mobile as sender_mobile,
-      r.name as region_name,
-      pt.name as property_type_name,
-      c.name as category_name,
-      p.name as purpose_name
+      s.first_seen_date,
+      s.first_seen_time,
+      m.created_at
     FROM messages m
     LEFT JOIN sender s ON m.sender_id = s.id
     LEFT JOIN regions r ON m.region_id = r.id
@@ -162,11 +186,17 @@ async function importData(tableName, data) {
   }
   
   console.log(`📥 Importing ${data.length} rows into ${tableName}...`);
-  
-  const columns = Object.keys(data[0]);
+
+  const allowedColumns = await getTableColumns(tableName);
+  const columns = Object.keys(data[0]).filter(col => allowedColumns.includes(col));
+  if (columns.length === 0) {
+    console.log(`⏭️  Skipping ${tableName} (no matching columns found)`);
+    return;
+  }
+
   const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
   const query = `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`;
-  
+
   let imported = 0;
   for (const row of data) {
     try {
