@@ -108,6 +108,12 @@ function App() {
             setIsAuthenticated(false);
             setUser(null);
           }
+        } else {
+          // No cached user data, clear everything
+          console.warn('No cached user data available, clearing auth');
+          localStorage.removeItem('token');
+          setIsAuthenticated(false);
+          setUser(null);
         }
       };
 
@@ -127,11 +133,15 @@ function App() {
             // Server explicitly says token is invalid
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setIsAuthenticated(false);
+            setUser(null);
           }
         } else if (response.status === 401) {
           // Unauthorized - clear invalid token
           localStorage.removeItem('token');
           localStorage.removeItem('user');
+          setIsAuthenticated(false);
+          setUser(null);
         } else {
           // Other errors (5xx, network issues) - keep user logged in with stored data
           console.warn('Auth verification failed, using cached user data');
