@@ -260,7 +260,7 @@ function App() {
           setFilteredCount(0);
           setTotalPages(1);
           setHasMore(false);
-          setError('Error connecting to server. Make sure the backend is running on port 3001.');
+          setError('Unable to connect to the API. Please check your internet connection, Vercel deployment settings (environment variables), or try again later. / خطأ في الاتصال بالـ API. يرجى التحقق من اتصال الإنترنت، إعدادات النشر (متغيرات البيئة) على Vercel، أو المحاولة مرة أخرى لاحقاً.');
         }
       } finally {
         if (isInitialLoad) {
@@ -508,9 +508,7 @@ function App() {
             <h1>كونتابو</h1>
           </div>
           <div className="error-message">
-            <p>خطأ في الاتصال بالخادم. تأكد من تشغيل الخادم على المنفذ 3001</p>
-            <p>قم بتشغيل الخادم:</p>
-            <code>cd server && npm install && npm start</code>
+            <p>{error}</p>
           </div>
         </div>
       </div>
