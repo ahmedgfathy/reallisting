@@ -23,7 +23,7 @@ function App() {
   const [region, setRegion] = useState('الكل');
   const [purpose, setPurpose] = useState('الكل');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [, setTotalPages] = useState(1);
   const [filteredCount, setFilteredCount] = useState(0);
   const [selectedMessages, setSelectedMessages] = useState(new Set());
   const [limit] = useState(50);
