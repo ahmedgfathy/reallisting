@@ -94,6 +94,23 @@ function App() {
         return;
       }
 
+      // Helper to restore cached user data
+      const restoreCachedUser = () => {
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setIsAuthenticated(true);
+            setUser(userData);
+          } catch (parseErr) {
+            console.error('Failed to parse stored user, clearing auth:', parseErr);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setIsAuthenticated(false);
+            setUser(null);
+          }
+        }
+      };
+
       try {
         const response = await fetch('/api/auth/verify', {
           headers: {
@@ -118,28 +135,12 @@ function App() {
         } else {
           // Other errors (5xx, network issues) - keep user logged in with stored data
           console.warn('Auth verification failed, using cached user data');
-          if (storedUser) {
-            try {
-              const userData = JSON.parse(storedUser);
-              setIsAuthenticated(true);
-              setUser(userData);
-            } catch (parseErr) {
-              console.error('Failed to parse stored user:', parseErr);
-            }
-          }
+          restoreCachedUser();
         }
       } catch (err) {
         // Network error - keep user logged in with stored data
         console.warn('Auth check network error, using cached user data:', err.message);
-        if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-            setIsAuthenticated(true);
-            setUser(userData);
-          } catch (parseErr) {
-            console.error('Failed to parse stored user:', parseErr);
-          }
-        }
+        restoreCachedUser();
       } finally {
         setAuthLoading(false);
       }
