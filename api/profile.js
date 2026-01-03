@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders } = require('./_lib/supabase');
+const { supabase, verifyToken, hashPassword, corsHeaders } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {

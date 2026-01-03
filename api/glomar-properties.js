@@ -1,5 +1,5 @@
 // Glomar Properties API endpoint
-const { supabase, corsHeaders, verifyToken } = require('./_lib/supabase');
+const { supabase, corsHeaders, verifyToken } = require('../lib/supabase');
 
 // Removed local client initialization since we use the shared one
 

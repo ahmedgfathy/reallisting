@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, corsHeaders } = require('./_lib/supabase');
+const { supabase, verifyToken, hashPassword, corsHeaders } = require('../lib/supabase');
 
 function generateTempPassword(length = 8) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

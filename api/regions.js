@@ -1,4 +1,4 @@
-const { supabase, corsHeaders } = require('./_lib/supabase');
+const { supabase, corsHeaders } = require('../lib/supabase');
 
 // Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {

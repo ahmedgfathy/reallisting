@@ -1,5 +1,5 @@
 // Get single property details with images and videos
-const { supabase, verifyToken } = require('./_lib/supabase');
+const { supabase, verifyToken } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {

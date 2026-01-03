@@ -1,4 +1,4 @@
-const { supabase, verifyToken, hashPassword, generateToken, corsHeaders } = require('./_lib/supabase');
+const { supabase, verifyToken, hashPassword, generateToken, corsHeaders } = require('../lib/supabase');
 
 // Helper to parse request body
 async function parseBody(req) {
