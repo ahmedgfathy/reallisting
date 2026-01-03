@@ -603,7 +603,7 @@ function AdminDashboard({ onClose }) {
                 <div className="text-import-area">
                   <textarea
                     className="import-textarea"
-                    placeholder="الصق نص محادثة واتساب هنا...&#10;&#10;مثال:&#10;[01/01/24, 10:30] أحمد: شقة للبيع&#10;[01/01/24, 10:31] محمد: 01012345678"
+                    placeholder={`الصق نص محادثة واتساب هنا...\n\nمثال:\n[01/01/24, 10:30] أحمد: شقة للبيع\n[01/01/24, 10:31] محمد: 01012345678`}
                     value={importText}
                     onChange={(e) => setImportText(e.target.value)}
                     disabled={importing}
