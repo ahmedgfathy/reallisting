@@ -1,6 +1,6 @@
 module.exports = async (context) => {
   const { req, res, log, error } = context;
-  const { getMessages, getUserBySession, isConfigured, getConfigError } = require('../lib/appwrite');
+  const { getMessages, getUserBySession, isConfigured, getConfigError } = require('./lib_appwrite');
 
   // Handle CORS (though Appwrite Functions handle this via settings, we keep it for safety)
   if (req.method === 'OPTIONS') {

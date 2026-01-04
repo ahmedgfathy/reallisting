@@ -1,6 +1,6 @@
 module.exports = async (context) => {
   const { req, res, error } = context;
-  const { getStats, isConfigured, getConfigError } = require('../lib/appwrite');
+  const { getStats, isConfigured, getConfigError } = require('./lib_appwrite');
 
   if (req.method === 'OPTIONS') {
     return res.text('', 200, {

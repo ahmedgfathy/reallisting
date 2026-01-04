@@ -1,6 +1,6 @@
 module.exports = async (context) => {
   const { req, res, log } = context;
-  const { createUser, loginUser, getUserBySession, isConfigured, getConfigError } = require('../lib/appwrite');
+  const { createUser, loginUser, getUserBySession, isConfigured, getConfigError } = require('./lib_appwrite');
 
   // Handle CORS
   if (req.method === 'OPTIONS') {

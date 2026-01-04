@@ -1,8 +1,9 @@
+```javascript
 const crypto = require('crypto');
 
 module.exports = async (context) => {
   const { req, res, log, error } = context;
-  const { databases, getUserBySession, isConfigured, getConfigError, APPWRITE_DATABASE_ID, COLLECTIONS } = require('../lib/appwrite');
+  const { databases, getUserBySession, isConfigured, getConfigError, APPWRITE_DATABASE_ID, COLLECTIONS, importMessages } = require('./lib_appwrite');
 
   if (req.method === 'OPTIONS') {
     return res.text('', 200, {
@@ -25,7 +26,7 @@ module.exports = async (context) => {
   try {
     const { text, fileContent, filename: bodyFilename } = req.body || {};
     let chatText = text || fileContent || '';
-    const filename = bodyFilename || `import_${Date.now()}.txt`;
+    const filename = bodyFilename || `import_${ Date.now() }.txt`;
 
     if (!chatText) return res.json({ error: 'No chat text provided' }, 400);
 

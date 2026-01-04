@@ -1,6 +1,7 @@
+```javascript
 module.exports = async (context) => {
   const { req, res, error } = context;
-  const { getUserBySession, users, isConfigured, getConfigError } = require('../lib/appwrite');
+  const { getUserProfile, updatePassword, isConfigured, getConfigError } = require('./lib_appwrite');
 
   if (req.method === 'OPTIONS') {
     return res.text('', 200, {
