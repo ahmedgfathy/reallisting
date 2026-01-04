@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiCall } from './appwriteConfig';
 import './Profile.css';
 
 function Profile({ onClose }) {
@@ -6,7 +7,7 @@ function Profile({ onClose }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  
+
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -23,12 +24,12 @@ function Profile({ onClose }) {
       }
 
       try {
-        const response = await fetch('/api/profile', {
+        const response = await apiCall('/api/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
 
         const data = await response.json();
-        
+
         if (!response.ok) {
           throw new Error(data.error || 'فشل في تحميل البيانات');
         }
@@ -68,7 +69,7 @@ function Profile({ onClose }) {
         body.newPassword = newPassword;
       }
 
-      const response = await fetch('/api/profile', {
+      const response = await apiCall('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

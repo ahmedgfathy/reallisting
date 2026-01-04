@@ -1,54 +1,40 @@
-const { createUser, loginUser, getUserBySession, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
-require('dotenv').config();
+module.exports = async (context) => {
+  const { req, res, log } = context;
+  const { createUser, loginUser, getUserBySession, isConfigured, getConfigError } = require('../lib/appwrite');
 
-// Helper to parse request body
-async function parseBody(req) {
-  if (req.body) return req.body;
-  return new Promise((resolve) => {
-    let body = '';
-    req.on('data', chunk => { body += chunk.toString(); });
-    req.on('end', () => {
-      try {
-        resolve(JSON.parse(body));
-      } catch {
-        resolve({});
-      }
-    });
-  });
-}
-
-module.exports = async (req, res) => {
+  // Handle CORS
   if (req.method === 'OPTIONS') {
-    Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
-    return res.status(200).end();
+    return res.text('', 200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    });
   }
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   // Check if database is configured
   if (!isConfigured()) {
-    return res.status(500).json(getConfigError());
+    return res.json(getConfigError(), 500);
   }
 
-  const path = req.query.path || req.url.split('?')[0].replace('/api/auth', '');
+  const path = req.query.path || (req.path ? req.path.replace('/api/auth', '').replace(/^\//, '') : '');
 
   // LOGIN
-  if ((path === 'login' || path === '/login') && req.method === 'POST') {
-    const body = await parseBody(req);
-    const { username, mobile, password } = body || {};
+  if ((path === 'login' || path === '/login' || req.path === '/login') && req.method === 'POST') {
+    const { username, mobile, password } = req.body || {};
     const loginIdentifier = username || mobile;
 
     if (!loginIdentifier || !password) {
-      return res.status(400).json({ error: 'Mobile and password required' });
+      return res.json({ error: 'Mobile and password required' }, 400);
     }
 
     const result = await loginUser(loginIdentifier, password);
 
     if (!result.success) {
-      console.log('Login failed:', result.error);
-      return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
+      log('Login failed: ' + result.error);
+      return res.json({ error: 'بيانات تسجيل الدخول غير صحيحة' }, 401);
     }
 
-    return res.status(200).json({
+    return res.json({
       success: true,
       token: result.session.secret,
       user: {
@@ -56,45 +42,44 @@ module.exports = async (req, res) => {
         role: result.user.role,
         isActive: result.user.isActive
       }
-    });
+    }, 200, { 'Access-Control-Allow-Origin': '*' });
   }
 
   // REGISTER
-  if ((path === 'register' || path === '/register') && req.method === 'POST') {
-    const body = await parseBody(req);
-    const { mobile, password, name = '' } = body || {};
+  if ((path === 'register' || path === '/register' || req.path === '/register') && req.method === 'POST') {
+    const { mobile, password, name = '' } = req.body || {};
     if (!mobile || !password) {
-      return res.status(400).json({ error: 'Mobile and password required' });
+      return res.json({ error: 'Mobile and password required' }, 400);
     }
 
     const result = await createUser(mobile, password, name);
 
     if (!result.success) {
       if (result.error.includes('user') || result.error.includes('exists')) {
-        return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
+        return res.json({ error: 'هذا الرقم مسجل بالفعل' }, 409);
       }
-      return res.status(500).json({ error: 'فشل التسجيل' });
+      return res.json({ error: 'فشل التسجيل' }, 500);
     }
 
-    return res.status(201).json({
+    return res.json({
       success: true,
       message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.',
       user: { mobile, role: 'broker', isActive: false }
-    });
+    }, 201, { 'Access-Control-Allow-Origin': '*' });
   }
 
   // VERIFY
-  if ((path === 'verify' || path === '/verify') && req.method === 'GET') {
+  if ((path === 'verify' || path === '/verify' || req.path === '/verify') && req.method === 'GET') {
     const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ authenticated: false });
+    if (!token) return res.json({ authenticated: false }, 401);
 
     const result = await getUserBySession(token);
 
     if (!result.success) {
-      return res.status(401).json({ authenticated: false });
+      return res.json({ authenticated: false }, 401);
     }
 
-    return res.status(200).json({
+    return res.json({
       authenticated: true,
       user: {
         username: result.user.mobile,
@@ -102,15 +87,8 @@ module.exports = async (req, res) => {
         isActive: result.user.isActive,
         subscriptionEndDate: result.user.subscriptionEndDate || null
       }
-    });
+    }, 200, { 'Access-Control-Allow-Origin': '*' });
   }
 
-  // RESET PASSWORD
-  if ((path === 'reset-password' || path === '/reset-password') && req.method === 'POST') {
-    return res.status(200).json({
-      message: 'يرجى الاتصال بالمشرف لإعادة تعيين كلمة المرور'
-    });
-  }
-
-  return res.status(404).json({ error: 'Not found' });
+  return res.json({ error: 'Not found' }, 404);
 };

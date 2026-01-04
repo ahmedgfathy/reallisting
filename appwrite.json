@@ -71,6 +71,20 @@
       "timeout": 15,
       "enabled": true,
       "logging": true
+    },
+    {
+      "name": "profile",
+      "runtime": "node-18.0",
+      "path": "api/profile.js",
+      "entrypoint": "api/profile.js",
+      "execute": [
+        "any"
+      ],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true
     }
   ]
 }

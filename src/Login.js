@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { auth, apiCall } from './appwriteConfig';
 import './Login.css';
 
 function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
@@ -16,14 +17,14 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     setResetResult(null);
     setResetLoading(true);
     try {
-      const response = await fetch('/api/auth?path=reset-password', {
+      const response = await apiCall('/api/auth?path=reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: resetMobile })
       });
       const data = await response.json();
-      if (response.ok && data.success) {
-        setResetResult({ success: true, tempPassword: data.tempPassword });
+      if (response.ok) {
+        setResetResult({ success: true, message: data.message || 'تم إرسال الطلب' });
       } else {
         setResetResult({ success: false, error: data.error || 'فشل إعادة التعيين' });
       }
@@ -40,19 +41,9 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth?path=login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      const data = await auth.login(username, password);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.success) {
         onLogin(data.user);
       } else {
         setError(data.error || 'فشل تسجيل الدخول');

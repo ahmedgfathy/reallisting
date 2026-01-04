@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { auth } from './appwriteConfig';
 import './Register.css';
 
 function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
@@ -32,19 +33,9 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
     setLoading(true);
 
     try {
-      const response = await fetch('/api/auth?path=register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mobile, password }),
-      });
+      const data = await auth.register(mobile, password);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.success) {
         onRegister(data.user);
       } else {
         setError(data.error || 'فشل التسجيل');
@@ -66,10 +57,10 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
               <h1>🏠 تسجيل وسيط جديد</h1>
               <p>إنشاء حساب وسيط عقاري</p>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="register-form">
               {error && <div className="register-error">{error}</div>}
-              
+
               <div className="form-group">
                 <label htmlFor="mobile">رقم الموبايل</label>
                 <input
@@ -84,7 +75,7 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
                   style={{ textAlign: 'left' }}
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="password">كلمة المرور</label>
                 <input
@@ -97,7 +88,7 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
                   autoComplete="new-password"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="confirmPassword">تأكيد كلمة المرور</label>
                 <input
@@ -110,12 +101,12 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
                   autoComplete="new-password"
                 />
               </div>
-              
+
               <button type="submit" className="register-btn" disabled={loading}>
                 {loading ? 'جاري التسجيل...' : 'تسجيل حساب جديد'}
               </button>
             </form>
-            
+
             <div className="register-footer">
               <p>لديك حساب بالفعل؟{' '}
                 <button onClick={onSwitchToLogin} className="link-btn">
@@ -143,7 +134,7 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
 
             <div className="payment-methods">
               <h3>طرق الدفع:</h3>
-              
+
               <div className="payment-option vodafone">
                 <div className="payment-icon">📱</div>
                 <div className="payment-details">
@@ -159,9 +150,9 @@ function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
                 <div className="payment-icon">💳</div>
                 <div className="payment-details">
                   <h4>انستاباي</h4>
-                  <a 
-                    href="https://ipn.eg/S/ahmedgfathy/instapay/5tPwH1" 
-                    target="_blank" 
+                  <a
+                    href="https://ipn.eg/S/ahmedgfathy/instapay/5tPwH1"
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="instapay-link"
                   >

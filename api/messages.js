@@ -1,25 +1,23 @@
-const { getMessages, corsHeaders, isConfigured, getConfigError, getUserBySession } = require('../lib/appwrite');
+module.exports = async (context) => {
+  const { req, res, log, error } = context;
+  const { getMessages, getUserBySession, isConfigured, getConfigError } = require('../lib/appwrite');
 
-module.exports = async (req, res) => {
-  // Handle CORS
+  // Handle CORS (though Appwrite Functions handle this via settings, we keep it for safety)
   if (req.method === 'OPTIONS') {
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
+    return res.text('', 200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     });
-    return res.status(200).end();
   }
-
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
 
   // Check if database is configured
   if (!isConfigured()) {
-    return res.status(500).json(getConfigError());
+    return res.json(getConfigError(), 500);
   }
 
   if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.json({ error: 'Method not allowed' }, 405);
   }
 
   try {
@@ -60,7 +58,7 @@ module.exports = async (req, res) => {
     });
 
     if (!result.success) {
-      return res.status(500).json({ error: result.error });
+      return res.json({ error: result.error }, 500);
     }
 
     const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
@@ -98,17 +96,18 @@ module.exports = async (req, res) => {
       return formatted;
     });
 
-    // Match exactly the frontend expectation from legacy API
-    return res.status(200).json({
+    return res.json({
       total: result.total,
       page: pageNum,
       limit: limitNum,
       totalPages: Math.ceil(result.total / limitNum),
       data: messages
+    }, 200, {
+      'Access-Control-Allow-Origin': '*'
     });
 
-  } catch (error) {
-    console.error('Messages endpoint error:', error);
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    error('Messages endpoint error: ' + err.message);
+    return res.json({ error: err.message }, 500);
   }
 };

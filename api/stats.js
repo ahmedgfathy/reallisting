@@ -1,32 +1,27 @@
-const { getStats, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
+module.exports = async (context) => {
+  const { req, res, error } = context;
+  const { getStats, isConfigured, getConfigError } = require('../lib/appwrite');
 
-module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') {
-    Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
-    return res.status(200).end();
+    return res.text('', 200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    });
   }
-  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
-  // Check if database is configured
   if (!isConfigured()) {
-    return res.status(500).json(getConfigError());
-  }
-
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.json(getConfigError(), 500);
   }
 
   try {
     const result = await getStats();
-
     if (!result.success) {
-      return res.status(500).json({ error: result.error });
+      return res.json({ error: result.error }, 500);
     }
-
-    // Frontend expects totalMessages, totalFiles, totalSubscribers, files
-    return res.status(200).json(result.data);
-  } catch (error) {
-    console.error('Stats endpoint error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.json(result.data, 200, { 'Access-Control-Allow-Origin': '*' });
+  } catch (err) {
+    error('Stats endpoint error: ' + err.message);
+    return res.json({ error: err.message }, 500);
   }
 };
