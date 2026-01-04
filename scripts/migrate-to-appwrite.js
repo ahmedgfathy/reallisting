@@ -3,6 +3,7 @@
 /**
  * Data Migration Script for Appwrite
  * Parses SQL INSERT statements and uploads them to Appwrite collections.
+ * Fixes: Data type enforcement (phone/mobile as string) and delay between requests.
  */
 
 const fs = require('fs');
@@ -30,11 +31,9 @@ const client = new Client()
 const databases = new Databases(client);
 
 // Regular expression to match INSERT INTO table (cols) VALUES (vals);
-// Note: This is a simplified regex for SQLite/PostgreSQL exports
 const insertRegex = /INSERT INTO (\w+) \((.*?)\) VALUES \((.*)\);/i;
 
 function parseValues(valString) {
-  // This handles basic SQL value strings: 'val', NULL, 123
   const values = [];
   let current = '';
   let inString = false;
@@ -43,24 +42,38 @@ function parseValues(valString) {
     const char = valString[i];
     if (char === "'" && (i === 0 || valString[i - 1] !== "\\")) {
       inString = !inString;
+      current += char;
     } else if (char === ',' && !inString) {
-      values.push(cleanValue(current.trim()));
+      values.push(current.trim());
       current = '';
     } else {
       current += char;
     }
   }
-  values.push(cleanValue(current.trim()));
+  values.push(current.trim());
   return values;
 }
 
-function cleanValue(val) {
+function cleanValue(val, targetType = 'string') {
   if (val.toUpperCase() === 'NULL') return null;
+
+  let isQuoted = false;
   if (val.startsWith("'") && val.endsWith("'")) {
-    return val.substring(1, val.length - 1).replace(/''/g, "'"); // Handle escaped single quotes
+    val = val.substring(1, val.length - 1).replace(/''/g, "'");
+    isQuoted = true;
   }
-  if (!isNaN(val)) return Number(val);
-  return val;
+
+  if (targetType === 'boolean') {
+    return !!(Number(val));
+  }
+
+  if (targetType === 'integer' || targetType === 'double') {
+    if (val === '' || isNaN(val)) return null;
+    return Number(val);
+  }
+
+  // default to string
+  return String(val);
 }
 
 async function migrate() {
@@ -72,12 +85,14 @@ async function migrate() {
     crlfDelay: Infinity
   });
 
-  let counts = {};
-
-  // Tables to process in order (to handle constraints)
-  const order = ['regions', 'categories', 'property_types', 'purposes', 'sender', 'users', 'messages'];
   const pendingData = {
     regions: [], categories: [], property_types: [], purposes: [], sender: [], users: [], messages: []
+  };
+
+  const schemaInfo = {
+    users: { is_active: 'boolean', is_admin: 'boolean', mobile: 'string', phone: 'string' },
+    sender: { mobile: 'string', name: 'string' },
+    messages: { sender_id: 'integer', region_id: 'integer', property_type_id: 'integer', category_id: 'integer', purpose_id: 'integer' }
   };
 
   console.log('📖 Parsing SQL file...');
@@ -92,15 +107,8 @@ async function migrate() {
 
       const data = {};
       keys.forEach((key, i) => {
-        // Map common keys to camelCase if needed, but here we stay consistent with SQL discovery
-        let value = rawValues[i];
-
-        // Convert integer booleans for Appwrite
-        if (table === 'users' && (key === 'is_active' || key === 'is_admin')) {
-          value = !!value;
-        }
-
-        data[key] = value;
+        const type = (schemaInfo[table] && schemaInfo[table][key]) || 'string';
+        data[key] = cleanValue(rawValues[i], type);
       });
 
       pendingData[table].push(data);
@@ -109,6 +117,7 @@ async function migrate() {
 
   console.log('✅ Parsing complete. Starting upload...');
 
+  const order = ['regions', 'categories', 'property_types', 'purposes', 'sender', 'users', 'messages'];
   for (const table of order) {
     const items = pendingData[table];
     console.log(`\n📤 Migrating ${items.length} items to ${table}...`);
@@ -116,16 +125,27 @@ async function migrate() {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const docId = item.id ? String(item.id) : ID.unique();
-      delete item.id; // Doc ID is separate in Appwrite
+      delete item.id;
 
       try {
         await databases.createDocument(DATABASE_ID, table, docId, item);
-        if ((i + 1) % 50 === 0) console.log(`  - Uploaded ${i + 1}/${items.length}`);
+        if ((i + 1) % 100 === 0) console.log(`  - Uploaded ${i + 1}/${items.length}`);
+        if (i % 5 === 0) await new Promise(resolve => setTimeout(resolve, 30)); // Slight throttle
       } catch (error) {
         if (error.code === 409) {
-          // console.log(`  - [Conflict] Item ${docId} already exists in ${table}`);
+          // Skip
         } else {
-          console.error(`  - ❌ Error uploading to ${table} (${docId}):`, error.message);
+          console.error(`  - ❌ Error uploading row ${i + 1} to ${table} (ID: ${docId}):`, error.message);
+          if (error.message.includes('Bad Gateway') || error.message.includes('Rate limit')) {
+            console.log('  🕒 Waiting 2s before retry...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            try {
+              await databases.createDocument(DATABASE_ID, table, docId, item);
+              console.log(`  - Retried and uploaded ${docId}`);
+            } catch (e) {
+              console.error(`  - ❌ Retry failed for ${docId}`);
+            }
+          }
         }
       }
     }
