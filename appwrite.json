@@ -6,8 +6,8 @@
       "$id": "auth",
       "name": "auth",
       "runtime": "node-18.0",
-      "path": "api/auth.js",
-      "entrypoint": "api/auth.js",
+      "path": "api",
+      "entrypoint": "auth.js",
       "execute": [
         "any"
       ],
@@ -21,8 +21,8 @@
       "$id": "messages",
       "name": "messages",
       "runtime": "node-18.0",
-      "path": "api/messages.js",
-      "entrypoint": "api/messages.js",
+      "path": "api",
+      "entrypoint": "messages.js",
       "execute": [
         "any"
       ],
@@ -36,8 +36,8 @@
       "$id": "admin",
       "name": "admin",
       "runtime": "node-18.0",
-      "path": "api/admin.js",
-      "entrypoint": "api/admin.js",
+      "path": "api",
+      "entrypoint": "admin.js",
       "execute": [
         "any"
       ],
@@ -51,8 +51,8 @@
       "$id": "stats",
       "name": "stats",
       "runtime": "node-18.0",
-      "path": "api/stats.js",
-      "entrypoint": "api/stats.js",
+      "path": "api",
+      "entrypoint": "stats.js",
       "execute": [
         "any"
       ],
@@ -66,8 +66,8 @@
       "$id": "regions",
       "name": "regions",
       "runtime": "node-18.0",
-      "path": "api/regions.js",
-      "entrypoint": "api/regions.js",
+      "path": "api",
+      "entrypoint": "regions.js",
       "execute": [
         "any"
       ],
@@ -81,8 +81,8 @@
       "$id": "profile",
       "name": "profile",
       "runtime": "node-18.0",
-      "path": "api/profile.js",
-      "entrypoint": "api/profile.js",
+      "path": "api",
+      "entrypoint": "profile.js",
       "execute": [
         "any"
       ],
@@ -96,8 +96,8 @@
       "$id": "import-whatsapp",
       "name": "import-whatsapp",
       "runtime": "node-18.0",
-      "path": "api/import-whatsapp.js",
-      "entrypoint": "api/import-whatsapp.js",
+      "path": "api",
+      "entrypoint": "import-whatsapp.js",
       "execute": [
         "any"
       ],
@@ -111,8 +111,8 @@
       "$id": "messages-delete",
       "name": "messages-delete",
       "runtime": "node-18.0",
-      "path": "api/messages-delete.js",
-      "entrypoint": "api/messages-delete.js",
+      "path": "api",
+      "entrypoint": "messages-delete.js",
       "execute": [
         "any"
       ],

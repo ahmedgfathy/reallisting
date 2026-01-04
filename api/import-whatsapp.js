@@ -1,4 +1,3 @@
-```javascript
 const crypto = require('crypto');
 
 module.exports = async (context) => {
@@ -26,7 +25,7 @@ module.exports = async (context) => {
   try {
     const { text, fileContent, filename: bodyFilename } = req.body || {};
     let chatText = text || fileContent || '';
-    const filename = bodyFilename || `import_${ Date.now() }.txt`;
+    const filename = bodyFilename || `import_${Date.now()}.txt`;
 
     if (!chatText) return res.json({ error: 'No chat text provided' }, 400);
 
