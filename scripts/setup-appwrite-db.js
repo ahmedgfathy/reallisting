@@ -6,6 +6,7 @@
  */
 
 const { Client, Databases, ID, Permission, Role } = require('node-appwrite');
+require('dotenv').config();
 
 // Configuration
 const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';

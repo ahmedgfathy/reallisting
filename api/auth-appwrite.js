@@ -1,4 +1,5 @@
 const { createUser, loginUser, getUserBySession, corsHeaders, isConfigured, getConfigError, databases, APPWRITE_DATABASE_ID, COLLECTIONS } = require('../lib/appwrite');
+require('dotenv').config();
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -35,26 +36,26 @@ module.exports = async (req, res) => {
     const body = await parseBody(req);
     const { username, mobile, password } = body || {};
     const loginIdentifier = username || mobile;
-    
+
     if (!loginIdentifier || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
 
     const result = await loginUser(loginIdentifier, password);
-    
+
     if (!result.success) {
       console.log('Login failed:', result.error);
       return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
     }
 
-    return res.status(200).json({ 
+    return res.status(200).json({
       success: true,
       token: result.session.secret,
-      user: { 
-        username: result.user.mobile, 
-        role: result.user.role, 
-        isActive: result.user.isActive 
-      } 
+      user: {
+        username: result.user.mobile,
+        role: result.user.role,
+        isActive: result.user.isActive
+      }
     });
   }
 
@@ -84,7 +85,7 @@ module.exports = async (req, res) => {
     if (!token) return res.status(401).json({ authenticated: false });
 
     const result = await getUserBySession(token);
-    
+
     if (!result.success) {
       return res.status(401).json({ authenticated: false });
     }
@@ -108,7 +109,7 @@ module.exports = async (req, res) => {
 
     // In Appwrite, password reset is done via email
     // For now, return a message to contact admin
-    return res.status(200).json({ 
+    return res.status(200).json({
       message: 'يرجى الاتصال بالمشرف لإعادة تعيين كلمة المرور',
       info: 'Password reset requires admin intervention'
     });
