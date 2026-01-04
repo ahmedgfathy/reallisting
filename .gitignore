@@ -26,3 +26,14 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 .env*.local
+
+# Appwrite / Deployment exclusions
+/dist
+/scripts/backup
+setup_output.txt
+test.txt
+redirection_test.txt
+env_check.json
+file_sizes.txt
+file_sizes_sorted.txt
+files.txt

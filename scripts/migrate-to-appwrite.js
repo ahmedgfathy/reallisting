@@ -1,17 +1,16 @@
 #!/usr/bin/env node
 
 /**
- * Data Migration Script for Appwrite
- * Parses SQL INSERT statements and uploads them to Appwrite collections.
- * Fixes: Data type enforcement (phone/mobile as string) and delay between requests.
+ * Performance-optimized migration script featuring concurrent batching
+ * and robust ID mapping for Appwrite compatibility.
  */
 
 const fs = require('fs');
 const readline = require('readline');
+const crypto = require('crypto');
 const { Client, Databases, ID } = require('node-appwrite');
 require('dotenv').config();
 
-// Configuration
 const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
 const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID || '694ba83300116af11b75';
 const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY;
@@ -30,14 +29,13 @@ const client = new Client()
 
 const databases = new Databases(client);
 
-// Regular expression to match INSERT INTO table (cols) VALUES (vals);
 const insertRegex = /INSERT INTO (\w+) \((.*?)\) VALUES \((.*)\);/i;
 
 function parseValues(valString) {
   const values = [];
   let current = '';
   let inString = false;
-
+  if (!valString) return [];
   for (let i = 0; i < valString.length; i++) {
     const char = valString[i];
     if (char === "'" && (i === 0 || valString[i - 1] !== "\\")) {
@@ -55,104 +53,87 @@ function parseValues(valString) {
 }
 
 function cleanValue(val, targetType = 'string') {
-  if (val.toUpperCase() === 'NULL') return null;
-
-  let isQuoted = false;
-  if (val.startsWith("'") && val.endsWith("'")) {
-    val = val.substring(1, val.length - 1).replace(/''/g, "'");
-    isQuoted = true;
+  if (val === undefined || val === null || val === '') return null;
+  const upperVal = typeof val === 'string' ? val.toUpperCase() : '';
+  if (upperVal === 'NULL' || upperVal === '') return null;
+  let processed = val;
+  if (typeof processed === 'string' && processed.startsWith("'") && processed.endsWith("'")) {
+    processed = processed.substring(1, processed.length - 1).replace(/''/g, "'");
   }
-
-  if (targetType === 'boolean') {
-    return !!(Number(val));
-  }
-
+  if (targetType === 'boolean') return !!(Number(processed));
   if (targetType === 'integer' || targetType === 'double') {
-    if (val === '' || isNaN(val)) return null;
-    return Number(val);
+    if (processed === '' || isNaN(processed)) return null;
+    return Number(processed);
   }
+  return String(processed);
+}
 
-  // default to string
-  return String(val);
+// Helper to make ID appwrite-compatible (max 36 chars, valid chars only)
+function getValidId(originalId) {
+  if (!originalId) return ID.unique();
+  const idStr = String(originalId);
+  // If it's already a clean ID and within length, use it
+  if (/^[a-zA-Z0-9._-]+$/.test(idStr) && idStr.length <= 36 && !/^[._-]/.test(idStr)) {
+    return idStr;
+  }
+  // Otherwise, hash it to ensure it's valid, idempotent, and within length
+  return crypto.createHash('md5').update(idStr).digest('hex');
 }
 
 async function migrate() {
-  console.log('🚀 Starting Data Migration to Appwrite...\n');
-
+  console.log('🚀 Starting Robust Optimized Data Migration...\n');
   const fileStream = fs.createReadStream(SQL_FILE_PATH);
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-
-  const pendingData = {
-    regions: [], categories: [], property_types: [], purposes: [], sender: [], users: [], messages: []
-  };
-
+  const rl = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
+  const pendingData = { regions: [], categories: [], property_types: [], purposes: [], sender: [], users: [], messages: [] };
   const schemaInfo = {
-    users: { is_active: 'boolean', is_admin: 'boolean', mobile: 'string', phone: 'string' },
-    sender: { mobile: 'string', name: 'string' },
+    users: { is_active: 'boolean', is_admin: 'boolean' },
     messages: { sender_id: 'integer', region_id: 'integer', property_type_id: 'integer', category_id: 'integer', purpose_id: 'integer' }
   };
 
   console.log('📖 Parsing SQL file...');
   for await (const line of rl) {
     const match = line.match(insertRegex);
-    if (match) {
-      const table = match[1].toLowerCase();
-      if (!pendingData[table]) continue;
-
-      const keys = match[2].split(',').map(k => k.trim());
-      const rawValues = parseValues(match[3]);
-
-      const data = {};
-      keys.forEach((key, i) => {
-        const type = (schemaInfo[table] && schemaInfo[table][key]) || 'string';
-        data[key] = cleanValue(rawValues[i], type);
-      });
-
-      pendingData[table].push(data);
-    }
+    if (!match) continue;
+    const table = match[1].toLowerCase();
+    if (!pendingData[table]) continue;
+    const keys = match[2].split(',').map(k => k.trim());
+    const rawValues = parseValues(match[3]);
+    const data = {};
+    keys.forEach((key, i) => {
+      const type = (schemaInfo[table] && schemaInfo[table][key]) || 'string';
+      data[key] = cleanValue(rawValues[i], type);
+    });
+    pendingData[table].push(data);
   }
 
-  console.log('✅ Parsing complete. Starting upload...');
-
+  const CONCURRENCY = 8;
   const order = ['regions', 'categories', 'property_types', 'purposes', 'sender', 'users', 'messages'];
+
   for (const table of order) {
     const items = pendingData[table];
-    console.log(`\n📤 Migrating ${items.length} items to ${table}...`);
+    if (items.length === 0) continue;
+    console.log(`\n📤 Migrating ${items.length} items to ${table} (Concurrency: ${CONCURRENCY})...`);
 
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const docId = item.id ? String(item.id) : ID.unique();
-      delete item.id;
-
-      try {
-        await databases.createDocument(DATABASE_ID, table, docId, item);
-        if ((i + 1) % 100 === 0) console.log(`  - Uploaded ${i + 1}/${items.length}`);
-        if (i % 5 === 0) await new Promise(resolve => setTimeout(resolve, 30)); // Slight throttle
-      } catch (error) {
-        if (error.code === 409) {
-          // Skip
-        } else {
-          console.error(`  - ❌ Error uploading row ${i + 1} to ${table} (ID: ${docId}):`, error.message);
-          if (error.message.includes('Bad Gateway') || error.message.includes('Rate limit')) {
-            console.log('  🕒 Waiting 2s before retry...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            try {
-              await databases.createDocument(DATABASE_ID, table, docId, item);
-              console.log(`  - Retried and uploaded ${docId}`);
-            } catch (e) {
-              console.error(`  - ❌ Retry failed for ${docId}`);
-            }
+    for (let i = 0; i < items.length; i += CONCURRENCY) {
+      const batch = items.slice(i, i + CONCURRENCY);
+      await Promise.all(batch.map(async (item, idx) => {
+        const docId = getValidId(item.id);
+        delete item.id;
+        try {
+          await databases.createDocument(DATABASE_ID, table, docId, item);
+        } catch (error) {
+          if (error.code !== 409) {
+            console.error(`\n  - ❌ Error [${table}:${docId}]:`, error.message);
           }
         }
+      }));
+      if ((i + CONCURRENCY) % 100 === 0 || (i + CONCURRENCY) >= items.length) {
+        process.stdout.write(`\r  - Progress: ${Math.min(i + CONCURRENCY, items.length)}/${items.length}`);
       }
     }
-    console.log(`✅ ${table} migration finished`);
+    console.log(`\n✅ ${table} migration finished`);
   }
-
-  console.log('\n✨ All data migration tasks completed!');
+  console.log('\n✨ All tasks completed!');
 }
 
 migrate().catch(console.error);

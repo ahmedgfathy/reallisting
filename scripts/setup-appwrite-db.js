@@ -17,7 +17,7 @@ const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY;
 const DATABASE_ID = process.env.APPWRITE_DATABASE_ID;
 
 // Toggle this to true if you want to wipe and recreate
-const CLEANUP_FIRST = false;
+const CLEANUP_FIRST = true;
 
 // Initialize client
 console.log('🔌 Initializing Appwrite client...');
