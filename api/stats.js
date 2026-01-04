@@ -1,17 +1,11 @@
-const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
+const { getStats, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
 
 module.exports = async (req, res) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
     return res.status(200).end();
   }
-
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
+  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   // Check if database is configured
   if (!isConfigured()) {
@@ -23,26 +17,16 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Get total count
-    const [{ data: messageCountRows, error: messageError }, { data: senderCountRows, error: senderError }, { data: subscriberCountRows, error: subscriberError }] = await Promise.all([
-      query('SELECT COUNT(*)::int AS cnt FROM messages'),
-      query('SELECT COUNT(*)::int AS cnt FROM sender'),
-      query("SELECT COUNT(*)::int AS cnt FROM users WHERE is_active = true")
-    ]);
+    const result = await getStats();
 
-    if (messageError || senderError || subscriberError) {
-      console.error('Database error:', messageError || senderError || subscriberError);
-      return res.status(500).json({ error: messageError || senderError || subscriberError });
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
     }
 
-    res.status(200).json({
-      totalMessages: messageCountRows?.[0]?.cnt || 0,
-      totalFiles: senderCountRows?.[0]?.cnt || 0,
-      totalSubscribers: subscriberCountRows?.[0]?.cnt || 0,
-      files: []
-    });
+    // Frontend expects totalMessages, totalFiles, totalSubscribers, files
+    return res.status(200).json(result.data);
   } catch (error) {
-    console.error('API error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Stats endpoint error:', error);
+    return res.status(500).json({ error: error.message });
   }
 };

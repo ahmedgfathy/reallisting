@@ -1,13 +1,4 @@
-const { query, verifyToken, hashPassword, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
-
-function generateTempPassword(length = 8) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let password = '';
-  for (let i = 0; i < length; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
-}
+const { getAllUsers, updateUserStatus, deleteUser, getUserBySession, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -37,164 +28,61 @@ module.exports = async (req, res) => {
     return res.status(500).json(getConfigError());
   }
 
+  // Verify admin authorization
   const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'No token provided' });
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
-  const payload = verifyToken(token);
-  if (!payload || payload.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required' });
+  const userResult = await getUserBySession(token);
+  if (!userResult.success || userResult.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden - Admin access required' });
   }
 
   const path = req.query.path || req.url.split('?')[0].replace('/api/admin', '');
 
-  // GET USERS
+  // GET ALL USERS
   if ((path === 'users' || path === '/users') && req.method === 'GET') {
-    const { data: users, error } = await query(
-      'SELECT id, mobile, role, is_active, created_at, subscription_end_date FROM users ORDER BY created_at DESC'
-    );
+    const result = await getAllUsers();
 
-    if (error) return res.status(500).json({ error: 'Failed to load users' });
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
 
-    const mappedUsers = (users || []).map(row => ({
-      id: row.id,
-      mobile: row.mobile,
-      role: row.role,
-      isActive: !!row.is_active,
-      createdAt: row.created_at,
-      subscriptionEndDate: row.subscription_end_date
+    // Format user data for AdminDashboard.js
+    const users = result.data.map(user => ({
+      id: user.$id,
+      mobile: user.mobile,
+      role: user.role,
+      isActive: user.isActive,
+      subscriptionEndDate: user.subscriptionEndDate || null,
+      createdAt: user.$createdAt
     }));
 
-    return res.status(200).json(mappedUsers);
+    return res.status(200).json(users);
   }
 
-  // ACTIVATE USER
-  if (path.match(/^\/?(users\/\d+\/status)$/) && req.method === 'POST') {
-    const match = path.match(/users\/(\d+)\/status/);
-    const userId = match[1];
-    
-    const { error } = await query('UPDATE users SET is_active = true WHERE id = $1', [userId]);
+  // UPDATE USER STATUS
+  if (path.includes('/status') && req.method === 'POST') {
+    const userId = path.split('/')[1];
+    const body = await parseBody(req);
+    const { isActive } = body;
 
-    if (error) return res.status(500).json({ error: 'Failed to activate user' });
-    return res.status(200).json({ success: true });
-  }
+    const result = await updateUserStatus(userId, isActive);
 
-  // DEDUPLICATE
-  if ((path === 'deduplicate' || path === '/deduplicate') && req.method === 'POST') {
-    const { data: originalCounts } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
-    const originalCount = originalCounts?.[0]?.cnt || 0;
-
-    // Find duplicates using window function and delete them
-    const { data: deleted, error: deleteError } = await query(
-      `WITH dupes AS (
-         SELECT id
-         FROM (
-           SELECT id,
-                  ROW_NUMBER() OVER (PARTITION BY message, sender_id, date_of_creation ORDER BY id) AS rn
-           FROM messages
-         ) t
-         WHERE rn > 1
-       )
-       DELETE FROM messages WHERE id IN (SELECT id FROM dupes)
-       RETURNING id`
-    );
-
-    if (deleteError) return res.status(500).json({ error: deleteError });
-
-    const duplicatesRemoved = deleted ? deleted.length : 0;
-    const { data: newCounts } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
-    const newTotalCount = newCounts?.[0]?.cnt || 0;
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
+    }
 
     return res.status(200).json({
       success: true,
-      originalCount,
-      duplicatesRemoved,
-      newTotalCount,
-      message: `تم حذف ${duplicatesRemoved.toLocaleString('ar-EG')} رسالة مكررة`
-    });
-  }
-
-  // RESET REQUESTS - GET
-  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'GET') {
-    const { data, error } = await query(
-      "SELECT * FROM password_reset_requests WHERE status = 'pending' ORDER BY requested_at DESC"
-    );
-
-    if (error) return res.status(500).json({ error: error });
-    return res.status(200).json({ requests: data || [] });
-  }
-
-  // RESET REQUESTS - APPROVE/REJECT
-  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'POST') {
-    const body = await parseBody(req);
-    const { mobile, action } = body;
-
-    if (action === 'approve') {
-      const tempPassword = generateTempPassword(8);
-      const hashedPassword = hashPassword(tempPassword);
-
-      const { error: updateError } = await query(
-        'UPDATE users SET password = $1 WHERE mobile = $2',
-        [hashedPassword, mobile]
-      );
-
-      if (updateError) return res.status(500).json({ error: updateError });
-
-      await query(
-        `UPDATE password_reset_requests
-         SET status = 'approved', approved_at = $1, temp_password = $2
-         WHERE mobile = $3 AND status = 'pending'`,
-        [new Date().toISOString(), tempPassword, mobile]
-      );
-
-      return res.status(200).json({ success: true, tempPassword });
-    }
-
-    if (action === 'reject') {
-      await query(
-        "UPDATE password_reset_requests SET status = 'rejected' WHERE mobile = $1 AND status = 'pending'",
-        [mobile]
-      );
-
-      return res.status(200).json({ success: true });
-    }
-
-    return res.status(400).json({ error: 'Invalid action' });
-  }
-
-  // SUBSCRIPTION - SET
-  if ((path === 'subscription' || path === '/subscription') && req.method === 'POST') {
-    const body = await parseBody(req);
-    const { mobile, days } = body;
-
-    if (!mobile || !days) {
-      return res.status(400).json({ error: 'Mobile and days are required' });
-    }
-
-    const daysNum = parseInt(days);
-    if (isNaN(daysNum) || daysNum < 0) {
-      return res.status(400).json({ error: 'Invalid days value' });
-    }
-
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + daysNum);
-
-    const { data, error } = await query(
-      `UPDATE users
-       SET subscription_end_date = $1, is_active = true
-       WHERE mobile = $2
-       RETURNING mobile, subscription_end_date, is_active`,
-      [endDate.toISOString(), mobile]
-    );
-
-    if (error) return res.status(500).json({ error: error });
-    if (!data || data.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.status(200).json({ 
-      success: true, 
-      user: data[0],
-      message: `Subscription set for ${days} days`
+      user: {
+        id: result.data.$id,
+        mobile: result.data.mobile,
+        role: result.data.role,
+        isActive: result.data.isActive,
+        subscriptionEndDate: result.data.subscriptionEndDate
+      }
     });
   }
 

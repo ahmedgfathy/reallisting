@@ -76,7 +76,11 @@ module.exports = async (req, res) => {
       return res.status(500).json({ error: 'فشل التسجيل' });
     }
 
-    return res.status(201).json({ message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.' });
+    return res.status(201).json({
+      success: true,
+      message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.',
+      user: { mobile, role: 'broker', isActive: false }
+    });
   }
 
   // VERIFY
@@ -84,76 +88,27 @@ module.exports = async (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) return res.status(401).json({ authenticated: false });
 
-    const payload = verifyToken(token);
-    if (!payload) return res.status(401).json({ authenticated: false });
+    const result = await getUserBySession(token);
 
-    if (payload.role !== 'admin') {
-      const { data: users, error } = await query(
-        'SELECT * FROM users WHERE mobile = $1 LIMIT 1',
-        [payload.username]
-      );
-
-      if (!error && users && users.length > 0) {
-        const user = users[0];
-        let isActive = !!user.is_active;
-
-        if (isActive && user.subscription_end_date) {
-          const now = new Date();
-          const endDate = new Date(user.subscription_end_date);
-          if (endDate < now) {
-            await query('UPDATE users SET is_active = false WHERE mobile = $1', [user.mobile]);
-            isActive = false;
-          }
-        }
-
-        return res.status(200).json({
-          authenticated: true,
-          user: {
-            username: user.mobile,
-            role: user.role,
-            isActive,
-            subscriptionEndDate: user.subscription_end_date
-          }
-        });
-      }
+    if (!result.success) {
+      return res.status(401).json({ authenticated: false });
     }
 
     return res.status(200).json({
       authenticated: true,
-      user: { username: payload.username, role: payload.role || 'admin', isActive: true }
+      user: {
+        username: result.user.mobile,
+        role: result.user.role,
+        isActive: result.user.isActive,
+        subscriptionEndDate: result.user.subscriptionEndDate || null
+      }
     });
   }
 
   // RESET PASSWORD
   if ((path === 'reset-password' || path === '/reset-password') && req.method === 'POST') {
-    const body = await parseBody(req);
-    const { mobile } = body || {};
-    if (!mobile) return res.status(400).json({ error: 'رقم الموبايل مطلوب' });
-
-    const { data: users } = await query('SELECT mobile FROM users WHERE mobile = $1 LIMIT 1', [mobile]);
-    if (!users || users.length === 0) {
-      return res.status(404).json({ error: 'رقم الموبايل غير مسجل' });
-    }
-
-    const { data: existing } = await query(
-      'SELECT * FROM password_reset_requests WHERE mobile = $1 AND status = $2 LIMIT 1',
-      [mobile, 'pending']
-    );
-
-    if (existing && existing.length > 0) {
-      return res.status(400).json({ error: 'يوجد طلب قيد المراجعة بالفعل' });
-    }
-
-    const { error } = await query(
-      'INSERT INTO password_reset_requests (mobile, status) VALUES ($1, $2)',
-      [mobile, 'pending']
-    );
-
-    if (error) return res.status(500).json({ error: 'فشل في إرسال الطلب' });
-
     return res.status(200).json({
-      success: true,
-      message: 'تم إرسال طلب إعادة التعيين. سيتم مراجعته من قبل المسؤول.'
+      message: 'يرجى الاتصال بالمشرف لإعادة تعيين كلمة المرور'
     });
   }
 

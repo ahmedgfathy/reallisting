@@ -1,17 +1,11 @@
-const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
+const { deleteMessages, getStats, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
 
 module.exports = async (req, res) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
     return res.status(200).end();
   }
-
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
+  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   // Check if database is configured
   if (!isConfigured()) {
@@ -29,25 +23,20 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Invalid request. Expected array of message IDs.' });
     }
 
-    // Delete messages
-    const { error } = await query(
-      'DELETE FROM messages WHERE id = ANY($1::text[])',
-      [ids]
-    );
+    const result = await deleteMessages(ids);
 
-    if (error) {
-      console.error('Delete error:', error);
-      return res.status(500).json({ error });
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
     }
 
     // Get remaining count
-    const { data: countRows, error: countError } = await query('SELECT COUNT(*)::int AS cnt FROM messages');
-    if (countError) return res.status(500).json({ error: countError });
+    const statsResult = await getStats();
+    const remaining = statsResult.success ? statsResult.data.totalMessages : 0;
 
     res.status(200).json({
       success: true,
       deletedCount: ids.length,
-      remainingMessages: countRows?.[0]?.cnt || 0
+      remainingMessages: remaining
     });
   } catch (error) {
     console.error('Delete error:', error);

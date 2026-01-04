@@ -1,19 +1,11 @@
-const { query, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
+const { getRegions, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
 
-// Regions API - Returns all distinct regions from Supabase
 module.exports = async (req, res) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
     return res.status(200).end();
   }
-
-  // Set CORS headers
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
+  Object.entries(corsHeaders).forEach(([k, v]) => res.setHeader(k, v));
 
   // Check if database is configured
   if (!isConfigured()) {
@@ -25,18 +17,17 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Query the normalized regions table directly
-    const { data: regionsData, error } = await query('SELECT name FROM regions ORDER BY name');
+    const result = await getRegions();
 
-    if (error) {
-      console.error('Database error:', error);
-      return res.status(500).json({ error });
+    if (!result.success) {
+      return res.status(500).json({ error: result.error });
     }
 
-    const regions = (regionsData || []).map(r => r.name).filter(Boolean);
+    // Legacy frontend expects a flat array of strings, sorted specifically
+    const regionNames = result.data.map(r => r.name || r.nameAr).filter(Boolean);
 
     // Sort regions - put الحي numbers first, then مجاورة, then named areas, then أخرى at the end
-    const sortedRegions = regions.sort((a, b) => {
+    const sortedRegions = regionNames.sort((a, b) => {
       if (a === 'أخرى') return 1;
       if (b === 'أخرى') return -1;
 
@@ -62,7 +53,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json(sortedRegions);
   } catch (error) {
-    console.error('API error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Regions endpoint error:', error);
+    return res.status(500).json({ error: error.message });
   }
 };
