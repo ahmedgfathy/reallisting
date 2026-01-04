@@ -3,178 +3,129 @@
 /**
  * Appwrite Database Setup Script
  * Creates database, collections, and indexes for Reallisting platform
+ * Based on verified SQL schema.
  */
 
-const { Client, Databases, ID, Permission, Role } = require('node-appwrite');
+const { Client, Databases, Permission, Role } = require('node-appwrite');
 require('dotenv').config();
 
 // Configuration
-const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
+const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT || 'https://cloud.appwrite.io/v1';
 const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID || '694ba83300116af11b75';
 const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY;
 const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || '695a84140031c5a93745';
 
+// Initialize client
+console.log('🔌 Initializing Appwrite client...');
+console.log('  - Endpoint:', APPWRITE_ENDPOINT);
+console.log('  - Project ID:', APPWRITE_PROJECT_ID);
+
 if (!APPWRITE_API_KEY) {
-  console.error('❌ Error: APPWRITE_API_KEY environment variable is required');
-  console.error('Create an API key in Appwrite Console → Settings → API Keys');
-  console.error('Grant all permissions (Database, Collections, Documents)');
+  console.error('❌ Error: APPWRITE_API_KEY is not set in environment or .env file');
   process.exit(1);
 }
 
-// Initialize client
 const client = new Client()
   .setEndpoint(APPWRITE_ENDPOINT)
   .setProject(APPWRITE_PROJECT_ID)
   .setKey(APPWRITE_API_KEY);
 
 const databases = new Databases(client);
+console.log('✅ Client initialized');
+
+// Helper to wait for attribute/index creation
+const wait = (ms) => new Promise(res => setTimeout(res, ms));
+
+async function createAttribute(dbId, collId, type, key, required = false, size = 255) {
+  try {
+    console.log(`  - Creating ${type} attribute: ${key}`);
+    const method = `create${type.charAt(0).toUpperCase() + type.slice(1)}Attribute`;
+    if (type === 'string') {
+      await databases[method](dbId, collId, key, size, required);
+    } else {
+      await databases[method](dbId, collId, key, required);
+    }
+    await wait(1000); // Allow time for creation
+  } catch (error) {
+    if (error.code === 409) console.log(`  - Attribute ${key} already exists`);
+    else throw error;
+  }
+}
 
 async function setupDatabase() {
   console.log('🚀 Starting Appwrite database setup...\n');
 
-  try {
-    // Skip database creation - use existing database
-    console.log('📁 Using existing database...');
-    console.log('ℹ️  Database ID: ' + DATABASE_ID);
-    console.log('✅ Database found\n');
+  const collections = [
+    { id: 'regions', name: 'Regions', attrs: [['string', 'name', true, 200], ['datetime', 'created_at', false]] },
+    { id: 'categories', name: 'Categories', attrs: [['string', 'name', true, 100], ['datetime', 'created_at', false]] },
+    { id: 'property_types', name: 'Property Types', attrs: [['string', 'name', true, 100], ['datetime', 'created_at', false]] },
+    { id: 'purposes', name: 'Purposes', attrs: [['string', 'name', true, 100], ['datetime', 'created_at', false]] },
+    {
+      id: 'sender', name: 'Sender', attrs: [
+        ['string', 'name', true, 200],
+        ['string', 'mobile', true, 30],
+        ['string', 'first_seen_date', false, 50],
+        ['string', 'first_seen_time', false, 50],
+        ['datetime', 'updated_at', false],
+        ['datetime', 'created_at', false]
+      ]
+    },
+    {
+      id: 'users', name: 'Users', attrs: [
+        ['string', 'mobile', true, 30],
+        ['string', 'password', true, 100],
+        ['string', 'name', false, 100],
+        ['string', 'role', false, 20],
+        ['boolean', 'is_active', false],
+        ['string', 'subscription_end_date', false, 50],
+        ['string', 'username', false, 100],
+        ['string', 'password_hash', false, 255],
+        ['string', 'email', false, 100],
+        ['string', 'phone', false, 30],
+        ['boolean', 'is_admin', false],
+        ['datetime', 'created_at', false]
+      ]
+    },
+    {
+      id: 'messages', name: 'Messages', attrs: [
+        ['string', 'message', true, 20000],
+        ['string', 'date_of_creation', false, 50],
+        ['string', 'source_file', false, 200],
+        ['string', 'image_url', false, 500],
+        ['integer', 'sender_id', false],
+        ['integer', 'region_id', false],
+        ['integer', 'property_type_id', false],
+        ['integer', 'category_id', false],
+        ['integer', 'purpose_id', false],
+        ['datetime', 'created_at', false]
+      ]
+    }
+  ];
 
-    // Create Users Collection
-    console.log('\n👥 Creating Users collection...');
+  for (const coll of collections) {
+    console.log(`📦 Setting up collection: ${coll.name} (${coll.id})...`);
     try {
-      await databases.createCollection(
-        DATABASE_ID,
-        'users',
-        'Users',
-        [
-          Permission.read(Role.any()),
-          Permission.create(Role.any()),
-          Permission.update(Role.any()),
-          Permission.delete(Role.any())
-        ]
-      );
-      console.log('✅ Users collection created');
-
-      // Add attributes
-      await databases.createStringAttribute(DATABASE_ID, 'users', 'mobile', 20, true);
-      await databases.createStringAttribute(DATABASE_ID, 'users', 'role', 20, true);
-      await databases.createBooleanAttribute(DATABASE_ID, 'users', 'isActive', true);
-      await databases.createStringAttribute(DATABASE_ID, 'users', 'name', 100, false);
-      await databases.createDatetimeAttribute(DATABASE_ID, 'users', 'createdAt', false);
-      
-      console.log('✅ Users attributes created');
-      
-      // Create indexes
-      await databases.createIndex(DATABASE_ID, 'users', 'mobile_index', 'key', ['mobile'], ['asc']);
-      await databases.createIndex(DATABASE_ID, 'users', 'role_index', 'key', ['role'], ['asc']);
-      console.log('✅ Users indexes created');
+      await databases.createCollection(DATABASE_ID, coll.id, coll.name, [
+        Permission.read(Role.any()),
+        Permission.create(Role.any()),
+        Permission.update(Role.any()),
+        Permission.delete(Role.any())
+      ]);
+      console.log(` ✅ Collection ${coll.id} created`);
     } catch (error) {
-      if (error.code === 409) {
-        console.log('ℹ️  Users collection already exists');
-      } else {
-        console.error('Error creating users collection:', error.message);
-      }
+      if (error.code === 409) console.log(` ℹ️  Collection ${coll.id} already exists`);
+      else throw error;
     }
 
-    // Create Messages Collection
-    console.log('\n💬 Creating Messages collection...');
-    try {
-      await databases.createCollection(
-        DATABASE_ID,
-        'messages',
-        'Messages',
-        [
-          Permission.read(Role.any()),
-          Permission.create(Role.any()),
-          Permission.update(Role.any()),
-          Permission.delete(Role.any())
-        ]
-      );
-      console.log('✅ Messages collection created');
-
-      // Add attributes
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'message', 10000, true);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'category', 50, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'propertyType', 50, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'region', 100, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'purpose', 50, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'sourceFile', 100, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'imageUrl', 500, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'senderName', 100, false);
-      await databases.createStringAttribute(DATABASE_ID, 'messages', 'senderMobile', 20, false);
-      await databases.createDatetimeAttribute(DATABASE_ID, 'messages', 'dateOfCreation', false);
-      await databases.createDatetimeAttribute(DATABASE_ID, 'messages', 'createdAt', false);
-      
-      console.log('✅ Messages attributes created');
-      
-      // Create indexes
-      await databases.createIndex(DATABASE_ID, 'messages', 'category_index', 'key', ['category'], ['asc']);
-      await databases.createIndex(DATABASE_ID, 'messages', 'propertyType_index', 'key', ['propertyType'], ['asc']);
-      await databases.createIndex(DATABASE_ID, 'messages', 'region_index', 'key', ['region'], ['asc']);
-      await databases.createIndex(DATABASE_ID, 'messages', 'purpose_index', 'key', ['purpose'], ['asc']);
-      await databases.createIndex(DATABASE_ID, 'messages', 'createdAt_index', 'key', ['createdAt'], ['desc']);
-      
-      // Full-text search index
-      await databases.createIndex(DATABASE_ID, 'messages', 'message_search', 'fulltext', ['message'], ['asc']);
-      
-      console.log('✅ Messages indexes created');
-    } catch (error) {
-      if (error.code === 409) {
-        console.log('ℹ️  Messages collection already exists');
-      } else {
-        console.error('Error creating messages collection:', error.message);
-      }
+    for (const attr of coll.attrs) {
+      await createAttribute(DATABASE_ID, coll.id, ...attr);
     }
-
-    // Create Regions Collection
-    console.log('\n🗺️  Creating Regions collection...');
-    try {
-      await databases.createCollection(
-        DATABASE_ID,
-        'regions',
-        'Regions',
-        [
-          Permission.read(Role.any()),
-          Permission.create(Role.any()),
-          Permission.update(Role.any()),
-          Permission.delete(Role.any())
-        ]
-      );
-      console.log('✅ Regions collection created');
-
-      // Add attributes
-      await databases.createStringAttribute(DATABASE_ID, 'regions', 'name', 100, true);
-      await databases.createStringAttribute(DATABASE_ID, 'regions', 'nameAr', 100, false);
-      await databases.createIntegerAttribute(DATABASE_ID, 'regions', 'count', false);
-      
-      console.log('✅ Regions attributes created');
-      
-      // Create index
-      await databases.createIndex(DATABASE_ID, 'regions', 'name_index', 'key', ['name'], ['asc']);
-      console.log('✅ Regions indexes created');
-    } catch (error) {
-      if (error.code === 409) {
-        console.log('ℹ️  Regions collection already exists');
-      } else {
-        console.error('Error creating regions collection:', error.message);
-      }
-    }
-
-    console.log('\n✨ Database setup completed successfully!');
-    console.log('\n📋 Next steps:');
-    console.log('1. Update your .env file with APPWRITE_API_KEY');
-    console.log('2. Run npm install to install Appwrite dependencies');
-    console.log('3. Deploy your application');
-    console.log('\n🔗 Database ID: ' + DATABASE_ID);
-    console.log('🔗 Collections: users, messages, regions');
-
-  } catch (error) {
-    console.error('\n❌ Setup failed:', error.message);
-    if (error.response) {
-      console.error('Response:', error.response);
-    }
-    process.exit(1);
   }
+
+  console.log('\n✨ Database setup completed successfully!');
 }
 
-// Run setup
-setupDatabase().catch(console.error);
+setupDatabase().catch(err => {
+  console.error('\n❌ Setup failed:', err.message);
+  process.exit(1);
+});
