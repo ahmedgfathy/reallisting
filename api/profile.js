@@ -1,8 +1,6 @@
-const crypto = require('crypto');
-
 module.exports = async (context) => {
   const { req, res, log, error } = context;
-  const { databases, getUserBySession, isConfigured, getConfigError, APPWRITE_DATABASE_ID, COLLECTIONS, importMessages } = require('./lib_appwrite');
+  const { getUserProfile, updatePassword, getUserBySession, users, isConfigured, getConfigError } = require('./lib_appwrite');
 
   if (req.method === 'OPTIONS') {
     return res.text('', 200, {
