@@ -2,7 +2,7 @@ import { Client, Account, Databases, Storage, Functions, Query, ID } from 'appwr
 
 // Appwrite Configuration
 const APPWRITE_ENDPOINT = process.env.REACT_APP_APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
-const APPWRITE_PROJECT_ID = process.env.REACT_APP_APPWRITE_PROJECT_ID || '694ba83300116af11b75';
+export const APPWRITE_PROJECT_ID = process.env.REACT_APP_APPWRITE_PROJECT_ID || '694ba83300116af11b75';
 const APPWRITE_DATABASE_ID = process.env.REACT_APP_APPWRITE_DATABASE_ID || '695a84140031c5a93745';
 
 // Initialize Appwrite Client

@@ -3,7 +3,7 @@ import './App.css';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
-import { apiCall } from './appwriteConfig';
+import { apiCall, APPWRITE_PROJECT_ID } from './appwriteConfig';
 import InstallPrompt from './InstallPrompt';
 
 function App() {
@@ -503,6 +503,9 @@ function App() {
               <li>اتصال الإنترنت</li>
               <li>إعدادات Appwrite Project ID و API Key</li>
               <li>حالة الخادم (Appwrite Cloud Status)</li>
+              <li style={{ color: '#aaa', fontSize: '0.8em', marginTop: '15px' }}>
+                Project ID used: {APPWRITE_PROJECT_ID}
+              </li>
             </ul>
             <p>أو حاول مرة أخرى لاحقاً.</p>
           </div>
