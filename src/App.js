@@ -512,8 +512,8 @@ function App() {
             <p>يرجى التحقق من:</p>
             <ul style={{textAlign: 'right', marginTop: '10px'}}>
               <li>اتصال الإنترنت</li>
-              <li>إعدادات Vercel والمتغيرات البيئية</li>
-              <li>حالة خدمة Supabase</li>
+              <li>إعدادات Vercel والمتغيرات البيئية (POSTGRES_URL)</li>
+              <li>اتصال قاعدة البيانات PostgreSQL على Contabo</li>
             </ul>
             <p>أو حاول مرة أخرى لاحقاً.</p>
           </div>
