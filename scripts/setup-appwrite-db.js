@@ -11,7 +11,7 @@ const { Client, Databases, ID, Permission, Role } = require('node-appwrite');
 const APPWRITE_ENDPOINT = process.env.APPWRITE_ENDPOINT || 'https://fra.cloud.appwrite.io/v1';
 const APPWRITE_PROJECT_ID = process.env.APPWRITE_PROJECT_ID || '694ba83300116af11b75';
 const APPWRITE_API_KEY = process.env.APPWRITE_API_KEY;
-const DATABASE_ID = 'reallisting';
+const DATABASE_ID = process.env.APPWRITE_DATABASE_ID || '695a84140031c5a93745';
 
 if (!APPWRITE_API_KEY) {
   console.error('❌ Error: APPWRITE_API_KEY environment variable is required');
@@ -32,18 +32,10 @@ async function setupDatabase() {
   console.log('🚀 Starting Appwrite database setup...\n');
 
   try {
-    // Create database
-    console.log('📁 Creating database...');
-    try {
-      await databases.create(DATABASE_ID, 'Reallisting Database');
-      console.log('✅ Database created: ' + DATABASE_ID);
-    } catch (error) {
-      if (error.code === 409) {
-        console.log('ℹ️  Database already exists: ' + DATABASE_ID);
-      } else {
-        throw error;
-      }
-    }
+    // Skip database creation - use existing database
+    console.log('📁 Using existing database...');
+    console.log('ℹ️  Database ID: ' + DATABASE_ID);
+    console.log('✅ Database found\n');
 
     // Create Users Collection
     console.log('\n👥 Creating Users collection...');
