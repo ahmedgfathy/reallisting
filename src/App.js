@@ -219,7 +219,7 @@ function App() {
 
       try {
         const response = await apiCall(
-          `/ api / messages ? page = ${targetPage}& limit=${limit}& search=${encodeURIComponent(search)}& category=${encodeURIComponent(category)}& propertyType=${encodeURIComponent(propertyType)}& region=${encodeURIComponent(region)}& purpose=${encodeURIComponent(purpose)} `
+          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`
         );
         const data = await response.json();
 
@@ -583,7 +583,7 @@ function App() {
             </button>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`filter - toggle - btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''} `}
+              className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
             >
               {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
               {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
@@ -596,7 +596,7 @@ function App() {
           )}
         </div>
 
-        <div className={`filters ${showFilters ? 'filters-open' : ''} `}>
+        <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
           <label className="filter-label">نوع الإعلان:</label>
           <select
             value={category}
