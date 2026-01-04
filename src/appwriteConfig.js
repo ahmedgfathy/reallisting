@@ -34,6 +34,10 @@ export const apiCall = async (url, options = {}) => {
       const pathParts = parts[0].split('/');
       const functionId = pathParts[2]; // e.g. "messages" from "/api/messages"
 
+      if (!functionId) {
+        throw new Error(`Invalid API URL: ${url}`);
+      }
+
       // Reconstruct path for internal routing (e.g. /messages)
       const internalPath = url.includes('?') ? url.replace('/api/', '/') : parts[0].replace('/api/', '/');
 
@@ -62,8 +66,8 @@ export const apiCall = async (url, options = {}) => {
           try {
             return JSON.parse(execution.responseBody);
           } catch (e) {
-            console.error('Failed to parse response body as JSON:', execution.responseBody);
-            return { error: 'Invalid JSON response from function', body: execution.responseBody };
+            console.error(`[Appwrite] Error parsing response from ${functionId}:`, execution.responseBody);
+            return { error: 'Invalid JSON response', body: execution.responseBody };
           }
         },
         text: async () => execution.responseBody,
@@ -75,12 +79,19 @@ export const apiCall = async (url, options = {}) => {
         }
       };
     } catch (err) {
-      console.error('Appwrite Function execution failed:', err);
-      // Fallback to fetch if SDK fails unexpectedly
+      console.error(`[Appwrite] Function "${url}" call failed:`, err);
+      // DO NOT fallback to fetch for /api/ routes! 
+      // This prevents "Unexpected token <" HTML parsing errors.
+      return {
+        ok: false,
+        status: 500,
+        json: async () => ({ error: `Backend connection failed: ${err.message}. Check if function is deployed.` }),
+        text: async () => `Error: ${err.message}`
+      };
     }
   }
 
-  // 2. Default to standard fetch for non-API calls or as final fallback
+  // 3. Default to standard fetch for non-API calls (e.g. assets, manifest)
   return fetch(url, options);
 };
 
