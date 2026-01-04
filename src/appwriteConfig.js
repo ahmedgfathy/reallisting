@@ -18,7 +18,16 @@ export const functions = new Functions(client);
 
 // Universal API caller that works for both local dev and production Appwrite Functions
 export const apiCall = async (url, options = {}) => {
-  // 1. If it's an /api/ call, use Appwrite Functions SDK directly to bypass static routing issues
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  // 1. If it's an /api/ call and we are on localhost, use the local dev server
+  if (url.startsWith('/api/') && isLocalhost) {
+    const localApiUrl = `http://localhost:5001${url}`;
+    console.log(`[LocalDev] Routing ${url} to ${localApiUrl}`);
+    return fetch(localApiUrl, options);
+  }
+
+  // 2. If it's an /api/ call on production, use Appwrite Functions SDK directly
   if (url.startsWith('/api/')) {
     try {
       const parts = url.split('?');

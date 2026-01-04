@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { adminAPI, statsAPI, apiCall } from './appwriteConfig';
+import { adminAPI, apiCall } from './appwriteConfig';
 import './AdminDashboard.css';
 
 function AdminDashboard({ onClose }) {
@@ -38,10 +38,8 @@ function AdminDashboard({ onClose }) {
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   const loadResetRequests = useCallback(async () => {
     // Reset requests are not currently prioritized in Appwrite migration

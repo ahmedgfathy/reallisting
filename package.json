@@ -17,7 +17,8 @@
     "eject": "react-scripts eject",
     "setup:appwrite": "node scripts/setup-appwrite-db.js",
     "migrate:appwrite": "node scripts/migrate-to-appwrite.js",
-    "deploy:appwrite": "npm run build && node scripts/setup-appwrite-db.js"
+    "deploy:appwrite": "npm run build && node scripts/setup-appwrite-db.js",
+    "dev:api": "node scripts/local-server.js"
   },
   "eslintConfig": {
     "extends": [
