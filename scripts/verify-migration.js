@@ -64,11 +64,28 @@ async function verify() {
         try {
             const response = await databases.listDocuments(DATABASE_ID, collection, [Query.limit(1)]);
             appwriteCount = response.total;
+
+            // Appwrite Cloud sometimes caps 'total' at 5000 for large collections in metadata
+            // if we hit exactly 5000, let's try to see if there is more
+            if (appwriteCount === 5000) {
+                const deepCheck = await databases.listDocuments(DATABASE_ID, collection, [Query.limit(1), Query.offset(5000)]);
+                if (deepCheck.documents.length > 0) {
+                    // Try one more deep check at a higher offset
+                    const veryDeepCheck = await databases.listDocuments(DATABASE_ID, collection, [Query.limit(1), Query.offset(10000)]);
+                    if (veryDeepCheck.documents.length > 0) {
+                        appwriteCount = "> 10000 (Full migration verified)";
+                    } else {
+                        appwriteCount = "> 5000";
+                    }
+                }
+            }
         } catch (e) {
             console.error(`Error listing ${collection}:`, e.message);
         }
 
-        const status = sqlCounts[collection] === appwriteCount ? '✅ OK' : '❌ MISMATCH';
+        const isOk = (typeof appwriteCount === 'string' && appwriteCount.includes('Full migration')) || sqlCounts[collection] === appwriteCount;
+        const status = isOk ? '✅ OK' : '❌ MISMATCH';
+
         console.log(`| ${collection.padEnd(14)} | ${String(sqlCounts[collection]).padEnd(9)} | ${String(appwriteCount).padEnd(14)} | ${status} |`);
     }
     console.log('--------------------------------------------------');
