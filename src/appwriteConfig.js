@@ -18,36 +18,31 @@ export const functions = new Functions(client);
 
 // Universal API caller that works for both local dev and production Appwrite Functions
 export const apiCall = async (url, options = {}) => {
-  // 1. Try standard fetch (useful if domains are mapped)
-  try {
-    const response = await fetch(url, options);
-    if (response.ok || response.status !== 404) return response;
-  } catch (e) {
-    // Fallback to Appwrite Functions if fetch fails
-  }
-
-  // 2. Fallback to direct Appwrite Function execution
+  // 1. If it's an /api/ call, use Appwrite Functions SDK directly to bypass static routing issues
   if (url.startsWith('/api/')) {
     try {
       const parts = url.split('?');
       const pathParts = parts[0].split('/');
       const functionId = pathParts[2]; // e.g. "messages" from "/api/messages"
-      const queryString = parts[1] || '';
 
-      // Reconstruct path for internal routing if needed
-      const internalPath = url.replace('/api/', '/');
+      // Reconstruct path for internal routing (e.g. /messages)
+      const internalPath = url.includes('?') ? url.replace('/api/', '/') : parts[0].replace('/api/', '/');
 
       // Map method for SDK
       const method = options.method || 'GET';
       const body = options.body ? (typeof options.body === 'string' ? options.body : JSON.stringify(options.body)) : '';
 
+      // Execute function
       const execution = await functions.createExecution(
         functionId,
         body,
         false,
         internalPath,
         method,
-        options.headers || {}
+        {
+          ...options.headers,
+          'Content-Type': 'application/json'
+        }
       );
 
       // Reconstruct a fetch-like response object
@@ -58,17 +53,25 @@ export const apiCall = async (url, options = {}) => {
           try {
             return JSON.parse(execution.responseBody);
           } catch (e) {
-            return { error: 'Failed to parse response body' };
+            console.error('Failed to parse response body as JSON:', execution.responseBody);
+            return { error: 'Invalid JSON response from function', body: execution.responseBody };
           }
         },
-        text: async () => execution.responseBody
+        text: async () => execution.responseBody,
+        headers: {
+          get: (name) => {
+            if (name.toLowerCase() === 'content-type') return 'application/json';
+            return null;
+          }
+        }
       };
     } catch (err) {
       console.error('Appwrite Function execution failed:', err);
-      throw err;
+      // Fallback to fetch if SDK fails unexpectedly
     }
   }
 
+  // 2. Default to standard fetch for non-API calls or as final fallback
   return fetch(url, options);
 };
 
