@@ -64,7 +64,9 @@ export const apiCall = async (url, options = {}) => {
         status: execution.statusCode,
         json: async () => {
           try {
-            return JSON.parse(execution.responseBody);
+            // Trim whitespace and BOM characters from the response body
+            const cleanBody = execution.responseBody.trim().replace(/^[\u200B\u200C\u200D\u200E\u200F\uFEFF]/, '');
+            return JSON.parse(cleanBody);
           } catch (e) {
             console.error(`[Appwrite] Error parsing response from ${functionId}:`, execution.responseBody);
             return { error: 'Invalid JSON response', body: execution.responseBody };
