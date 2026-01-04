@@ -1,0 +1,67 @@
+{
+  "projectId": "694ba83300116af11b75",
+  "projectName": "reallisting",
+  "functions": [
+    {
+      "name": "auth",
+      "runtime": "node-18.0",
+      "path": "api/auth-appwrite.js",
+      "entrypoint": "api/auth-appwrite.js",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true,
+      "runtime": "node-18.0"
+    },
+    {
+      "name": "messages",
+      "runtime": "node-18.0",
+      "path": "api/messages-appwrite.js",
+      "entrypoint": "api/messages-appwrite.js",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true
+    },
+    {
+      "name": "admin",
+      "runtime": "node-18.0",
+      "path": "api/admin-appwrite.js",
+      "entrypoint": "api/admin-appwrite.js",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true
+    },
+    {
+      "name": "stats",
+      "runtime": "node-18.0",
+      "path": "api/stats-appwrite.js",
+      "entrypoint": "api/stats-appwrite.js",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true
+    },
+    {
+      "name": "regions",
+      "runtime": "node-18.0",
+      "path": "api/regions-appwrite.js",
+      "entrypoint": "api/regions-appwrite.js",
+      "execute": ["any"],
+      "events": [],
+      "schedule": "",
+      "timeout": 15,
+      "enabled": true,
+      "logging": true
+    }
+  ]
+}

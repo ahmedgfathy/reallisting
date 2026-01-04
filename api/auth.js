@@ -1,4 +1,4 @@
-const { query, verifyToken, hashPassword, generateToken, corsHeaders, isConfigured, getConfigError } = require('../lib/database');
+const { createUser, loginUser, getUserBySession, corsHeaders, isConfigured, getConfigError } = require('../lib/appwrite');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -40,54 +40,38 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
 
-    const hashedPassword = hashPassword(password);
+    const result = await loginUser(loginIdentifier, password);
     
-    // DEBUG: Log the hash
-    console.log('Login attempt:', { loginIdentifier, hashedPassword: hashedPassword.substring(0, 20) + '...' });
-    
-    const { data: users, error } = await query(
-      'SELECT * FROM users WHERE mobile = $1 AND password = $2 LIMIT 1',
-      [loginIdentifier, hashedPassword]
-    );
-
-    if (error || !users || users.length === 0) {
-      console.log('Login failed:', { error, usersFound: users?.length || 0 });
+    if (!result.success) {
+      console.log('Login failed:', result.error);
       return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
     }
 
-    const user = users[0];
-    const token = generateToken(user.mobile, user.role);
     return res.status(200).json({ 
       success: true,
-      token, 
-      user: { username: user.mobile, role: user.role, isActive: !!user.is_active } 
+      token: result.session.secret,
+      user: { 
+        username: result.user.mobile, 
+        role: result.user.role, 
+        isActive: result.user.isActive 
+      } 
     });
   }
 
   // REGISTER
   if ((path === 'register' || path === '/register') && req.method === 'POST') {
     const body = await parseBody(req);
-    const { mobile, password } = body || {};
+    const { mobile, password, name = '' } = body || {};
     if (!mobile || !password) {
       return res.status(400).json({ error: 'Mobile and password required' });
     }
 
-    const { data: existing } = await query(
-      'SELECT mobile FROM users WHERE mobile = $1 LIMIT 1',
-      [mobile]
-    );
+    const result = await createUser(mobile, password, name);
 
-    if (existing && existing.length > 0) {
-      return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
-    }
-
-    const hashedPassword = hashPassword(password);
-    const { error } = await query(
-      'INSERT INTO users (mobile, password, role, is_active) VALUES ($1, $2, $3, $4)',
-      [mobile, hashedPassword, 'broker', false]
-    );
-
-    if (error) {
+    if (!result.success) {
+      if (result.error.includes('user') || result.error.includes('exists')) {
+        return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
+      }
       return res.status(500).json({ error: 'فشل التسجيل' });
     }
 
