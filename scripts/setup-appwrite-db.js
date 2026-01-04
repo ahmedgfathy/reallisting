@@ -54,9 +54,9 @@ async function setupDatabase() {
         'Users',
         [
           Permission.read(Role.any()),
-          Permission.create(Role.users()),
-          Permission.update(Role.users()),
-          Permission.delete(Role.users())
+          Permission.create(Role.any()),
+          Permission.update(Role.any()),
+          Permission.delete(Role.any())
         ]
       );
       console.log('✅ Users collection created');
@@ -91,9 +91,9 @@ async function setupDatabase() {
         'Messages',
         [
           Permission.read(Role.any()),
-          Permission.create(Role.users()),
-          Permission.update(Role.users()),
-          Permission.delete(Role.users())
+          Permission.create(Role.any()),
+          Permission.update(Role.any()),
+          Permission.delete(Role.any())
         ]
       );
       console.log('✅ Messages collection created');
@@ -141,9 +141,9 @@ async function setupDatabase() {
         'Regions',
         [
           Permission.read(Role.any()),
-          Permission.create(Role.users()),
-          Permission.update(Role.users()),
-          Permission.delete(Role.users())
+          Permission.create(Role.any()),
+          Permission.update(Role.any()),
+          Permission.delete(Role.any())
         ]
       );
       console.log('✅ Regions collection created');
