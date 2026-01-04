@@ -1,126 +1,128 @@
 {
-  "projectId": "694ba83300116af11b75",
-  "projectName": "reallisting",
-  "functions": [
-    {
-      "$id": "auth",
-      "name": "auth",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "auth.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "messages",
-      "name": "messages",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "messages.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "admin",
-      "name": "admin",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "admin.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "stats",
-      "name": "stats",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "stats.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "regions",
-      "name": "regions",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "regions.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "profile",
-      "name": "profile",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "profile.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "import-whatsapp",
-      "name": "import-whatsapp",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "import-whatsapp.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 30,
-      "enabled": true,
-      "logging": true
-    },
-    {
-      "$id": "messages-delete",
-      "name": "messages-delete",
-      "runtime": "node-18.0",
-      "path": "api",
-      "entrypoint": "messages-delete.js",
-      "execute": [
-        "any"
-      ],
-      "events": [],
-      "schedule": "",
-      "timeout": 15,
-      "enabled": true,
-      "logging": true
-    }
-  ]
+    "projectId": "694ba83300116af11b75",
+    "projectName": "reallisting",
+    "functions": [
+        {
+            "$id": "auth",
+            "name": "auth",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "auth.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "messages",
+            "name": "messages",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "messages.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "admin",
+            "name": "admin",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "admin.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "stats",
+            "name": "stats",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "stats.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "regions",
+            "name": "regions",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "regions.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "profile",
+            "name": "profile",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "profile.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "import-whatsapp",
+            "name": "import-whatsapp",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "import-whatsapp.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 30,
+            "enabled": true,
+            "logging": true
+        },
+        {
+            "$id": "messages-delete",
+            "name": "messages-delete",
+            "runtime": "node-18.0",
+            "path": "api",
+            "entrypoint": "messages-delete.js",
+            "execute": [
+                "any"
+            ],
+            "events": [],
+            "schedule": "",
+            "timeout": 15,
+            "enabled": true,
+            "logging": true
+        }
+    ],
+    "tables": [],
+    "tablesDB": []
 }

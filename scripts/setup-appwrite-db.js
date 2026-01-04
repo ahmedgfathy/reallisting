@@ -62,6 +62,20 @@ async function createAttribute(dbId, collId, type, key, required = false, size =
 async function setupDatabase() {
   console.log('🚀 Starting Appwrite database setup...\n');
 
+  // Try to create the database first (it might have been deleted)
+  try {
+    console.log(`📡 Checking/Creating Database: ${DATABASE_ID}...`);
+    await databases.create(DATABASE_ID, 'contaboo');
+    console.log('✅ Database created successfully');
+  } catch (error) {
+    if (error.code === 409) {
+      console.log('ℹ️ Database already exists');
+    } else {
+      console.error('❌ Failed to create database:', error.message);
+      // If we can't create it, we might still proceed if it exists but failed for other reasons
+    }
+  }
+
   const collections = [
     { id: 'regions', name: 'Regions', attrs: [['string', 'name', true, 500], ['datetime', 'created_at', false]] },
     { id: 'categories', name: 'Categories', attrs: [['string', 'name', true, 255], ['datetime', 'created_at', false]] },
