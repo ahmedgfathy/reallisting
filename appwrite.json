@@ -3,6 +3,7 @@
   "projectName": "reallisting",
   "functions": [
     {
+      "$id": "auth",
       "name": "auth",
       "runtime": "node-18.0",
       "path": "api/auth.js",
@@ -17,6 +18,7 @@
       "logging": true
     },
     {
+      "$id": "messages",
       "name": "messages",
       "runtime": "node-18.0",
       "path": "api/messages.js",
@@ -31,6 +33,7 @@
       "logging": true
     },
     {
+      "$id": "admin",
       "name": "admin",
       "runtime": "node-18.0",
       "path": "api/admin.js",
@@ -45,6 +48,7 @@
       "logging": true
     },
     {
+      "$id": "stats",
       "name": "stats",
       "runtime": "node-18.0",
       "path": "api/stats.js",
@@ -59,6 +63,7 @@
       "logging": true
     },
     {
+      "$id": "regions",
       "name": "regions",
       "runtime": "node-18.0",
       "path": "api/regions.js",
@@ -73,6 +78,7 @@
       "logging": true
     },
     {
+      "$id": "profile",
       "name": "profile",
       "runtime": "node-18.0",
       "path": "api/profile.js",
@@ -87,6 +93,7 @@
       "logging": true
     },
     {
+      "$id": "import-whatsapp",
       "name": "import-whatsapp",
       "runtime": "node-18.0",
       "path": "api/import-whatsapp.js",
@@ -101,6 +108,7 @@
       "logging": true
     },
     {
+      "$id": "messages-delete",
       "name": "messages-delete",
       "runtime": "node-18.0",
       "path": "api/messages-delete.js",
