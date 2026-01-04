@@ -11,7 +11,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && (if exist dist (rd /s /q dist)) && (xcopy /e /i build dist)",
+    "build": "react-scripts build && node -e \"const fs=require('fs'); if(fs.existsSync('dist')){fs.rmSync('dist',{recursive:true,force:true})}; fs.cpSync('build','dist',{recursive:true})\"",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "setup:appwrite": "node scripts/setup-appwrite-db.js",
