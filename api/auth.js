@@ -1,94 +1,132 @@
-module.exports = async (context) => {
-  const { req, res, log } = context;
-  const { createUser, loginUser, getUserBySession, isConfigured, getConfigError } = require('./lib_appwrite');
+const { users, messages, generateToken, corsHeaders } = require('../lib/sqlite');
 
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
+module.exports = async (req, res) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
-    return res.text('', 200, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
     });
+    return res.status(200).end();
   }
 
-  // Check if database is configured
-  if (!isConfigured()) {
-    return res.json(getConfigError(), 500);
-  }
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
 
-  const path = req.query.path || (req.path ? req.path.replace('/api/auth', '').replace(/^\//, '') : '');
+  const path = req.query.path || req.url.split('?')[0].replace('/api/auth', '');
 
   // LOGIN
-  if ((path === 'login' || path === '/login' || req.path === '/login') && req.method === 'POST') {
-    const { username, mobile, password } = req.body || {};
-    const loginIdentifier = username || mobile;
+  if ((path === 'login' || path === '/login') && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const { username, mobile, password } = body || {};
+      const loginIdentifier = username || mobile;
 
-    if (!loginIdentifier || !password) {
-      return res.json({ error: 'Mobile and password required' }, 400);
-    }
-
-    const result = await loginUser(loginIdentifier, password);
-
-    if (!result.success) {
-      log('Login failed: ' + result.error);
-      return res.json({ error: 'بيانات تسجيل الدخول غير صحيحة' }, 401);
-    }
-
-    return res.json({
-      success: true,
-      token: result.session.secret,
-      user: {
-        username: result.user.mobile,
-        role: result.user.role,
-        isActive: result.user.isActive
+      if (!loginIdentifier || !password) {
+        return res.status(400).json({ error: 'Mobile and password required' });
       }
-    }, 200, { 'Access-Control-Allow-Origin': '*' });
+
+      const user = users.verifyPassword(loginIdentifier, password);
+
+      if (!user) {
+        return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
+      }
+
+      const token = generateToken(user.mobile, user.role, user.is_active === 1);
+
+      return res.status(200).json({
+        success: true,
+        token,
+        user: {
+          username: user.mobile,
+          role: user.role,
+          isActive: user.is_active === 1
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      return res.status(500).json({ error: 'Login failed' });
+    }
   }
 
   // REGISTER
-  if ((path === 'register' || path === '/register' || req.path === '/register') && req.method === 'POST') {
-    const { mobile, password, name = '' } = req.body || {};
-    if (!mobile || !password) {
-      return res.json({ error: 'Mobile and password required' }, 400);
-    }
+  if ((path === 'register' || path === '/register') && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const { mobile, password, name = '' } = body || {};
 
-    const result = await createUser(mobile, password, name);
-
-    if (!result.success) {
-      if (result.error.includes('user') || result.error.includes('exists')) {
-        return res.json({ error: 'هذا الرقم مسجل بالفعل' }, 409);
+      if (!mobile || !password) {
+        return res.status(400).json({ error: 'Mobile and password required' });
       }
-      return res.json({ error: 'فشل التسجيل' }, 500);
-    }
 
-    return res.json({
-      success: true,
-      message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.',
-      user: { mobile, role: 'broker', isActive: false }
-    }, 201, { 'Access-Control-Allow-Origin': '*' });
+      const result = users.create(mobile, password, name);
+
+      if (!result.success) {
+        if (result.error.includes('exists')) {
+          return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
+        }
+        return res.status(500).json({ error: 'فشل التسجيل' });
+      }
+
+      return res.status(201).json({ message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.' });
+    } catch (error) {
+      console.error('Register error:', error);
+      return res.status(500).json({ error: 'Registration failed' });
+    }
   }
 
   // VERIFY
-  if ((path === 'verify' || path === '/verify' || req.path === '/verify') && req.method === 'GET') {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    if (!token) return res.json({ authenticated: false }, 401);
-
-    const result = await getUserBySession(token);
-
-    if (!result.success) {
-      return res.json({ authenticated: false }, 401);
-    }
-
-    return res.json({
-      authenticated: true,
-      user: {
-        username: result.user.mobile,
-        role: result.user.role,
-        isActive: result.user.isActive,
-        subscriptionEndDate: result.user.subscriptionEndDate || null
+  if ((path === 'verify' || path === '/verify') && req.method === 'GET') {
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      
+      if (!token) {
+        return res.status(401).json({ authenticated: false });
       }
-    }, 200, { 'Access-Control-Allow-Origin': '*' });
+
+      const { verifyToken } = require('../lib/sqlite');
+      const payload = verifyToken(token);
+
+      if (!payload) {
+        return res.status(401).json({ authenticated: false });
+      }
+
+      const user = users.findByMobile(payload.mobile);
+
+      if (!user) {
+        return res.status(401).json({ authenticated: false });
+      }
+
+      return res.status(200).json({
+        authenticated: true,
+        user: {
+          username: user.mobile,
+          role: user.role,
+          isActive: user.is_active === 1,
+          subscriptionEndDate: user.subscription_end_date || null
+        }
+      });
+    } catch (error) {
+      console.error('Verify error:', error);
+      return res.status(401).json({ authenticated: false });
+    }
   }
 
-  return res.json({ error: 'Not found' }, 404);
+  return res.status(404).json({ error: 'Not found' });
 };

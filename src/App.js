@@ -3,7 +3,7 @@ import './App.css';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
-import { apiCall, APPWRITE_PROJECT_ID } from './appwriteConfig';
+import { apiCall } from './apiConfig';
 import InstallPrompt from './InstallPrompt';
 
 function App() {

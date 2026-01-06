@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { apiCall } from './appwriteConfig';
+import { apiCall } from './apiConfig';
 import './Profile.css';
 
 function Profile({ onClose }) {

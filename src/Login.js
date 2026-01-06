@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { auth, apiCall } from './appwriteConfig';
+import { apiCall } from './apiConfig';
 import './Login.css';
 
 function Login({ onLogin, onSwitchToRegister, onBackToHome }) {

@@ -1,2 +1,0 @@
-# Ignore helper files from being treated as serverless functions
-api/_lib/

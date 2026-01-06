@@ -3,22 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "appwrite": "^16.0.2",
-    "@vercel/analytics": "^1.5.0",
-    "node-appwrite": "^14.1.0",
+    "sql.js": "^1.10.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && node -e \"const fs=require('fs'); if(fs.existsSync('dist')){fs.rmSync('dist',{recursive:true,force:true})}; fs.cpSync('build','dist',{recursive:true})\"",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "setup:appwrite": "node scripts/setup-appwrite-db.js",
-    "migrate:appwrite": "node scripts/migrate-to-appwrite.js",
-    "deploy:appwrite": "npm run build && node scripts/setup-appwrite-db.js",
-    "dev:api": "node scripts/local-server.js"
+    "server": "node server.js",
+    "dev": "concurrently \"npm start\" \"npm run server\""
   },
   "eslintConfig": {
     "extends": [
@@ -40,6 +38,7 @@
   },
   "devDependencies": {
     "sharp": "^0.34.5",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "concurrently": "^8.2.2"
   }
 }

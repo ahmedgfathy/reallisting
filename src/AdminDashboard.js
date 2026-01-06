@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { adminAPI, apiCall } from './appwriteConfig';
+import { apiCall } from './apiConfig';
 import './AdminDashboard.css';
 
 function AdminDashboard({ onClose }) {

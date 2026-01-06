@@ -1,84 +1,118 @@
-# Reallisting - Real Estate Platform
+# Real Estate Listing App - SQLite Version
 
-Modern real estate listing platform built with React and Supabase.
+A real estate listing application using React frontend and Node.js/Express backend with SQLite database.
 
-## 🚀 Quick Start
+## Features
 
+- User registration and authentication
+- Browse real estate listings with filters
+- Admin dashboard for user management
+- Message management system
+- Region-based filtering
+- Responsive design with PWA support
+
+## Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+
+## Installation
+
+1. Install dependencies:
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start development server
-./scripts/start.sh
-# or
+2. The SQLite database will be automatically created in the `data/` folder on first run.
+
+## Development
+
+Run both frontend and backend together:
+```bash
+npm run dev
+```
+
+Or run them separately:
+
+Frontend (React):
+```bash
 npm start
+```
 
-# Build for production
+Backend (Express API):
+```bash
+npm run server
+```
+
+The frontend will run on `http://localhost:3000` and the backend API on `http://localhost:5001`.
+
+## Production Build
+
+Build the React app:
+```bash
 npm run build
 ```
 
-## 📁 Project Structure
+Run the production server:
+```bash
+NODE_ENV=production npm run server
+```
+
+## Project Structure
 
 ```
 reallisting/
-├── api/                           # Serverless API endpoints
-│   ├── clean-mobiles-cron.js     # Automated mobile number cleaning
-│   └── ...
-├── src/                           # React application source
-├── public/                        # Static assets
-├── scripts/                       # Utility scripts
-│   ├── start.sh                  # Development server startup
-│   ├── data-cleaning/            # Contact info cleaning scripts
-│   │   ├── clean-mobile-numbers-fast.js
-│   │   ├── clean-contact-info-enhanced.js
-│   │   └── ...
-│   ├── database-scripts/         # Database schema & migrations
-│   ├── generate-icons.js         # Icon generation
-│   └── archive/                  # Legacy migration scripts
-├── docs/                          # Documentation
-│   └── technical/                # Technical documentation
-└── build/                        # Production build output
+├── api/              # API route handlers
+│   ├── auth.js       # Authentication endpoints
+│   ├── messages.js   # Messages endpoints
+│   ├── admin.js      # Admin endpoints
+│   ├── regions.js    # Regions endpoints
+│   ├── stats.js      # Statistics endpoints
+│   └── profile.js    # User profile endpoints
+├── data/             # SQLite database location (auto-created)
+├── lib/              # Backend libraries
+│   └── sqlite.js     # SQLite database module
+├── public/           # Static files
+├── src/              # React frontend source
+│   ├── App.js        # Main app component
+│   ├── Login.js      # Login component
+│   ├── Register.js   # Registration component
+│   ├── AdminDashboard.js  # Admin panel
+│   └── apiConfig.js  # API configuration
+├── server.js         # Express server
+└── package.json      # Dependencies
+
 ```
 
-## 🗂️ Documentation
+## API Endpoints
 
-- [Implementation Summary](docs/technical/IMPLEMENTATION_SUMMARY.md)
-- [Contact Info Cleaning](docs/technical/CONTACT_CLEANING_README.md)
-- [Password Reset Feature](docs/technical/PASSWORD_RESET_IMPLEMENTATION.md)
-- [WhatsApp Import Guide](docs/technical/WHATSAPP_IMPORT_GUIDE.md) 📥 NEW
-- [WhatsApp Import Quick Start](docs/WHATSAPP_IMPORT_README.md) 📥 NEW
+- `POST /api/auth/login` - User login
+- `POST /api/auth/register` - User registration
+- `GET /api/auth/verify` - Verify JWT token
+- `GET /api/messages` - Get messages (with filters)
+- `GET /api/admin/users` - Get all users (admin only)
+- `POST /api/admin/:userId/status` - Update user status (admin only)
+- `DELETE /api/admin/messages` - Delete messages (admin only)
+- `GET /api/regions` - Get all regions
+- `GET /api/stats` - Get statistics
+- `GET /api/profile` - Get user profile
+- `PUT /api/profile` - Update user profile
 
-## 🛠️ Tech Stack
+## Default Admin
 
-- **Frontend**: React, CSS
-- **Backend**: Vercel Serverless Functions
-- **Database**: Supabase (PostgreSQL)
-- **Deployment**: Vercel
+To create an admin user, you need to manually update the database after registering:
 
-## 🔐 Environment Variables
-
-Copy `.env.example` to `.env` and configure:
-
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-JWT_SECRET=your_jwt_secret
-ADMIN_PASSWORD=your_admin_password
+```sql
+UPDATE users SET role = 'admin', is_active = 1 WHERE mobile = 'YOUR_MOBILE_NUMBER';
 ```
 
-## 📦 Available Scripts
+## Environment Variables
 
-- `npm start` - Start development server
-- `npm run build` - Build for production
-- `npm test` - Run tests
-- `npm run eject` - Eject from Create React App
+See `.env` file for configuration options:
+- `JWT_SECRET` - Secret key for JWT tokens
+- `PORT` - Server port (default: 5001)
+- `NODE_ENV` - Environment (development/production)
 
-## 🌐 Deployment
+## License
 
-The app is configured for Vercel deployment. Push to the `glomart` branch to deploy.
-
-## 📝 License
-
-Private - All rights reserved
+MIT

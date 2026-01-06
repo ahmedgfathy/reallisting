@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { auth } from './appwriteConfig';
+import { apiCall } from './apiConfig';
 import './Register.css';
 
 function Register({ onRegister, onSwitchToLogin, onBackToHome }) {

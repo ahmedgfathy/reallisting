@@ -1,73 +1,121 @@
-module.exports = async (context) => {
-  const { req, res, log, error } = context;
-  const { getAllUsers, updateUserStatus, deleteMessages, getUserBySession, isConfigured, getConfigError } = require('./lib_appwrite');
+const { users, messages, verifyToken, corsHeaders } = require('../lib/sqlite');
 
-  if (req.method === 'OPTIONS') {
-    return res.text('', 200, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
     });
+  });
+}
+
+module.exports = async (req, res) => {
+  // Handle CORS
+  if (req.method === 'OPTIONS') {
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+    return res.status(200).end();
   }
 
-  if (!isConfigured()) {
-    return res.json(getConfigError(), 500);
-  }
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
 
+  // Check authentication
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) {
-    return res.json({ error: 'Unauthorized' }, 401);
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
-  const userResult = await getUserBySession(token);
-  if (!userResult.success || userResult.user.role !== 'admin') {
-    return res.json({ error: 'Forbidden - Admin access required' }, 403);
+  const payload = verifyToken(token);
+  if (!payload || payload.role !== 'admin') {
+    return res.status(403).json({ error: 'Forbidden - Admin access required' });
   }
 
-  const path = req.query.path || (req.path ? req.path.replace('/api/admin', '').replace(/^\//, '') : '');
+  const path = req.query.path || req.url.split('?')[0].replace('/api/admin', '');
 
   // GET ALL USERS
-  if ((path === 'users' || path === '/users' || req.path === '/users') && req.method === 'GET') {
-    const result = await getAllUsers();
+  if ((path === 'users' || path === '/users') && req.method === 'GET') {
+    try {
+      const allUsers = users.getAll();
+      
+      const formattedUsers = allUsers.map(user => ({
+        id: user.id,
+        mobile: user.mobile,
+        name: user.name,
+        role: user.role,
+        isActive: user.is_active === 1,
+        subscriptionEndDate: user.subscription_end_date || null,
+        createdAt: user.created_at
+      }));
 
-    if (!result.success) {
-      return res.json({ error: result.error }, 500);
+      return res.status(200).json(formattedUsers);
+    } catch (error) {
+      console.error('Get users error:', error);
+      return res.status(500).json({ error: 'Failed to fetch users' });
     }
-
-    const users = result.data.map(user => ({
-      id: user.$id,
-      mobile: user.mobile,
-      role: user.role,
-      isActive: user.isActive,
-      subscriptionEndDate: user.subscriptionEndDate || null,
-      createdAt: user.$createdAt
-    }));
-
-    return res.json(users, 200, { 'Access-Control-Allow-Origin': '*' });
   }
 
   // UPDATE USER STATUS
   if (path.includes('/status') && req.method === 'POST') {
-    const userId = path.split('/')[0]; // Assuming path is "userId/status"
-    const { isActive } = req.body || {};
+    try {
+      const userId = path.split('/')[0];
+      const body = await parseBody(req);
+      const { isActive } = body || {};
 
-    const result = await updateUserStatus(userId, isActive);
+      users.updateActive(userId, isActive);
 
-    if (!result.success) {
-      return res.json({ error: result.error }, 500);
-    }
+      const user = users.findById(userId);
 
-    return res.json({
-      success: true,
-      user: {
-        id: result.data.$id,
-        mobile: result.data.mobile,
-        role: result.data.role,
-        isActive: result.data.isActive,
-        subscriptionEndDate: result.data.subscriptionEndDate
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
       }
-    }, 200, { 'Access-Control-Allow-Origin': '*' });
+
+      return res.status(200).json({
+        success: true,
+        user: {
+          id: user.id,
+          mobile: user.mobile,
+          role: user.role,
+          isActive: user.is_active === 1,
+          subscriptionEndDate: user.subscription_end_date
+        }
+      });
+    } catch (error) {
+      console.error('Update status error:', error);
+      return res.status(500).json({ error: 'Failed to update user status' });
+    }
   }
 
-  return res.json({ error: 'Not found' }, 404);
+  // DELETE MESSAGES
+  if ((path === 'messages' || path === '/messages') && req.method === 'DELETE') {
+    try {
+      const body = await parseBody(req);
+      const { messageIds } = body || {};
+
+      if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) {
+        return res.status(400).json({ error: 'Invalid message IDs' });
+      }
+
+      const result = messages.deleteMultiple(messageIds);
+
+      return res.status(200).json({
+        success: true,
+        deletedCount: result.deletedCount
+      });
+    } catch (error) {
+      console.error('Delete messages error:', error);
+      return res.status(500).json({ error: 'Failed to delete messages' });
+    }
+  }
+
+  return res.status(404).json({ error: 'Not found' });
 };

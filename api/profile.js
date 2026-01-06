@@ -1,63 +1,120 @@
-module.exports = async (context) => {
-  const { req, res, log, error } = context;
-  const { getUserProfile, updatePassword, getUserBySession, users, isConfigured, getConfigError } = require('./lib_appwrite');
+const { users, verifyToken, corsHeaders } = require('../lib/sqlite');
 
-  if (req.method === 'OPTIONS') {
-    return res.text('', 200, {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    });
-  }
-
-  if (!isConfigured()) {
-    return res.json(getConfigError(), 500);
-  }
-
-  // Verify user token
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.json({ error: 'No token provided' }, 401);
-
-  const userResult = await getUserBySession(token);
-  if (!userResult.success) return res.json({ error: 'Invalid token' }, 401);
-
-  const user = userResult.user;
-
-  // GET: Get user profile
-  if (req.method === 'GET') {
-    return res.json({
-      user: {
-        mobile: user.mobile,
-        role: user.role,
-        isActive: user.isActive,
-        subscriptionEndDate: user.subscriptionEndDate
-      }
-    }, 200, { 'Access-Control-Allow-Origin': '*' });
-  }
-
-  // PUT: Update user profile (password only)
-  if (req.method === 'PUT') {
-    const { currentPassword, newPassword } = req.body || {};
-
-    if (newPassword) {
-      if (!currentPassword) {
-        return res.json({ error: 'يجب إدخال كلمة المرور الحالية' }, 400);
-      }
-
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
       try {
-        // Appwrite server SDK users.updatePassword(userId, password)
-        // Note: This doesn't verify the current password, so we assume the session is enough
-        // or we would have to re-auth. For now, since it's a secure function on the server,
-        // we follow the pattern.
-        await users.updatePassword(user.$id, newPassword);
-      } catch (err) {
-        error('Password update error: ' + err.message);
-        return res.json({ error: 'فشل تحديث كلمة المرور: ' + err.message }, 500);
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
       }
-    }
+    });
+  });
+}
 
-    return res.json({ success: true, message: 'تم التحديث بنجاح' }, 200, { 'Access-Control-Allow-Origin': '*' });
+module.exports = async (req, res) => {
+  // Handle CORS
+  if (req.method === 'OPTIONS') {
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+    return res.status(200).end();
   }
 
-  return res.json({ error: 'Method not allowed' }, 405);
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
+  // Check authentication
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const payload = verifyToken(token);
+  if (!payload) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // GET Profile
+  if (req.method === 'GET') {
+    try {
+      const user = users.findByMobile(payload.mobile);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.status(200).json({
+        mobile: user.mobile,
+        name: user.name,
+        role: user.role,
+        isActive: user.is_active === 1,
+        subscriptionEndDate: user.subscription_end_date || null
+      });
+    } catch (error) {
+      console.error('Get profile error:', error);
+      return res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+  }
+
+  // PUT: Update user profile
+  if (req.method === 'PUT') {
+    try {
+      const body = await parseBody(req);
+      const { name, currentPassword, newPassword } = body || {};
+
+      const user = users.findByMobile(payload.mobile);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Update name if provided
+      if (name !== undefined) {
+        const stmt = require('../lib/sqlite').db.prepare('UPDATE users SET name = ? WHERE mobile = ?');
+        stmt.run(name, payload.mobile);
+      }
+
+      // Update password if provided
+      if (newPassword) {
+        if (!currentPassword) {
+          return res.status(400).json({ error: 'يجب إدخال كلمة المرور الحالية' });
+        }
+
+        const verifiedUser = users.verifyPassword(payload.mobile, currentPassword);
+        if (!verifiedUser) {
+          return res.status(401).json({ error: 'كلمة المرور الحالية غير صحيحة' });
+        }
+
+        const { hashPassword } = require('crypto');
+        const newHash = require('../lib/sqlite').db.prepare('SELECT ?').get(require('crypto').createHash('sha256').update(newPassword + (process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure')).digest('hex'));
+        const stmt = require('../lib/sqlite').db.prepare('UPDATE users SET password = ? WHERE mobile = ?');
+        stmt.run(require('crypto').createHash('sha256').update(newPassword + (process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure')).digest('hex'), payload.mobile);
+      }
+
+      const updatedUser = users.findByMobile(payload.mobile);
+
+      return res.status(200).json({
+        success: true,
+        message: newPassword ? 'تم تحديث الملف الشخصي وكلمة المرور بنجاح' : 'تم تحديث الملف الشخصي بنجاح',
+        user: {
+          mobile: updatedUser.mobile,
+          name: updatedUser.name,
+          role: updatedUser.role,
+          isActive: updatedUser.is_active === 1,
+          subscriptionEndDate: updatedUser.subscription_end_date || null
+        }
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      return res.status(500).json({ error: 'Failed to update profile' });
+    }
+  }
+
+  return res.status(405).json({ error: 'Method not allowed' });
 };
