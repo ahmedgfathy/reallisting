@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
   // GET Profile
   if (req.method === 'GET') {
     try {
-      const user = users.findByMobile(payload.mobile);
+      const user = await users.findByMobile(payload.mobile);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
       const body = await parseBody(req);
       const { name, currentPassword, newPassword } = body || {};
 
-      const user = users.findByMobile(payload.mobile);
+      const user = await users.findByMobile(payload.mobile);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -86,7 +86,7 @@ module.exports = async (req, res) => {
           return res.status(400).json({ error: 'يجب إدخال كلمة المرور الحالية' });
         }
 
-        const verifiedUser = users.verifyPassword(payload.mobile, currentPassword);
+        const verifiedUser = await users.verifyPassword(payload.mobile, currentPassword);
         if (!verifiedUser) {
           return res.status(401).json({ error: 'كلمة المرور الحالية غير صحيحة' });
         }
@@ -97,7 +97,7 @@ module.exports = async (req, res) => {
         stmt.run(require('crypto').createHash('sha256').update(newPassword + (process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure')).digest('hex'), payload.mobile);
       }
 
-      const updatedUser = users.findByMobile(payload.mobile);
+      const updatedUser = await users.findByMobile(payload.mobile);
 
       return res.status(200).json({
         success: true,

@@ -2,6 +2,28 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { apiCall } from './apiConfig';
 import './AdminDashboard.css';
 
+const adminAPI = {
+  getUsers: async () => {
+    const res = await apiCall('/api/admin/users', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch users');
+    return res.json();
+  },
+  updateUserStatus: async (userId, isActive) => {
+    const res = await apiCall(`/api/admin/${userId}/status`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ isActive })
+    });
+    if (!res.ok) throw new Error('Failed to update status');
+    return res.json();
+  }
+};
+
 function AdminDashboard({ onClose }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);

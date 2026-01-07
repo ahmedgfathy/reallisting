@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stats = messages.getStats();
+    const stats = await messages.getStats();
     return res.status(200).json(stats);
   } catch (error) {
     console.error('Stats error:', error);

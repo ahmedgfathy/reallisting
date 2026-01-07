@@ -2,6 +2,8 @@
 
 # dependencies
 /node_modules
+/mcp/node_modules
+/api/node_modules
 /.pnp
 .pnp.js
 
@@ -20,6 +22,8 @@
 .env.production.local
 messages_export.json
 users_export.json
+whatsapp-chat.txt
+data/
 
 npm-debug.log*
 yarn-debug.log*

@@ -2,6 +2,22 @@ import React, { useState } from 'react';
 import { apiCall } from './apiConfig';
 import './Login.css';
 
+const auth = {
+  login: async (username, password) => {
+    const res = await apiCall('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, mobile: username, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      return { success: true, user: data.user };
+    }
+    return { success: false, error: data.error };
+  }
+};
+
 function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
     }
 
     // Get messages from SQLite
-    const result = messages.get({
+    const result = await messages.get({
       page: parseInt(page),
       limit: parseInt(limit),
       search,

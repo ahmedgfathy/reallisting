@@ -17,6 +17,11 @@ app.use('/api/regions', require('./api/regions'));
 app.use('/api/stats', require('./api/stats'));
 app.use('/api/profile', require('./api/profile'));
 
+// Health/root check for direct hits to port 5001
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'API server running', apiBase: '/api' });
+});
+
 // Serve React app in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'build')));

@@ -2,6 +2,21 @@ import React, { useState } from 'react';
 import { apiCall } from './apiConfig';
 import './Register.css';
 
+const auth = {
+  register: async (mobile, password) => {
+    const res = await apiCall('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mobile, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      return { success: true, message: data.message };
+    }
+    return { success: false, error: data.error };
+  }
+};
+
 function Register({ onRegister, onSwitchToLogin, onBackToHome }) {
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');

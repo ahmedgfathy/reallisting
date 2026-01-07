@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Mobile and password required' });
       }
 
-      const user = users.verifyPassword(loginIdentifier, password);
+      const user = await users.verifyPassword(loginIdentifier, password);
 
       if (!user) {
         return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
@@ -75,7 +75,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Mobile and password required' });
       }
 
-      const result = users.create(mobile, password, name);
+      const result = await users.create(mobile, password, name);
 
       if (!result.success) {
         if (result.error.includes('exists')) {
@@ -107,7 +107,7 @@ module.exports = async (req, res) => {
         return res.status(401).json({ authenticated: false });
       }
 
-      const user = users.findByMobile(payload.mobile);
+      const user = await users.findByMobile(payload.mobile);
 
       if (!user) {
         return res.status(401).json({ authenticated: false });

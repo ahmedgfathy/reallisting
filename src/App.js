@@ -3,7 +3,7 @@ import './App.css';
 import Login from './Login';
 import Register from './Register';
 import AdminDashboard from './AdminDashboard';
-import { apiCall } from './apiConfig';
+import { apiCall, APPWRITE_PROJECT_ID } from './apiConfig';
 import InstallPrompt from './InstallPrompt';
 
 function App() {
@@ -202,9 +202,10 @@ function App() {
     try {
       const response = await apiCall('/api/regions');
       const data = await response.json();
-      setRegions(data);
+      setRegions(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching regions:', err);
+      setRegions([]);
     }
   }, []);
 
@@ -501,11 +502,8 @@ function App() {
             <p>يرجى التحقق من:</p>
             <ul style={{ textAlign: 'right', marginTop: '10px' }}>
               <li>اتصال الإنترنت</li>
-              <li>إعدادات Appwrite Project ID و API Key</li>
-              <li>حالة الخادم (Appwrite Cloud Status)</li>
-              <li style={{ color: '#aaa', fontSize: '0.8em', marginTop: '15px' }}>
-                Project ID used: {APPWRITE_PROJECT_ID}
-              </li>
+              <li>حالة الخادم</li>
+              <li>الرجاء التأكد من تشغيل الخادم المحلي (npm run server)</li>
             </ul>
             <p>أو حاول مرة أخرى لاحقاً.</p>
           </div>

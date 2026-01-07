@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
   // GET ALL USERS
   if ((path === 'users' || path === '/users') && req.method === 'GET') {
     try {
-      const allUsers = users.getAll();
+      const allUsers = await users.getAll();
       
       const formattedUsers = allUsers.map(user => ({
         id: user.id,
@@ -71,9 +71,9 @@ module.exports = async (req, res) => {
       const body = await parseBody(req);
       const { isActive } = body || {};
 
-      users.updateActive(userId, isActive);
+      await users.updateActive(userId, isActive);
 
-      const user = users.findById(userId);
+      const user = await users.findById(userId);
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
@@ -105,7 +105,7 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid message IDs' });
       }
 
-      const result = messages.deleteMultiple(messageIds);
+      const result = await messages.deleteMultiple(messageIds);
 
       return res.status(200).json({
         success: true,
