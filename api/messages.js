@@ -1,4 +1,4 @@
-const { messages, verifyToken, corsHeaders } = require('../lib/sqlite');
+const { messages, verifyToken, corsHeaders } = require('../lib/mariadb');
 
 module.exports = async (req, res) => {
   // Handle CORS

@@ -1,4 +1,4 @@
-const { users, verifyToken, corsHeaders } = require('../lib/sqlite');
+const { users, verifyToken, corsHeaders } = require('../lib/mariadb');
 
 // Helper to parse request body
 async function parseBody(req) {

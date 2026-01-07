@@ -1,4 +1,4 @@
-const { regions, corsHeaders } = require('../lib/sqlite');
+const { regions, corsHeaders } = require('../lib/mariadb');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const allRegions = regions.getAll();
+    const allRegions = await regions.getAll();
 
     const regionNames = allRegions.map(r => r.name).filter(Boolean);
 
