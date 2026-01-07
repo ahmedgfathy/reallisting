@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { messages } = require('../lib/sqlite');
+const { messages } = require('../lib/mariadb');
 
 const WHATSAPP_CHAT_FILE = path.join(__dirname, '..', 'whatsapp-chat.txt');
 
