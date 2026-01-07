@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { messages } = require('../lib/mariadb');
+const { messages, users, regions } = require('../lib/mariadb');
 
 const WHATSAPP_CHAT_FILE = path.join(__dirname, '..', 'whatsapp-chat.txt');
 
@@ -63,16 +63,14 @@ function parseWhatsAppDate(dateStr) {
 
     const date = new Date(fullYear, month - 1, day, hours, minutes);
     
-    // Check if date is valid
+    // Check if date is valid and return null if invalid/future
     if (isNaN(date.getTime())) {
-      console.warn(`Invalid date: ${dateStr}, using current date`);
-      return new Date().toISOString();
+      return null;
     }
     
     return date.toISOString();
   } catch (err) {
-    console.warn(`Error parsing date: ${dateStr}, using current date`);
-    return new Date().toISOString();
+    return null;
   }
 }
 
@@ -114,9 +112,9 @@ function categorizeMessage(text) {
   else if (lower.includes('للايجار') || lower.includes('للإيجار') || lower.includes('ايجار')) purpose = 'إيجار';
   else if (lower.includes('مطلوب')) purpose = 'مطلوب';
   
-  // Region detection (حي XX pattern)
+  // Region detection (حي XX pattern) - avoid phone numbers
   let region = 'أخرى';
-  const regionMatch = text.match(/(?:حي|الحي)\s*(\d+)/);
+  const regionMatch = text.match(/(?:حي|الحي)\s*(\d{1,3})(?!\d)/);
   if (regionMatch) {
     region = `الحي ${regionMatch[1]}`;
   }
@@ -135,6 +133,57 @@ async function importMessages() {
   const entries = parseWhatsAppChat(WHATSAPP_CHAT_FILE);
   console.log(`📊 Found ${entries.length} messages`);
 
+  // Collect unique users and regions
+  const uniqueUsers = new Map();
+  const uniqueRegions = new Set();
+
+  console.log('\n📋 Analyzing data...');
+  for (const entry of entries) {
+    if (entry.mobile && entry.mobile.startsWith('01') && entry.mobile.length === 11) {
+      if (!uniqueUsers.has(entry.mobile)) {
+        uniqueUsers.set(entry.mobile, entry.sender);
+      }
+    }
+    
+    const { region } = categorizeMessage(entry.message);
+    if (region !== 'أخرى') {
+      uniqueRegions.add(region);
+    }
+  }
+
+  // Create users
+  console.log(`\n👥 Creating ${uniqueUsers.size} users...`);
+  let usersCreated = 0;
+  for (const [mobile, name] of uniqueUsers) {
+    try {
+      await users.create({
+        mobile,
+        password: 'default123', // Default password
+        name: name || mobile,
+        role: 'broker',
+        isActive: 1
+      });
+      usersCreated++;
+    } catch (err) {
+      // User might already exist, skip
+    }
+  }
+  console.log(`✅ Created ${usersCreated} users`);
+
+  // Create regions
+  console.log(`\n🗺️  Creating ${uniqueRegions.size} regions...`);
+  let regionsCreated = 0;
+  for (const regionName of uniqueRegions) {
+    try {
+      await regions.create(regionName);
+      regionsCreated++;
+    } catch (err) {
+      // Region might already exist, skip
+    }
+  }
+  console.log(`✅ Created ${regionsCreated} regions`);
+
+  console.log('\n📥 Importing messages...');
   let imported = 0;
   let skipped = 0;
 
@@ -157,7 +206,7 @@ async function importMessages() {
         message: entry.message,
         sender_name: entry.sender,
         sender_mobile: entry.mobile || (phones[0] || ''),
-        date_of_creation: entry.date,
+        date_of_creation: entry.date || new Date('2021-01-01').toISOString(),
         source_file: 'whatsapp-chat.txt',
         image_url: '',
         category: purpose === 'مطلوب' ? 'مطلوب' : 'معروض',
