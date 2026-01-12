@@ -122,7 +122,7 @@ function App() {
 
       try {
         const response = await apiCall('/api/auth?path=verify', {
-          headers: { Authorization: `Bearer ${token} ` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         const data = await response.json();
 
