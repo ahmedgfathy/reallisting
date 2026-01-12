@@ -8,6 +8,7 @@ const adminHandler = require('./admin');
 const regionsHandler = require('./regions');
 const statsHandler = require('./stats');
 const profileHandler = require('./profile');
+const importWhatsappHandler = require('./import-whatsapp');
 
 module.exports = async (req, res) => {
   // Add CORS headers
@@ -25,6 +26,8 @@ module.exports = async (req, res) => {
   // Route to appropriate handler
   if (path.startsWith('auth')) {
     return authHandler(req, res);
+  } else if (path.startsWith('import-whatsapp')) {
+    return importWhatsappHandler(req, res);
   } else if (path.startsWith('messages')) {
     return messagesHandler(req, res);
   } else if (path.startsWith('admin')) {
