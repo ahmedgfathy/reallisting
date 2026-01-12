@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { regions, users, initDatabase } = require('./lib/supabase');
 
 async function initializeDatabase() {
