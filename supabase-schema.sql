@@ -57,23 +57,30 @@ ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE regions ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for users table
+-- Create policies for users table
+DROP POLICY IF EXISTS "Allow anonymous read access to users" ON users;
 CREATE POLICY "Allow anonymous read access to users" ON users
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow service role full access to users" ON users;
 CREATE POLICY "Allow service role full access to users" ON users
   FOR ALL USING (true);
 
 -- Create policies for messages table
+DROP POLICY IF EXISTS "Allow anonymous read access to messages" ON messages;
 CREATE POLICY "Allow anonymous read access to messages" ON messages
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow service role full access to messages" ON messages;
 CREATE POLICY "Allow service role full access to messages" ON messages
   FOR ALL USING (true);
 
 -- Create policies for regions table
+DROP POLICY IF EXISTS "Allow anonymous read access to regions" ON regions;
 CREATE POLICY "Allow anonymous read access to regions" ON regions
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow service role full access to regions" ON regions;
 CREATE POLICY "Allow service role full access to regions" ON regions
   FOR ALL USING (true);
 

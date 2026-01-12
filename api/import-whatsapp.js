@@ -6,11 +6,11 @@ const MAX_CHUNK_SIZE = 3 * 1024 * 1024; // 3MB to stay under 4.5MB limit
 // Helper to parse request body
 async function parseBody(req) {
   if (req.body) return req.body;
-  
+
   return new Promise((resolve) => {
     let body = '';
-    req.on('data', chunk => { 
-      body += chunk.toString(); 
+    req.on('data', chunk => {
+      body += chunk.toString();
     });
     req.on('end', () => {
       try {
@@ -32,50 +32,50 @@ async function parseBody(req) {
 function parseWhatsAppText(text) {
   const lines = text.split('\n');
   const parsedMessages = [];
-  
+
   // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Sender Name: Message
   // or: DD/MM/YYYY, HH:MM - Sender Name: Message
   const messageRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AP]M)?)\]?\s*-?\s*([^:]+):\s*(.+)$/i;
-  
+
   let currentMessage = null;
-  
+
   for (const line of lines) {
     const match = line.match(messageRegex);
-    
+
     if (match) {
       // Save previous message if exists
       if (currentMessage) {
         parsedMessages.push(currentMessage);
       }
-      
+
       const [, date, time, sender, messageText] = match;
-      
+
       // Parse date (handle DD/MM/YYYY or DD/MM/YY)
       const dateParts = date.split('/');
       let day = parseInt(dateParts[0]);
       let month = parseInt(dateParts[1]) - 1; // JS months are 0-indexed
       let year = parseInt(dateParts[2]);
-      
+
       // Handle 2-digit years
       if (year < 100) {
         year += 2000;
       }
-      
+
       // Parse time
       const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M))?/i);
       let hours = parseInt(timeParts[1]);
       const minutes = parseInt(timeParts[2]);
       const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
       const ampm = timeParts[4];
-      
+
       // Convert to 24-hour format if needed
       if (ampm) {
         if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
         if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
       }
-      
+
       const messageDate = new Date(year, month, day, hours, minutes, seconds);
-      
+
       currentMessage = {
         sender: sender.trim(),
         message: messageText.trim(),
@@ -86,12 +86,12 @@ function parseWhatsAppText(text) {
       currentMessage.message += '\n' + line;
     }
   }
-  
+
   // Add last message
   if (currentMessage) {
     parsedMessages.push(currentMessage);
   }
-  
+
   return parsedMessages;
 }
 
@@ -107,20 +107,20 @@ function extractMobileNumber(text) {
 // Extract region from message
 function extractRegion(messageText, availableRegions) {
   const text = messageText.toLowerCase();
-  
+
   for (const region of availableRegions) {
     if (text.includes(region.name.toLowerCase())) {
       return region.name;
     }
   }
-  
+
   return 'أخرى';
 }
 
 // Classify message
 function classifyMessage(messageText) {
   const text = messageText.toLowerCase();
-  
+
   // Category
   let category = 'أخرى';
   if (text.includes('عقار') || text.includes('عقارات')) category = 'عقار';
@@ -129,7 +129,7 @@ function classifyMessage(messageText) {
   if (text.includes('أرض') || text.includes('ارض')) category = 'أرض';
   if (text.includes('محل') || text.includes('محلات')) category = 'محل';
   if (text.includes('مكتب')) category = 'مكتب';
-  
+
   // Property type
   let propertyType = 'أخرى';
   if (text.includes('شقة')) propertyType = 'شقة';
@@ -137,13 +137,13 @@ function classifyMessage(messageText) {
   if (text.includes('دور')) propertyType = 'دور';
   if (text.includes('أرض')) propertyType = 'أرض';
   if (text.includes('عمارة')) propertyType = 'عمارة';
-  
+
   // Purpose
   let purpose = 'أخرى';
   if (text.includes('للبيع') || text.includes('بيع')) purpose = 'بيع';
   if (text.includes('للإيجار') || text.includes('ايجار') || text.includes('إيجار')) purpose = 'إيجار';
   if (text.includes('مطلوب')) purpose = 'مطلوب';
-  
+
   return { category, propertyType, purpose };
 }
 
@@ -168,27 +168,18 @@ module.exports = async (req, res) => {
     // Verify admin token
     const token = req.headers.authorization?.replace('Bearer ', '');
     const payload = verifyToken(token);
-    
+
     if (!payload || payload.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
 
     const body = await parseBody(req);
-    console.log('Received body keys:', Object.keys(body));
-    
-    const { fileContent, fileName, filename } = body;
-    const finalFileName = fileName || filename || `whatsapp_${Date.now()}.txt`;
+    const { messages: parsedMessages, fileName } = body;
+    const finalFileName = fileName || `batch_${Date.now()}.txt`;
 
-    if (!fileContent || typeof fileContent !== 'string') {
-      console.error('Invalid file content');
-      return res.status(400).json({ error: 'No file content provided' });
+    if (!parsedMessages || !Array.isArray(parsedMessages)) {
+      return res.status(400).json({ error: 'Invalid messages format' });
     }
-
-    console.log(`📝 Processing WhatsApp chat: ${finalFileName}`);
-
-    // Parse WhatsApp messages
-    const parsedMessages = parseWhatsAppText(fileContent);
-    console.log(`📝 Parsed ${parsedMessages.length} messages`);
 
     // Get available regions
     const availableRegions = await regions.getAll();
@@ -196,8 +187,9 @@ module.exports = async (req, res) => {
     // Import messages
     let imported = 0;
     let skipped = 0;
-    const errors = [];
 
+    // Process in parallel for speed, but limit concurrency if needed
+    // For now simple sequential insert to ensure stability
     for (const msg of parsedMessages) {
       try {
         const mobile = extractMobileNumber(msg.message);
@@ -220,28 +212,24 @@ module.exports = async (req, res) => {
           imported++;
         } else {
           skipped++;
-          errors.push(`Message from ${msg.sender}: ${result.error}`);
         }
       } catch (error) {
         skipped++;
-        errors.push(`Error processing message: ${error.message}`);
+        console.error('Import insert error:', error.message);
       }
     }
-
-    console.log(`✅ Import complete: ${imported} imported, ${skipped} skipped`);
 
     return res.status(200).json({
       success: true,
       imported,
       skipped,
-      total: parsedMessages.length,
-      fileName: finalFileName
+      total: parsedMessages.length
     });
   } catch (error) {
     console.error('Import error:', error);
-    return res.status(500).json({ 
-      error: 'Failed to import WhatsApp chat',
-      details: error.message 
+    return res.status(500).json({
+      error: 'Failed to import batch',
+      details: error.message
     });
   }
 };

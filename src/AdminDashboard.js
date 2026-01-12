@@ -21,8 +21,75 @@ const adminAPI = {
     });
     if (!res.ok) throw new Error('Failed to update status');
     return res.json();
+  }, // Corrected: Moved the comma inside the object to separate properties
+  importMessagesBatch: async (messages, fileName) => {
+    const res = await apiCall('/api/import-whatsapp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ messages, fileName })
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to import batch');
+    }
+    return res.json();
   }
 };
+
+// WhatsApp parsing logic (moved from server)
+function parseWhatsAppText(text) {
+  const lines = text.split('\n');
+  const parsedMessages = [];
+
+  // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Sender Name: Message
+  // or: DD/MM/YYYY, HH:MM - Sender Name: Message
+  const messageRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AP]M)?)\]?\s*-?\s*([^:]+):\s*(.+)$/i;
+
+  let currentMessage = null;
+
+  for (const line of lines) {
+    const match = line.match(messageRegex);
+
+    if (match) {
+      if (currentMessage) parsedMessages.push(currentMessage);
+
+      const [, date, time, sender, messageText] = match;
+
+      const dateParts = date.split('/');
+      let day = parseInt(dateParts[0]);
+      let month = parseInt(dateParts[1]) - 1;
+      let year = parseInt(dateParts[2]);
+      if (year < 100) year += 2000;
+
+      const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M))?/i);
+      let hours = parseInt(timeParts[1]);
+      const minutes = parseInt(timeParts[2]);
+      const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
+      const ampm = timeParts[4];
+
+      if (ampm) {
+        if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+        if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+      }
+
+      const messageDate = new Date(year, month, day, hours, minutes, seconds);
+
+      currentMessage = {
+        sender: sender.trim(),
+        message: messageText.trim(),
+        date: messageDate.toISOString()
+      };
+    } else if (currentMessage && line.trim()) {
+      currentMessage.message += '\n' + line;
+    }
+  }
+
+  if (currentMessage) parsedMessages.push(currentMessage);
+  return parsedMessages;
+}
 
 function AdminDashboard({ onClose }) {
   const [users, setUsers] = useState([]);
@@ -263,57 +330,65 @@ function AdminDashboard({ onClose }) {
 
       setUploadProgress(30);
 
-      // Check file size and handle accordingly
-      const fileSizeKB = new Blob([fileContent]).size / 1024;
-      const MAX_SIZE_KB = 3000; // 3MB limit for Vercel
+      setUploadProgress(10);
 
-      if (fileSizeKB > MAX_SIZE_KB) {
-        throw new Error(`الملف كبير جداً (${Math.round(fileSizeKB / 1024)} MB). الحد الأقصى هو 3 MB. الرجاء تقسيم الملف إلى أجزاء أصغر.`);
+      // Parse messages on client side
+      let parsedMessages = [];
+      try {
+        parsedMessages = parseWhatsAppText(fileContent);
+      } catch (e) {
+        throw new Error('فشل في تحليل ملف المحادثة. تأكد من التنسيق.');
       }
 
-      // Upload and process in one call
-      const response = await apiCall('/api/import-whatsapp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          fileContent: fileContent,
-          fileName: filename
-        })
-      });
-
-      setUploadProgress(70);
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        throw new Error('Server returned invalid response. Please check if API is working.');
+      if (parsedMessages.length === 0) {
+        throw new Error('لم يتم العثور على رسائل في الملف. تأكد من التنسيق الصحيح.');
       }
 
-      const result = await response.json();
+      setUploadProgress(20);
 
-      if (!response.ok) {
-        throw new Error(result.error || 'فشل في استيراد البيانات');
+      // Batch processing
+      const BATCH_SIZE = 50;
+      const batches = [];
+      for (let i = 0; i < parsedMessages.length; i += BATCH_SIZE) {
+        batches.push(parsedMessages.slice(i, i + BATCH_SIZE));
+      }
+
+      let totalImported = 0;
+      let totalSkipped = 0;
+      let totalErrors = 0;
+
+      for (let i = 0; i < batches.length; i++) {
+        const batch = batches[i];
+
+        try {
+          const result = await adminAPI.importMessagesBatch(batch, filename);
+          totalImported += result.imported;
+          totalSkipped += result.skipped;
+        } catch (err) {
+          console.error('Batch import failed:', err);
+          totalErrors += batch.length; // Count full batch as error if failed
+        }
+
+        // Update progress (20% to 100%)
+        const progress = 20 + Math.round(((i + 1) / batches.length) * 80);
+        setUploadProgress(progress);
       }
 
       setUploadProgress(100);
-      
-      // Format result to match expected structure
+
+      // Format result
       const formattedResult = {
         success: true,
-        message: `تم استيراد ${result.imported} رسالة بنجاح`,
+        message: `تمت المعالجة بنجاح. استيراد: ${totalImported}، تخطي: ${totalSkipped}`,
         stats: {
-          totalParsed: result.total,
-          imported: result.imported,
-          skipped: result.skipped,
-          errors: result.errors?.length || 0,
+          totalParsed: parsedMessages.length,
+          imported: totalImported,
+          skipped: totalSkipped,
+          errors: totalErrors,
           sendersCreated: 0
         }
       };
-      
+
       setImportResult(formattedResult);
       setSelectedFile(null);
       setImportText('');
