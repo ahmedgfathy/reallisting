@@ -10,6 +10,14 @@ const statsHandler = require('./stats');
 const profileHandler = require('./profile');
 const importWhatsappHandler = require('./import-whatsapp');
 
+// Log environment check
+console.log('🔧 API initialized, env check:', {
+  hasSupabaseUrl: !!process.env.SUPABASE_URL,
+  hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+  hasJwtSecret: !!process.env.JWT_SECRET,
+  nodeEnv: process.env.NODE_ENV
+});
+
 module.exports = async (req, res) => {
   // Add CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');

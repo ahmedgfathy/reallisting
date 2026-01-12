@@ -1,17 +1,4 @@
 const { messages, regions, corsHeaders, verifyToken } = require('../lib/supabase');
-const fs = require('fs');
-const path = require('path');
-
-// Storage directory in project root
-const STORAGE_DIR = path.join(process.cwd(), 'storage', 'uploads');
-
-// Ensure storage directory exists
-function ensureStorageDir() {
-  if (!fs.existsSync(STORAGE_DIR)) {
-    fs.mkdirSync(STORAGE_DIR, { recursive: true });
-    console.log('📁 Created storage directory:', STORAGE_DIR);
-  }
-}
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -184,26 +171,17 @@ module.exports = async (req, res) => {
     }
 
     const body = await parseBody(req);
-    console.log('Received body:', { hasFileContent: !!body.fileContent, fileName: body.fileName || body.filename });
+    console.log('Received body keys:', Object.keys(body));
     
     const { fileContent, fileName, filename } = body;
     const finalFileName = fileName || filename || `whatsapp_${Date.now()}.txt`;
 
-    if (!fileContent) {
-      console.error('No file content in body');
+    if (!fileContent || typeof fileContent !== 'string') {
+      console.error('Invalid file content');
       return res.status(400).json({ error: 'No file content provided' });
     }
 
-    // Step 1: Save file to storage
-    ensureStorageDir();
-    const filePath = path.join(STORAGE_DIR, finalFileName);
-    
-    console.log(`📁 Saving file to: ${filePath}`);
-    fs.writeFileSync(filePath, fileContent, 'utf8');
-    console.log(`✅ File saved successfully`);
-
-    // Step 2: Extract/Process the file
-    console.log(`📝 Extracting messages from: ${finalFileName}`);
+    console.log(`📝 Processing WhatsApp chat: ${finalFileName}`);
 
     // Parse WhatsApp messages
     const parsedMessages = parseWhatsAppText(fileContent);
@@ -263,14 +241,6 @@ module.exports = async (req, res) => {
       imported,
       skipped,
       total: parsedMessages.length,
-      errors: errors.slice(0, 10) // Return first 10 errors only
-    });
-
-  } catch (error) {
-    console.error('Import error:', error);
-    return res.status(500).json({ 
-      success: false,
-      error: error.message || 'Import failed'
-    });
+      fileName: finalFileName
   }
 };
