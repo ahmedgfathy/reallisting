@@ -268,13 +268,22 @@ function AdminDashboard({ onClose }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           fileContent: fileContent,
-          filename: filename
+          fileName: filename
         })
       });
+
+      setUploadProgress(70);
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned invalid response. Please check if API is working.');
+      }
 
       const result = await response.json();
 
@@ -283,7 +292,21 @@ function AdminDashboard({ onClose }) {
       }
 
       setUploadProgress(100);
-      setImportResult(result);
+      
+      // Format result to match expected structure
+      const formattedResult = {
+        success: true,
+        message: `تم استيراد ${result.imported} رسالة بنجاح`,
+        stats: {
+          totalParsed: result.total,
+          imported: result.imported,
+          skipped: result.skipped,
+          errors: result.errors?.length || 0,
+          sendersCreated: 0
+        }
+      };
+      
+      setImportResult(formattedResult);
       setSelectedFile(null);
       setImportText('');
       setShowImportModal(false);

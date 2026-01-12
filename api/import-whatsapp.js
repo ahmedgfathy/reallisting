@@ -1,18 +1,26 @@
-const { messages, users, regions, corsHeaders } = require('../lib/supabase');
-const { verifyToken } = require('../lib/supabase');
+const { messages, regions, corsHeaders, verifyToken } = require('../lib/supabase');
 
 // Helper to parse request body
 async function parseBody(req) {
   if (req.body) return req.body;
+  
   return new Promise((resolve) => {
     let body = '';
-    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('data', chunk => { 
+      body += chunk.toString(); 
+    });
     req.on('end', () => {
       try {
-        resolve(JSON.parse(body));
-      } catch {
+        const parsed = JSON.parse(body);
+        resolve(parsed);
+      } catch (error) {
+        console.error('Body parse error:', error);
         resolve({});
       }
+    });
+    req.on('error', (error) => {
+      console.error('Request error:', error);
+      resolve({});
     });
   });
 }
@@ -163,13 +171,17 @@ module.exports = async (req, res) => {
     }
 
     const body = await parseBody(req);
-    const { fileContent, fileName } = body;
+    console.log('Received body:', { hasFileContent: !!body.fileContent, fileName: body.fileName || body.filename });
+    
+    const { fileContent, fileName, filename } = body;
+    const finalFileName = fileName || filename || 'whatsapp.txt';
 
     if (!fileContent) {
+      console.error('No file content in body');
       return res.status(400).json({ error: 'No file content provided' });
     }
 
-    console.log(`📁 Processing file: ${fileName || 'whatsapp.txt'}`);
+    console.log(`📁 Processing file: ${finalFileName}`);
 
     // Parse WhatsApp messages
     const parsedMessages = parseWhatsAppText(fileContent);
@@ -194,7 +206,7 @@ module.exports = async (req, res) => {
           sender_name: msg.sender,
           sender_mobile: mobile,
           date_of_creation: msg.date,
-          source_file: fileName || 'whatsapp.txt',
+          source_file: finalFileName,
           category,
           property_type: propertyType,
           region,
