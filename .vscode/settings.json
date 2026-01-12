@@ -1,18 +1,9 @@
 {
-  "terminal.integrated.defaultProfile.windows": "Ubuntu-22.04",
+  "terminal.integrated.defaultProfile.windows": "Ubuntu (WSL)",
   "terminal.integrated.profiles.windows": {
-    "Ubuntu-22.04": {
+    "Ubuntu (WSL)": {
       "path": "C:\\Windows\\System32\\wsl.exe",
-      "args": ["-d", "Ubuntu-22.04"],
-      "icon": "terminal-linux"
-    },
-    "Command Prompt": {
-      "path": "C:\\Windows\\System32\\cmd.exe",
-      "icon": "terminal-cmd"
-    },
-    "PowerShell": {
-      "source": "PowerShell",
-      "icon": "terminal-powershell"
+      "args": ["-d", "Ubuntu"]
     }
   }
 }

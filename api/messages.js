@@ -1,4 +1,4 @@
-const { messages, verifyToken, corsHeaders } = require('../lib/mariadb');
+const { messages, verifyToken, corsHeaders } = require('../lib/supabase');
 
 module.exports = async (req, res) => {
   // Handle CORS

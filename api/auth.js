@@ -1,4 +1,4 @@
-const { users, messages, generateToken, corsHeaders } = require('../lib/mariadb');
+const { users, messages, generateToken, corsHeaders } = require('../lib/supabase');
 
 // Helper to parse request body
 async function parseBody(req) {
