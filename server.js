@@ -17,6 +17,7 @@ app.use('/api/admin', require('./api/admin'));
 app.use('/api/regions', require('./api/regions'));
 app.use('/api/stats', require('./api/stats'));
 app.use('/api/profile', require('./api/profile'));
+app.use('/api/import-whatsapp', require('./api/import-whatsapp'));
 
 // Health/root check for direct hits to port 5001
 app.get('/', (req, res) => {
