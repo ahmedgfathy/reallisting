@@ -227,20 +227,18 @@ module.exports = async (req, res) => {
 
     console.log(`✅ Import complete: ${imported} imported, ${skipped} skipped`);
 
-    // Step 3: Delete the file after extraction
-    try {
-      fs.unlinkSync(filePath);
-      console.log(`🗑️  File deleted: ${finalFileName}`);
-    } catch (deleteError) {
-      console.error('Failed to delete file:', deleteError);
-      // Don't fail the import if deletion fails
-    }
-
     return res.status(200).json({
       success: true,
       imported,
       skipped,
       total: parsedMessages.length,
       fileName: finalFileName
+    });
+  } catch (error) {
+    console.error('Import error:', error);
+    return res.status(500).json({ 
+      error: 'Failed to import WhatsApp chat',
+      details: error.message 
+    });
   }
 };
