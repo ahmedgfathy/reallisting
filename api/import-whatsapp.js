@@ -1,4 +1,17 @@
 const { messages, regions, corsHeaders, verifyToken } = require('../lib/supabase');
+const fs = require('fs');
+const path = require('path');
+
+// Storage directory in project root
+const STORAGE_DIR = path.join(process.cwd(), 'storage', 'uploads');
+
+// Ensure storage directory exists
+function ensureStorageDir() {
+  if (!fs.existsSync(STORAGE_DIR)) {
+    fs.mkdirSync(STORAGE_DIR, { recursive: true });
+    console.log('📁 Created storage directory:', STORAGE_DIR);
+  }
+}
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -174,14 +187,23 @@ module.exports = async (req, res) => {
     console.log('Received body:', { hasFileContent: !!body.fileContent, fileName: body.fileName || body.filename });
     
     const { fileContent, fileName, filename } = body;
-    const finalFileName = fileName || filename || 'whatsapp.txt';
+    const finalFileName = fileName || filename || `whatsapp_${Date.now()}.txt`;
 
     if (!fileContent) {
       console.error('No file content in body');
       return res.status(400).json({ error: 'No file content provided' });
     }
 
-    console.log(`📁 Processing file: ${finalFileName}`);
+    // Step 1: Save file to storage
+    ensureStorageDir();
+    const filePath = path.join(STORAGE_DIR, finalFileName);
+    
+    console.log(`📁 Saving file to: ${filePath}`);
+    fs.writeFileSync(filePath, fileContent, 'utf8');
+    console.log(`✅ File saved successfully`);
+
+    // Step 2: Extract/Process the file
+    console.log(`📝 Extracting messages from: ${finalFileName}`);
 
     // Parse WhatsApp messages
     const parsedMessages = parseWhatsAppText(fileContent);
@@ -227,6 +249,15 @@ module.exports = async (req, res) => {
 
     console.log(`✅ Import complete: ${imported} imported, ${skipped} skipped`);
 
+    // Step 3: Delete the file after extraction
+    try {
+      fs.unlinkSync(filePath);
+      console.log(`🗑️  File deleted: ${finalFileName}`);
+    } catch (deleteError) {
+      console.error('Failed to delete file:', deleteError);
+      // Don't fail the import if deletion fails
+    }
+
     return res.status(200).json({
       success: true,
       imported,
@@ -237,6 +268,9 @@ module.exports = async (req, res) => {
 
   } catch (error) {
     console.error('Import error:', error);
-    return res.status(500).json({ error: error.message });
+    return res.status(500).json({ 
+      success: false,
+      error: error.message || 'Import failed'
+    });
   }
 };
