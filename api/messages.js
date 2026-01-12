@@ -35,13 +35,13 @@ module.exports = async (req, res) => {
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.substring(7);
       const payload = verifyToken(token);
-      
+
       if (payload) {
         isApprovedUser = payload.role === 'admin' || payload.isActive === true;
       }
     }
 
-    // Get messages from SQLite
+    // Get messages from Supabase
     const result = await messages.get({
       page: parseInt(page),
       limit: parseInt(limit),

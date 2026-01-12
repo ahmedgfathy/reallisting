@@ -74,13 +74,10 @@ module.exports = async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Update name if provided
-      if (name !== undefined) {
-        const stmt = require('../lib/sqlite').db.prepare('UPDATE users SET name = ? WHERE mobile = ?');
-        stmt.run(name, payload.mobile);
-      }
+      // Update profile
+      const updates = {};
+      if (name) updates.name = name;
 
-      // Update password if provided
       if (newPassword) {
         if (!currentPassword) {
           return res.status(400).json({ error: 'يجب إدخال كلمة المرور الحالية' });
@@ -90,12 +87,10 @@ module.exports = async (req, res) => {
         if (!verifiedUser) {
           return res.status(401).json({ error: 'كلمة المرور الحالية غير صحيحة' });
         }
-
-        const { hashPassword } = require('crypto');
-        const newHash = require('../lib/sqlite').db.prepare('SELECT ?').get(require('crypto').createHash('sha256').update(newPassword + (process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure')).digest('hex'));
-        const stmt = require('../lib/sqlite').db.prepare('UPDATE users SET password = ? WHERE mobile = ?');
-        stmt.run(require('crypto').createHash('sha256').update(newPassword + (process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure')).digest('hex'), payload.mobile);
+        updates.password = newPassword;
       }
+
+      await users.updateProfile(payload.mobile, updates);
 
       const updatedUser = await users.findByMobile(payload.mobile);
 

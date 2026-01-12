@@ -1,6 +1,6 @@
-# Real Estate Listing App - SQLite Version
+# Real Estate Listing App - Supabase Version
 
-A real estate listing application using React frontend and Node.js/Express backend with SQLite database.
+A real estate listing application using React frontend and Node.js/Express backend with Supabase database.
 
 ## Features
 
@@ -23,7 +23,7 @@ A real estate listing application using React frontend and Node.js/Express backe
 npm install
 ```
 
-2. The SQLite database will be automatically created in the `data/` folder on first run.
+2. The Supabase database will be automatically created in the `data/` folder on first run.
 
 ## Development
 
@@ -69,9 +69,9 @@ reallisting/
 │   ├── regions.js    # Regions endpoints
 │   ├── stats.js      # Statistics endpoints
 │   └── profile.js    # User profile endpoints
-├── data/             # SQLite database location (auto-created)
+├── data/             # Supabase database location (auto-created)
 ├── lib/              # Backend libraries
-│   └── sqlite.js     # SQLite database module
+│   └── Supabase.js     # Supabase database module
 ├── public/           # Static files
 ├── src/              # React frontend source
 │   ├── App.js        # Main app component

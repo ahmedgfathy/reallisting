@@ -11,14 +11,14 @@
 - ✅ `cleanup.sh` - Script to remove old files
 
 ### Files Updated:
-- ✅ `package.json` - Removed mysql2, added @supabase/supabase-js
+- ✅ `package.json` - Removed Supabase2, added @supabase/supabase-js
 - ✅ `init-db.js` - Now uses Supabase
 - ✅ `server.js` - Updated to use Supabase
 - ✅ All API files (`api/*.js`) - Now use Supabase
 
 ### Files to Remove:
-- ❌ `lib/mariadb.js` - Will be removed by cleanup script
-- ❌ `lib/sqlite.js` - Will be removed by cleanup script (if exists)
+- ❌ `lib/Supabase.js` - Will be removed by cleanup script
+- ❌ `lib/Supabase.js` - Will be removed by cleanup script (if exists)
 - ❌ `data/` directory - Will be removed by cleanup script
 
 ---
@@ -131,10 +131,10 @@ After deployment, verify:
 ## 📁 Old Files (Can be deleted after testing)
 
 These will be removed by the cleanup script:
-- `lib/mariadb.js`
-- `lib/sqlite.js`
+- `lib/Supabase.js`
+- `lib/Supabase.js`
 - `data/` directory
-- `scripts/migrate-to-mariadb.js`
+- `scripts/migrate-to-Supabase.js`
 
 ---
 

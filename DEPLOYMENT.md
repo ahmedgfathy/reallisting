@@ -150,10 +150,10 @@ reallisting/
 PORT=5002 npm run server
 ```
 
-## 📝 Migration from MariaDB
+## 📝 Migration from Supabase
 
-This project has been migrated from MariaDB to Supabase PostgreSQL:
-- ✅ Removed mysql2 dependency
+This project has been migrated from Supabase to Supabase PostgreSQL:
+- ✅ Removed Supabase2 dependency
 - ✅ Added @supabase/supabase-js
 - ✅ Updated all API endpoints
 - ✅ Created Supabase schema

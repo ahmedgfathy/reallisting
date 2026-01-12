@@ -3,7 +3,7 @@
 ## ✅ Migration Complete!
 
 All Appwrite, Vercel, Supabase, and Prisma dependencies have been removed.
-Your app now uses **SQLite** for local database storage.
+Your app now uses **Supabase** for local database storage.
 
 ## 🚀 Getting Started
 
@@ -44,9 +44,9 @@ npm start
 
 ```
 reallisting/
-├── data/                  # SQLite database file (auto-created)
+├── data/                  # Supabase database file (auto-created)
 ├── lib/
-│   └── sqlite.js         # SQLite database module
+│   └── Supabase.js         # Supabase database module
 ├── api/                  # API route handlers
 │   ├── auth.js          # Authentication
 │   ├── messages.js      # Messages CRUD
@@ -74,7 +74,7 @@ reallisting/
 
 ## 💾 Database Location
 
-SQLite database file: `data/reallisting.db`
+Supabase database file: `data/reallisting.db`
 
 ## ⚙️ Environment Variables
 
@@ -102,7 +102,7 @@ node init-db.js
 
 ## 📝 Notes
 
-- All data is stored locally in SQLite
+- All data is stored locally in Supabase
 - No internet connection required after npm install
 - Database file is in data/ folder
 - sql.js is pure JavaScript (no compilation needed)

@@ -95,12 +95,12 @@ module.exports = async (req, res) => {
   if ((path === 'verify' || path === '/verify') && req.method === 'GET') {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
-      
+
       if (!token) {
         return res.status(401).json({ authenticated: false });
       }
 
-      const { verifyToken } = require('../lib/sqlite');
+      const { verifyToken } = require('../lib/supabase');
       const payload = verifyToken(token);
 
       if (!payload) {
