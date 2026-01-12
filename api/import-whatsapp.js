@@ -1,5 +1,8 @@
 const { messages, regions, corsHeaders, verifyToken } = require('../lib/supabase');
 
+// Vercel payload size limit workaround - process in chunks
+const MAX_CHUNK_SIZE = 3 * 1024 * 1024; // 3MB to stay under 4.5MB limit
+
 // Helper to parse request body
 async function parseBody(req) {
   if (req.body) return req.body;

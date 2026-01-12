@@ -1,6 +1,16 @@
 // Vercel serverless function entry point
 require('dotenv').config();
 
+// Configure body size limit for Vercel
+module.exports.config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '4mb'
+    },
+    responseLimit: '8mb'
+  }
+};
+
 // Import the handlers
 const authHandler = require('./auth');
 const messagesHandler = require('./messages');

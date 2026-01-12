@@ -263,6 +263,14 @@ function AdminDashboard({ onClose }) {
 
       setUploadProgress(30);
 
+      // Check file size and handle accordingly
+      const fileSizeKB = new Blob([fileContent]).size / 1024;
+      const MAX_SIZE_KB = 3000; // 3MB limit for Vercel
+
+      if (fileSizeKB > MAX_SIZE_KB) {
+        throw new Error(`الملف كبير جداً (${Math.round(fileSizeKB / 1024)} MB). الحد الأقصى هو 3 MB. الرجاء تقسيم الملف إلى أجزاء أصغر.`);
+      }
+
       // Upload and process in one call
       const response = await apiCall('/api/import-whatsapp', {
         method: 'POST',
