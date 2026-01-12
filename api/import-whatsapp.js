@@ -169,8 +169,8 @@ module.exports = async (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     const payload = verifyToken(token);
 
-    if (!payload || payload.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required' });
+    if (!payload || payload.role !== 'admin' || payload.mobile !== '01002778090') {
+      return res.status(403).json({ error: 'Super Admin access required to import messages' });
     }
 
     const body = await parseBody(req);

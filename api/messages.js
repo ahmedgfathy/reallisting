@@ -64,6 +64,7 @@ module.exports = async (req, res) => {
 
       // Mask mobile numbers in message content if user is not approved
       if (!isApprovedUser && messageContent) {
+        // Replace all occurrences of mobile-like patterns with ***********
         messageContent = messageContent.replace(MOBILE_REGEX, '***********');
       }
 
