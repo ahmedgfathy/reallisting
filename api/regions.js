@@ -1,4 +1,4 @@
-const { regions, corsHeaders } = require('../lib/supabase');
+const { regions, corsHeaders } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS

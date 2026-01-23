@@ -1,4 +1,4 @@
-const { messages, corsHeaders } = require('../lib/supabase');
+const { getStats, corsHeaders } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const stats = await messages.getStats();
+    const stats = await getStats();
     return res.status(200).json(stats);
   } catch (error) {
     console.error('Stats error:', error);

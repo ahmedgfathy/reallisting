@@ -1,4 +1,4 @@
-// API configuration for Supabase backend
+// API configuration for MySQL/MariaDB backend
 export const apiCall = async (url, options = {}) => {
   // Priority: REACT_APP_API_URL > same domain > localhost
   let API_BASE = process.env.REACT_APP_API_URL 

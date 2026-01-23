@@ -1,4 +1,4 @@
-const { users, messages, generateToken, corsHeaders } = require('../lib/supabase');
+const { users, messages, generateToken, corsHeaders } = require('../lib/database');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -100,14 +100,14 @@ module.exports = async (req, res) => {
         return res.status(401).json({ authenticated: false });
       }
 
-      const { verifyToken } = require('../lib/supabase');
+      const { verifyToken } = require('../lib/database');
       const payload = verifyToken(token);
 
       if (!payload) {
         return res.status(401).json({ authenticated: false });
       }
 
-      const user = await users.findByMobile(payload.mobile);
+      const user = await users.getByMobile(payload.mobile);
 
       if (!user) {
         return res.status(401).json({ authenticated: false });

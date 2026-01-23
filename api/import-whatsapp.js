@@ -1,5 +1,4 @@
-const { messages, regions, corsHeaders, verifyToken } = require('../lib/supabase');
-const { analyzeMessage } = require('../lib/ai');
+const { messages, regions, corsHeaders, verifyToken } = require('../lib/database');
 
 // Vercel payload size limit workaround - process in chunks
 const MAX_CHUNK_SIZE = 3 * 1024 * 1024; // 3MB to stay under 4.5MB limit
@@ -170,8 +169,8 @@ module.exports = async (req, res) => {
     const token = req.headers.authorization?.replace('Bearer ', '');
     const payload = verifyToken(token);
 
-    if (!payload || payload.role !== 'admin' || payload.mobile !== '01002778090') {
-      return res.status(403).json({ error: 'Super Admin access required to import messages' });
+    if (!payload || payload.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required to import messages' });
     }
 
     const body = await parseBody(req);
@@ -189,44 +188,30 @@ module.exports = async (req, res) => {
     let imported = 0;
     let skipped = 0;
 
-    // Process in parallel for speed, but limit concurrency if needed
-    // For now simple sequential insert to ensure stability
+    // Direct regex extraction to MariaDB - no AI needed
     for (const msg of parsedMessages) {
       try {
-        // Use AI for better understanding if available, otherwise fallback to Regex
-        let aiData = null;
-        try {
-          // Optional: Only use AI if text is long enough or specific
-          if (msg.message && msg.message.length > 20) {
-            aiData = await analyzeMessage(msg.message);
-          }
-        } catch (e) {
-          console.warn('AI skipping message:', e.message);
-        }
-
-        // Determine final values (AI priority > Regex fallback)
-        const regionRegex = extractRegion(msg.message, availableRegions);
-        const classificationRegex = classifyMessage(msg.message);
+        // Extract data directly using regex patterns
+        const region = extractRegion(msg.message, availableRegions);
+        const classification = classifyMessage(msg.message);
         const mobile = extractMobileNumber(msg.message);
 
-        const finalCategory = aiData?.category && aiData.category !== 'أخرى' ? aiData.category : classificationRegex.category;
-        const finalPropertyType = aiData?.propertyType && aiData.propertyType !== 'أخرى' ? aiData.propertyType : classificationRegex.propertyType;
-        const finalPurpose = aiData?.purpose && aiData.purpose !== 'أخرى' ? aiData.purpose : classificationRegex.purpose;
-        const finalRegion = aiData?.region && aiData.region !== 'أخرى' ? aiData.region : regionRegex;
-        // AI might extract price, but we don't store it yet in the schema explicitly maybe? 
-        // The user didn't ask for a new column, but "understand the text". 
-        // We stick to existing schema columns: category, property_type, region, purpose.
+        const finalCategory = classification.category;
+        const finalPropertyType = classification.propertyType;
+        const finalPurpose = classification.purpose;
+        const finalRegion = region;
 
         const result = await messages.create({
-          message: msg.message,
-          sender_name: msg.sender,
-          sender_mobile: mobile,
-          date_of_creation: msg.date,
-          source_file: finalFileName,
-          category: finalCategory,
-          property_type: finalPropertyType,
-          region: finalRegion,
-          purpose: finalPurpose
+          message: msg.message || null,
+          sender_name: msg.sender || null,
+          sender_mobile: mobile || null,
+          date_of_creation: msg.date || null,
+          source_file: finalFileName || null,
+          image_url: null,
+          category: finalCategory || 'أخرى',
+          property_type: finalPropertyType || 'أخرى',
+          region: finalRegion || 'أخرى',
+          purpose: finalPurpose || 'أخرى'
         });
 
         if (result.success) {

@@ -1,4 +1,4 @@
-const { messages, verifyToken, corsHeaders } = require('../lib/supabase');
+const { messages, verifyToken, corsHeaders } = require('../lib/database');
 
 module.exports = async (req, res) => {
   // Handle CORS
@@ -41,25 +41,24 @@ module.exports = async (req, res) => {
       }
     }
 
-    // Get messages from Supabase
-    const result = await messages.get({
-      page: parseInt(page),
-      limit: parseInt(limit),
-      search,
-      category,
-      propertyType,
-      region,
-      purpose
-    });
+    // Get messages from database
+    const filters = {};
+    
+    // Only add filters if they're not "الكل" (All)
+    if (category && category !== 'الكل') filters.category = category;
+    if (propertyType && propertyType !== 'الكل') filters.property_type = propertyType;
+    if (region && region !== 'الكل') filters.region = region;
+    if (purpose && purpose !== 'الكل') filters.purpose = purpose;
+    if (search) filters.search = search;
 
-    if (!result.success) {
-      return res.status(500).json({ error: result.error });
-    }
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+    const data = await messages.getAll(filters, parseInt(limit), offset);
+    const total = await messages.count(filters);
 
     const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
 
     // Format response - mask sensitive data for unapproved users
-    const formattedMessages = result.data.map(msg => {
+    const formattedMessages = data.map(msg => {
       let messageContent = msg.message || '';
 
       // Mask mobile numbers in message content if user is not approved
@@ -97,8 +96,8 @@ module.exports = async (req, res) => {
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
-        total: result.total,
-        totalPages: Math.ceil(result.total / parseInt(limit))
+        total: total,
+        totalPages: Math.ceil(total / parseInt(limit))
       },
       hasMore: formattedMessages.length === parseInt(limit)
     });
