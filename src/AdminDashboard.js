@@ -46,7 +46,7 @@ function parseWhatsAppText(text) {
 
   // Flexible WhatsApp format: captures [Date, Time] Name: Message OR Date, Time - Name: Message
   // Supports various date separators (/ or .) and both English and Arabic numerals
-  const messageRegex = /^\[?([\d\-\/\.\s]+)[,،]\s*([\d:ap\s]+[AP]M?)\]?\s*[\-:]?\s*([^:]+):\s*(.+)$/i;
+  const messageRegex = /^\[?([\d\/\. \s-]+)[,،]\s*([\d:ap\s]+[AP]M?)\]?\s*[-:]?\s*([^:]+):\s*(.+)$/i;
 
   let currentMessage = null;
 
@@ -61,7 +61,7 @@ function parseWhatsAppText(text) {
       let messageDate;
       try {
         // Try simple split first for common formats
-        const dateParts = date.split(/[\/\-\.]/).map(p => parseInt(p));
+        const dateParts = date.split(/[/\-.]/).map(p => parseInt(p));
         let day, month, year;
 
         if (dateParts[0] > 1000) { // YYYY/MM/DD

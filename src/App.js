@@ -43,7 +43,7 @@ function App() {
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   const isAdmin = user?.role === 'admin';
-  const isUserActive = Boolean(user?.isActive);
+  const isUserActive = Boolean(user?.isActive || isAdmin);
 
   // Count active filters
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
@@ -70,8 +70,8 @@ function App() {
 
   const buildCardTitle = useCallback((msg) => {
     const parts = [];
-    if (msg.propertyType && msg.propertyType !== 'أخرى') {
-      parts.push(msg.propertyType);
+    if (msg.property_type && msg.property_type !== 'أخرى') {
+      parts.push(msg.property_type);
     }
     if (msg.region && msg.region !== 'أخرى') {
       parts.push(msg.region);
@@ -729,9 +729,9 @@ function App() {
                         <div className="card-contact">
                           {isUserActive ? (
                             <>
-                              {msg.mobile && msg.mobile !== 'N/A' && (
-                                <a href={`tel:${msg.mobile} `} className="card-phone" dir="ltr">
-                                  📱 {msg.mobile}
+                              {msg.sender_mobile && msg.sender_mobile !== 'N/A' && (
+                                <a href={`tel:${msg.sender_mobile}`} className="card-phone" dir="ltr">
+                                  📱 {msg.sender_mobile}
                                 </a>
                               )}
                             </>
@@ -740,7 +740,7 @@ function App() {
                           )}
                         </div>
                         <div className="card-date">
-                          🗓️ {msg.dateOfCreation}
+                          🗓️ {msg.date_of_creation}
                         </div>
                       </div>
                     </div>
@@ -823,10 +823,10 @@ function App() {
                 <div className="detail-contact">
                   {isUserActive ? (
                     <>
-                      {selectedUnit.mobile && selectedUnit.mobile !== 'N/A' && (
+                      {selectedUnit.sender_mobile && selectedUnit.sender_mobile !== 'N/A' && (
                         <div className="contact-buttons">
                           <a
-                            href={`tel:${selectedUnit.mobile} `}
+                            href={`tel:${selectedUnit.sender_mobile}`}
                             className="contact-icon-btn call-btn"
                             title="اتصال"
                           >
@@ -835,7 +835,7 @@ function App() {
                             </svg>
                           </a>
                           <a
-                            href={`https://wa.me/${selectedUnit.mobile.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`مرحباً، أستفسر عن هذه الوحدة:\n\n${buildCardTitle(selectedUnit)}\n\n${selectedUnit.message ? selectedUnit.message.substring(0, 200) + '...' : ''}`)}`}
+                            href={`https://wa.me/${selectedUnit.sender_mobile.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`مرحباً، أستفسر عن هذه الوحدة:\n\n${buildCardTitle(selectedUnit)}\n\n${selectedUnit.message ? selectedUnit.message.substring(0, 200) + '...' : ''}`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="contact-icon-btn whatsapp-btn"
@@ -844,16 +844,14 @@ function App() {
                             <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
                               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                             </svg>
-                          </a >
-                        </div >
+                          </a>
+                        </div>
                       )}
-                      {
-                        (!selectedUnit.mobile || selectedUnit.mobile === 'N/A') && (
-                          <div className="contact-no-phone">
-                            <span>📵 رقم الهاتف غير متوفر</span>
-                          </div>
-                        )
-                      }
+                      {(!selectedUnit.sender_mobile || selectedUnit.sender_mobile === 'N/A') && (
+                        <div className="contact-no-phone">
+                          <span>📵 رقم الهاتف غير متوفر</span>
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div className="contact-hidden">
@@ -877,7 +875,8 @@ function App() {
             </div>
           </div >
         </div >
-      )}
+      )
+      }
 
       {
         isAdmin && showAdminDashboard && (
