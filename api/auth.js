@@ -42,23 +42,10 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Mobile and password required' });
       }
 
-      console.log(`🔐 Attempting login for: ${loginIdentifier}`);
       const user = await users.verifyPassword(loginIdentifier, password);
 
       if (!user) {
-        const { hashPassword } = require('../lib/database');
-        const dbUser = await users.getByMobile(loginIdentifier);
-
-        return res.status(401).json({
-          error: 'بيانات تسجيل الدخول غير صحيحة',
-          debug: {
-            identifier: loginIdentifier,
-            userFound: !!dbUser,
-            calculatedHash: hashPassword(password),
-            dbHashMismatch: dbUser ? (dbUser.password !== hashPassword(password)) : null,
-            dbMobile: dbUser ? dbUser.mobile : null
-          }
-        });
+        return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
       }
 
       const token = generateToken(user.mobile, user.role, !!user.is_active);
