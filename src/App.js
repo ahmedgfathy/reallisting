@@ -696,7 +696,7 @@ function App() {
                   {messages.map((msg, index) => (
                     <div
                       key={msg.id}
-                      className={`property - card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''} `}
+                      className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
                       onClick={() => openUnitDetail(msg)}
                       style={{ cursor: 'pointer' }}
                     >
@@ -755,11 +755,11 @@ function App() {
       {/* Unit Detail View */}
       {selectedUnit && (
         <div
-          className={`unit - detail - overlay ${detailClosing ? 'closing' : ''} `}
+          className={`unit-detail-overlay ${detailClosing ? 'closing' : ''}`}
           onClick={closeUnitDetail}
         >
           <div
-            className={`unit - detail - panel ${detailClosing ? 'closing' : ''} `}
+            className={`unit-detail-panel ${detailClosing ? 'closing' : ''}`}
             ref={detailRef}
             onClick={(e) => e.stopPropagation()}
             onTouchStart={handleTouchStart}
@@ -862,8 +862,8 @@ function App() {
               </div >
 
               <div className="detail-section detail-meta">
-                <span>🗓️ {selectedUnit.dateOfCreation}</span>
-                {selectedUnit.fileName && <span>📁 {selectedUnit.fileName}</span>}
+                <span>🗓️ {selectedUnit.date_of_creation}</span>
+                {selectedUnit.source_file && <span>📁 {selectedUnit.source_file}</span>}
               </div>
             </div >
 
