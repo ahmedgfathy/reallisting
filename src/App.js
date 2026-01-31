@@ -197,23 +197,18 @@ function App() {
       const data = await response.json();
       setStats(data);
 
-      // Update dynamic filter options from stats
-      if (data.filters) {
-        const clean = (arr) => [...new Set((arr || []).filter(v => v && v !== 'أخرى' && v !== 'الكل'))];
+      setStats(data);
 
-        const cats = clean(data.filters.categories);
-        if (cats.length > 0) setAvailableCategories([...cats, 'أخرى']);
+      // FORCE UPDATE FILTER OPTIONS with User's Schema
+      // This ensures the new filters appear immediately even if DB has old data
+      setAvailableCategories(['بيع', 'إيجار', 'مطلوب', 'أخرى']);
+      setAvailablePropertyTypes(['شقة', 'فيلا', 'أرض', 'منزل', 'عمارة', 'شاليه', 'مصنع', 'مخزن', 'محل', 'مكتب', 'أخرى']);
+      setAvailablePurposes(['سكني', 'تجاري', 'صناعي', 'أخرى']);
 
-        const types = clean(data.filters.propertyTypes);
-        if (types.length > 0) setAvailablePropertyTypes([...types, 'أخرى']);
-
-        const purposes = clean(data.filters.purposes);
-        if (purposes.length > 0) setAvailablePurposes([...purposes, 'أخرى']);
-
-        if (data.filters.regions?.length > 0) {
-          const regionsList = clean(data.filters.regions);
-          setRegions(prev => [...new Set([...prev, ...regionsList])]);
-        }
+      // Regions still dynamic but we can inject common ones if needed
+      if (data.filters && data.filters.regions?.length > 0) {
+        const regionsList = [...new Set((data.filters.regions || []).filter(v => v && v !== 'أخرى'))];
+        setRegions(prev => [...new Set([...prev, ...regionsList])].sort());
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
