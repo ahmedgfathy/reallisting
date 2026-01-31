@@ -418,7 +418,7 @@ function App() {
 
   const handleRefresh = async () => {
     try {
-      await fetch('/api/refresh', { method: 'POST' });
+      await apiCall('/api/refresh', { method: 'POST' });
       setMessages([]);
       setSelectedMessages(new Set());
       setHasMore(true);
@@ -458,9 +458,12 @@ function App() {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('/api/messages/delete', {
+      const response = await apiCall('/api/messages/delete', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify({ ids: Array.from(selectedMessages) })
       });
 

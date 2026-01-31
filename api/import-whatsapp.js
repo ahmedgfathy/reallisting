@@ -27,6 +27,21 @@ function extractMobileNumber(text) {
 // Extract region from message
 function extractRegion(messageText, availableRegions) {
   const text = messageText.toLowerCase();
+
+  // Specific regex for "الحي" and "المجاورة" patterns
+  const areaPatterns = [
+    /(?:الحي|الحى|حي|الحي)\s+(\d+)/i,
+    /(?:المجاورة|مجاورة|مجاوره|مج)\s+(\d+)/i,
+    /(?:منطقة صناعيه|صناعية|الصناعية)/i
+  ];
+
+  for (const pattern of areaPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return match[0].trim(); // Returns "الحي 22" or "مج 5" or "صناعية"
+    }
+  }
+
   for (const region of availableRegions) {
     if (text.includes(region.name.toLowerCase())) {
       return region.name;
@@ -40,16 +55,18 @@ function classifyMessageRegex(messageText) {
   const text = messageText.toLowerCase();
 
   let category = 'عقار';
-  if (text.includes('مخزن') || text.includes('ورشة') || text.includes('مصنع')) category = 'أخرى';
 
   let propertyType = 'أخرى';
-  if (text.includes('شقة') || text.includes('شقه')) propertyType = 'شقة';
-  else if (text.includes('فيلا') || text.includes('توين') || text.includes('تاون')) propertyType = 'فيلا';
-  else if (text.includes('أرض') || text.includes('ارض') || text.includes('قطعة')) propertyType = 'أرض';
-  else if (text.includes('محل') || text.includes('محل')) propertyType = 'محل';
-  else if (text.includes('مكتب') || text.includes('اداري')) propertyType = 'مكتب';
-  else if (text.includes('عمارة') || text.includes('بيت') || text.includes('كامل')) propertyType = 'عمارة';
-  else if (text.includes('شاليه') || text.includes('مصيف')) propertyType = 'شاليه';
+  if (text.match(/شقة|شقق|شقه/)) propertyType = 'شقة';
+  else if (text.match(/فيلا|فيلات/)) propertyType = 'فيلا';
+  else if (text.match(/أرض|ارض|اراضي|أراضي|قطعة/)) propertyType = 'أرض';
+  else if (text.match(/محل/)) propertyType = 'محل';
+  else if (text.match(/مكتب|اداري/)) propertyType = 'مكتب';
+  else if (text.match(/عمارة|بيت|منزل|كامل/)) propertyType = 'عمارة';
+  else if (text.match(/شاليه|مصيف/)) propertyType = 'شاليه';
+  else if (text.match(/مصنع|ورشة/)) propertyType = 'مصنع';
+  else if (text.match(/مخزن/)) propertyType = 'مخزن';
+  else if (text.match(/ارضي|دور ارضي/)) propertyType = 'دور أرضي';
 
   let purpose = 'بيع';
   if (text.includes('مطلوب')) purpose = 'مطلوب';
@@ -126,6 +143,10 @@ module.exports = async (req, res) => {
           }
         }
 
+        const propertyType = aiResult?.propertyType || regexClass.propertyType;
+        const mainRegion = aiResult?.region || autoRegion;
+        const specificDistrict = aiResult?.district || (autoRegion !== 'أخرى' ? autoRegion : 'أخرى');
+
         return {
           message: msg.message || null,
           sender_name: msg.sender || null,
@@ -134,15 +155,18 @@ module.exports = async (req, res) => {
           source_file: finalFileName || null,
           image_url: null,
           category: aiResult?.category || regexClass.category,
-          property_type: aiResult?.propertyType || regexClass.propertyType,
-          region: aiResult?.region || autoRegion,
+          property_type: propertyType,
+          region: specificDistrict, // Prioritize the specific area (e.g. "الحي 22") for the region filter
           purpose: aiResult?.purpose || regexClass.purpose,
           ai_metadata: aiResult ? {
-            district: aiResult.district,
+            main_region: mainRegion,
+            district: specificDistrict,
             area: aiResult.area,
             price: aiResult.price,
             keywords: aiResult.keywords
-          } : {}
+          } : {
+            district: specificDistrict
+          }
         };
       } catch (err) {
         return null;

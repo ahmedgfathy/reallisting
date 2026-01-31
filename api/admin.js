@@ -96,24 +96,52 @@ module.exports = async (req, res) => {
   }
 
   // DELETE MESSAGES
-  if ((path === 'messages' || path === '/messages') && req.method === 'DELETE') {
+  if (path.includes('messages') && (req.method === 'DELETE' || req.method === 'POST')) {
     try {
       const body = await parseBody(req);
-      const { messageIds } = body || {};
+      const { messageIds, ids } = body || {};
+      const targetIds = messageIds || ids;
 
-      if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) {
+      if (!targetIds || !Array.isArray(targetIds) || targetIds.length === 0) {
         return res.status(400).json({ error: 'Invalid message IDs' });
       }
 
-      const result = await messages.deleteMultiple(messageIds);
+      const result = await messages.deleteMultiple(targetIds);
 
       return res.status(200).json({
         success: true,
-        deletedCount: result.deletedCount
+        deletedCount: result.deletedCount || targetIds.length
       });
     } catch (error) {
       console.error('Delete messages error:', error);
       return res.status(500).json({ error: 'Failed to delete messages' });
+    }
+  }
+
+  // UPDATE SUBSCRIPTION
+  if (path.includes('subscription') && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const { userId, mobile, days } = body || {};
+      const targetMobile = mobile || (userId ? (await users.findById(userId))?.mobile : null);
+
+      if (!targetMobile) {
+        return res.status(400).json({ error: 'User ID or Mobile required' });
+      }
+
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + parseInt(days || 30));
+
+      await users.updateSubscription(targetMobile, endDate, true);
+
+      return res.status(200).json({
+        success: true,
+        mobile: targetMobile,
+        subscriptionEndDate: endDate.toISOString()
+      });
+    } catch (error) {
+      console.error('Subscription update error:', error);
+      return res.status(500).json({ error: 'Failed to update subscription' });
     }
   }
 

@@ -40,13 +40,21 @@ module.exports = async (req, res) => {
         return authHandler(req, res);
     } else if (path === 'import-whatsapp' || path.startsWith('import-whatsapp/')) {
         return importWhatsappHandler(req, res);
-    } else if (path === 'messages' || path.startsWith('messages/')) {
+    } else if (path === 'messages' || path.startsWith('messages')) {
+        // Special case: messages/delete should go to admin if it's a POST/DELETE
+        if (path === 'messages/delete' || path === 'messages/delete/') {
+            req.query.path = 'messages'; // Map to admin messages handler
+            return adminHandler(req, res);
+        }
         return messagesHandler(req, res);
     } else if (path === 'admin' || path.startsWith('admin/')) {
         return adminHandler(req, res);
     } else if (path === 'regions' || path.startsWith('regions/')) {
         return regionsHandler(req, res);
     } else if (path === 'stats' || path.startsWith('stats/')) {
+        return statsHandler(req, res);
+    } else if (path === 'refresh') {
+        // Map refresh to stats or a dedicated handler
         return statsHandler(req, res);
     } else if (path === 'profile' || path.startsWith('profile/')) {
         return profileHandler(req, res);
