@@ -46,13 +46,13 @@ module.exports = async (req, res) => {
   if ((path === 'users' || path === '/users') && req.method === 'GET') {
     try {
       const allUsers = await users.getAll();
-      
+
       const formattedUsers = allUsers.map(user => ({
         id: user.id,
         mobile: user.mobile,
         name: user.name,
         role: user.role,
-        isActive: user.is_active === 1,
+        isActive: !!user.is_active,
         subscriptionEndDate: user.subscription_end_date || null,
         createdAt: user.created_at
       }));
@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
       const body = await parseBody(req);
       const { isActive } = body || {};
 
-      await users.updateActive(userId, isActive);
+      await users.update(userId, { is_active: isActive });
 
       const user = await users.findById(userId);
 
@@ -85,7 +85,7 @@ module.exports = async (req, res) => {
           id: user.id,
           mobile: user.mobile,
           role: user.role,
-          isActive: user.is_active === 1,
+          isActive: !!user.is_active,
           subscriptionEndDate: user.subscription_end_date
         }
       });

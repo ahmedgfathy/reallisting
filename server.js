@@ -1,50 +1,19 @@
+// Local Express server (Legacy)
+// Note: This project is optimized for Vercel/Supabase deployment.
+// This server code is kept for reference but should not be used for production.
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
-const { initDatabase } = require('./lib/database');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
-
-// Initialize MySQL database
-initDatabase();
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// API Routes
-app.use('/api/auth', require('./api/auth'));
-app.use('/api/messages', require('./api/messages'));
-app.use('/api/admin', require('./api/admin'));
-app.use('/api/regions', require('./api/regions'));
-app.use('/api/stats', require('./api/stats'));
-app.use('/api/profile', require('./api/profile'));
-app.use('/api/import-whatsapp', require('./api/import-whatsapp'));
-
-// Health/root check for direct hits to port 5001
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'API server running', apiBase: '/api' });
+  res.json({ status: 'legacy', message: 'Use Vercel for the API' });
 });
 
-// Serve React app in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'build')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'build', 'index.html'));
-  });
-}
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
-});
-
+const PORT = 5001;
 app.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
-  console.log(`📊 API available at http://localhost:${PORT}/api`);
-  console.log(`🗄️  Using MySQL/MariaDB database: reallisting`);
+  console.log(`Legacy server listening on port ${PORT}`);
 });

@@ -48,7 +48,7 @@ module.exports = async (req, res) => {
         return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
       }
 
-      const token = generateToken(user.mobile, user.role, user.is_active === 1);
+      const token = generateToken(user.mobile, user.role, !!user.is_active);
 
       return res.status(200).json({
         success: true,
@@ -56,7 +56,7 @@ module.exports = async (req, res) => {
         user: {
           username: user.mobile,
           role: user.role,
-          isActive: user.is_active === 1
+          isActive: !!user.is_active
         }
       });
     } catch (error) {
@@ -118,7 +118,7 @@ module.exports = async (req, res) => {
         user: {
           username: user.mobile,
           role: user.role,
-          isActive: user.is_active === 1,
+          isActive: !!user.is_active,
           subscriptionEndDate: user.subscription_end_date || null
         }
       });

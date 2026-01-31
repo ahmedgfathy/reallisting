@@ -1,17 +1,3 @@
-// Vercel serverless function entry point
-require('dotenv').config();
-
-// Configure body size limit for Vercel
-module.exports.config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '4mb'
-    },
-    responseLimit: '8mb'
-  }
-};
-
-// Import the handlers
 const authHandler = require('./auth');
 const messagesHandler = require('./messages');
 const adminHandler = require('./admin');
@@ -20,28 +6,17 @@ const statsHandler = require('./stats');
 const profileHandler = require('./profile');
 const importWhatsappHandler = require('./import-whatsapp');
 
-// Log environment check
-console.log('🔧 API initialized, env check:', {
-  hasSupabaseUrl: !!process.env.SUPABASE_URL,
-  hasSupabaseKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-  hasJwtSecret: !!process.env.JWT_SECRET,
-  nodeEnv: process.env.NODE_ENV
-});
-
 module.exports = async (req, res) => {
-  // Get allowed origin from environment or allow all
+  // CORS configuration
   const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
     : ['https://www.contaboo.com', 'http://localhost:3000', 'http://localhost:5001', 'https://reallisting.vercel.app'];
 
   const origin = req.headers.origin;
-
-  // Set CORS headers
   if (origin && (allowedOrigins.includes(origin) || allowedOrigins.includes('*'))) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Origin', origin || '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   } else {
-    // Fallback - allow all for development
     res.setHeader('Access-Control-Allow-Origin', '*');
   }
 
@@ -53,12 +28,14 @@ module.exports = async (req, res) => {
     return res.status(200).end();
   }
 
-  // Normalize path: remove /api/ prefix and any leading/trailing slashes
-  let path = req.url.split('?')[0].replace(/^\/api\//, '').replace(/^\/+|\/+$/g, '');
+  // Get the path relative to /api
+  // In Vercel, req.url might be "/api/auth/login" or just "/auth/login"
+  let fullPath = req.url.split('?')[0];
+  let path = fullPath.replace(/^\/api\//, '').replace(/^\/+|\/+$/g, '');
 
-  console.log(`📡 API Request: ${req.method} ${req.url} -> Normalized path: ${path}`);
+  console.log(`📡 [API] ${req.method} ${fullPath} -> Clean path: ${path}`);
 
-  // Route to appropriate handler
+  // Route mapping
   if (path === 'auth' || path.startsWith('auth/')) {
     return authHandler(req, res);
   } else if (path === 'import-whatsapp' || path.startsWith('import-whatsapp/')) {
@@ -73,18 +50,19 @@ module.exports = async (req, res) => {
     return statsHandler(req, res);
   } else if (path === 'profile' || path.startsWith('profile/')) {
     return profileHandler(req, res);
-  } else if (path === '' || path === '/') {
+  } else if (path === '' || path === 'index') {
     return res.status(200).json({
       status: 'ok',
-      message: 'API is running',
-      timestamp: new Date().toISOString(),
-      env: {
-        nodeEnv: process.env.NODE_ENV,
-        usingSupabase: !!process.env.SUPABASE_URL
-      }
+      message: 'RealListing API is running',
+      database: 'Supabase',
+      timestamp: new Date().toISOString()
     });
   } else {
-    console.warn(`⚠️ Route not found: ${path}`);
-    return res.status(404).json({ error: `Route not found: ${path}` });
+    console.error(`❌ [API] Route not found: ${path}`);
+    return res.status(404).json({
+      error: 'Not Found',
+      path: path,
+      suggestion: 'Check your API routing configuration'
+    });
   }
 };
