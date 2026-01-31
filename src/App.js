@@ -199,15 +199,20 @@ function App() {
 
       // Update dynamic filter options from stats
       if (data.filters) {
-        if (data.filters.categories?.length > 0) setAvailableCategories(data.filters.categories);
-        if (data.filters.propertyTypes?.length > 0) setAvailablePropertyTypes(data.filters.propertyTypes);
-        if (data.filters.purposes?.length > 0) setAvailablePurposes(data.filters.purposes);
+        const clean = (arr) => [...new Set((arr || []).filter(v => v && v !== 'أخرى' && v !== 'الكل'))];
+
+        const cats = clean(data.filters.categories);
+        if (cats.length > 0) setAvailableCategories([...cats, 'أخرى']);
+
+        const types = clean(data.filters.propertyTypes);
+        if (types.length > 0) setAvailablePropertyTypes([...types, 'أخرى']);
+
+        const purposes = clean(data.filters.purposes);
+        if (purposes.length > 0) setAvailablePurposes([...purposes, 'أخرى']);
+
         if (data.filters.regions?.length > 0) {
-          // Merge dynamic regions with any existing regions, ensuring uniqueness
-          setRegions(prev => {
-            const combined = [...new Set([...prev, ...data.filters.regions])];
-            return combined;
-          });
+          const regionsList = clean(data.filters.regions);
+          setRegions(prev => [...new Set([...prev, ...regionsList])]);
         }
       }
     } catch (err) {

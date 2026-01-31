@@ -44,9 +44,9 @@ function parseWhatsAppText(text) {
   const lines = text.split('\n');
   const parsedMessages = [];
 
-  // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Sender Name: Message
-  // or: DD/MM/YYYY, HH:MM - Sender Name: Message
-  const messageRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AP]M)?)\]?\s*-?\s*([^:]+):\s*(.+)$/i;
+  // Flexible WhatsApp format: captures [Date, Time] Name: Message OR Date, Time - Name: Message
+  // Supports various date separators (/ or .) and both English and Arabic numerals
+  const messageRegex = /^\[?([\d\-\/\.\s]+)[,،]\s*([\d:ap\s]+[AP]M?)\]?\s*[\-:]?\s*([^:]+):\s*(.+)$/i;
 
   let currentMessage = null;
 
@@ -58,24 +58,36 @@ function parseWhatsAppText(text) {
 
       const [, date, time, sender, messageText] = match;
 
-      const dateParts = date.split('/');
-      let day = parseInt(dateParts[0]);
-      let month = parseInt(dateParts[1]) - 1;
-      let year = parseInt(dateParts[2]);
-      if (year < 100) year += 2000;
+      let messageDate;
+      try {
+        // Try simple split first for common formats
+        const dateParts = date.split(/[\/\-\.]/).map(p => parseInt(p));
+        let day, month, year;
 
-      const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M))?/i);
-      let hours = parseInt(timeParts[1]);
-      const minutes = parseInt(timeParts[2]);
-      const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
-      const ampm = timeParts[4];
+        if (dateParts[0] > 1000) { // YYYY/MM/DD
+          year = dateParts[0]; month = dateParts[1] - 1; day = dateParts[2];
+        } else { // DD/MM/YYYY
+          day = dateParts[0]; month = dateParts[1] - 1; year = dateParts[2];
+          if (year < 100) year += 2000;
+        }
 
-      if (ampm) {
-        if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-        if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+        const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M|ص|م))?/i);
+        let hours = parseInt(timeParts[1]);
+        const minutes = parseInt(timeParts[2]);
+        const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
+        const ampm = timeParts[4]?.toLowerCase();
+
+        if (ampm === 'pm' || ampm === 'م') {
+          if (hours < 12) hours += 12;
+        } else if (ampm === 'am' || ampm === 'ص') {
+          if (hours === 12) hours = 0;
+        }
+
+        messageDate = new Date(year, month, day, hours, minutes, seconds);
+        if (isNaN(messageDate.getTime())) throw new Error();
+      } catch (e) {
+        messageDate = new Date(); // Fallback to current
       }
-
-      const messageDate = new Date(year, month, day, hours, minutes, seconds);
 
       currentMessage = {
         sender: sender.trim(),
@@ -128,6 +140,8 @@ function AdminDashboard({ onClose }) {
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   }, [token]);
 

@@ -39,25 +39,22 @@ function extractRegion(messageText, availableRegions) {
 function classifyMessageRegex(messageText) {
   const text = messageText.toLowerCase();
 
-  let category = 'أخرى';
-  if (text.includes('عقار') || text.includes('عقارات')) category = 'عقار';
-  else if (text.includes('شقة') || text.includes('شقق')) category = 'شقة';
-  else if (text.includes('فيلا')) category = 'فيلا';
-  else if (text.includes('أرض') || text.includes('ارض')) category = 'أرض';
-  else if (text.includes('محل') || text.includes('محلات')) category = 'محل';
-  else if (text.includes('مكتب')) category = 'مكتب';
+  let category = 'عقار';
+  if (text.includes('مخزن') || text.includes('ورشة') || text.includes('مصنع')) category = 'أخرى';
 
   let propertyType = 'أخرى';
-  if (text.includes('شقة')) propertyType = 'شقة';
-  else if (text.includes('فيلا')) propertyType = 'فيلا';
-  else if (text.includes('دور')) propertyType = 'دور';
-  else if (text.includes('أرض')) propertyType = 'أرض';
-  else if (text.includes('عمارة')) propertyType = 'عمارة';
+  if (text.includes('شقة') || text.includes('شقه')) propertyType = 'شقة';
+  else if (text.includes('فيلا') || text.includes('توين') || text.includes('تاون')) propertyType = 'فيلا';
+  else if (text.includes('أرض') || text.includes('ارض') || text.includes('قطعة')) propertyType = 'أرض';
+  else if (text.includes('محل') || text.includes('محل')) propertyType = 'محل';
+  else if (text.includes('مكتب') || text.includes('اداري')) propertyType = 'مكتب';
+  else if (text.includes('عمارة') || text.includes('بيت') || text.includes('كامل')) propertyType = 'عمارة';
+  else if (text.includes('شاليه') || text.includes('مصيف')) propertyType = 'شاليه';
 
   let purpose = 'بيع';
-  if (text.includes('للبيع') || text.includes('بيع')) purpose = 'بيع';
-  else if (text.includes('للإيجار') || text.includes('ايجار') || text.includes('إيجار')) purpose = 'إيجار';
-  else if (text.includes('مطلوب')) purpose = 'مطلوب';
+  if (text.includes('مطلوب')) purpose = 'مطلوب';
+  else if (text.includes('للايجار') || text.includes('إيجار') || text.includes('ايجار') || text.includes('للسكن')) purpose = 'إيجار';
+  else if (text.includes('للبيع') || text.includes('بيع') || text.includes('تنازل')) purpose = 'بيع';
 
   return { category, propertyType, purpose };
 }
@@ -109,7 +106,7 @@ module.exports = async (req, res) => {
 
     // Get available regions
     const availableRegions = await regions.getAll();
-    const hasAI = !!process.env.AI_API_KEY;
+    const hasAI = !!(process.env.GEMINI_API_KEY || process.env.AI_API_KEY);
 
     console.log(`🚀 Processing ${rawMessages.length} messages. AI Enabled: ${hasAI}`);
 
