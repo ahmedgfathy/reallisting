@@ -197,18 +197,30 @@ function App() {
       const data = await response.json();
       setStats(data);
 
-      setStats(data);
+      if (data.filters) {
+        const clean = (arr) => [...new Set((arr || []).filter(v => v && v !== 'أخرى'))];
 
-      // FORCE UPDATE FILTER OPTIONS with User's Schema
-      // This ensures the new filters appear immediately even if DB has old data
-      setAvailableCategories(['بيع', 'إيجار', 'مطلوب', 'أخرى']);
-      setAvailablePropertyTypes(['شقة', 'فيلا', 'أرض', 'منزل', 'عمارة', 'شاليه', 'مصنع', 'مخزن', 'محل', 'مكتب', 'أخرى']);
-      setAvailablePurposes(['سكني', 'تجاري', 'صناعي', 'أخرى']);
+        // 1. Transaction Types (Dynamic + Core Defaults)
+        // We prioritize the core ones but allow others if they exist in DB
+        const dbCats = clean(data.filters.categories);
+        const coreCats = ['بيع', 'إيجار', 'مطلوب'];
+        setAvailableCategories([...new Set([...coreCats, ...dbCats, 'أخرى'])]);
 
-      // Regions still dynamic but we can inject common ones if needed
-      if (data.filters && data.filters.regions?.length > 0) {
-        const regionsList = [...new Set((data.filters.regions || []).filter(v => v && v !== 'أخرى'))];
-        setRegions(prev => [...new Set([...prev, ...regionsList])].sort());
+        // 2. Property Types (Dynamic + Core Defaults)
+        const dbTypes = clean(data.filters.propertyTypes);
+        const coreTypes = ['شقة', 'فيلا', 'أرض', 'منزل', 'عمارة', 'شاليه', 'مصنع', 'مخزن', 'محل', 'مكتب'];
+        setAvailablePropertyTypes([...new Set([...coreTypes, ...dbTypes, 'أخرى'])]);
+
+        // 3. Usage Purposes (Dynamic + Core Defaults)
+        const dbPurposes = clean(data.filters.purposes);
+        const corePurposes = ['سكني', 'تجاري', 'صناعي'];
+        setAvailablePurposes([...new Set([...corePurposes, ...dbPurposes, 'أخرى'])]);
+
+        // 4. Regions (Fully Dynamic)
+        if (data.filters.regions?.length > 0) {
+          const regionsList = clean(data.filters.regions);
+          setRegions(prev => [...new Set([...prev, ...regionsList])].sort());
+        }
       }
     } catch (err) {
       console.error('Error fetching stats:', err);
