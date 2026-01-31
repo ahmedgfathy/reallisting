@@ -110,6 +110,7 @@ function AdminDashboard({ onClose }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [importMode, setImportMode] = useState('file'); // 'file' or 'text'
   const [importText, setImportText] = useState('');
+  const [aiUsedInBatch, setAiUsedInBatch] = useState(false);
 
   const token = localStorage.getItem('token') || '';
 
@@ -364,6 +365,7 @@ function AdminDashboard({ onClose }) {
           const result = await adminAPI.importMessagesBatch(batch, filename);
           totalImported += result.imported;
           totalSkipped += result.skipped;
+          if (result.aiUsed) setAiUsedInBatch(true);
         } catch (err) {
           console.error('Batch import failed:', err);
           totalErrors += batch.length; // Count full batch as error if failed
@@ -389,7 +391,7 @@ function AdminDashboard({ onClose }) {
         }
       };
 
-      setImportResult(formattedResult);
+      setImportResult({ ...formattedResult, aiUsed: aiUsedInBatch });
       setSelectedFile(null);
       setImportText('');
       setShowImportModal(false);
@@ -723,7 +725,7 @@ function AdminDashboard({ onClose }) {
                 onClick={handleImportWhatsApp}
                 disabled={importing || (importMode === 'file' ? !selectedFile : !importText.trim())}
               >
-                {importing ? '⏳ جاري الاستيراد...' : '✅ استيراد'}
+                {importing ? (aiUsedInBatch ? '⏳ جاري التصنيف بذكاء Gemini...' : '⏳ جاري الاستيراد...') : '✅ استيراد'}
               </button>
               <button
                 className="import-cancel-btn"
@@ -763,6 +765,12 @@ function AdminDashboard({ onClose }) {
                 <div className="import-stat">
                   <span className="import-label">الأخطاء:</span>
                   <span className="import-value import-error">{importResult.stats.errors}</span>
+                </div>
+              )}
+              {importResult.aiUsed && (
+                <div className="import-stat" style={{ gridColumn: '1 / -1', background: '#e1f5fe', borderRight: '4px solid #03a9f4' }}>
+                  <span className="import-label" style={{ color: '#01579b' }}>✨ جودة البيانات ممتازة:</span>
+                  <span className="import-value" style={{ color: '#01579b' }}>تم التصنيف بواسطة ذكاء Google Gemini</span>
                 </div>
               )}
             </div>
