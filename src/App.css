@@ -2486,3 +2486,53 @@ body {
   background: #78350f;
   color: #fcd34d;
 }
+
+/* Confirmation Modal */
+.confirm-modal {
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-body {
+  padding: 20px 0;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.modal-note {
+  font-size: 0.9rem;
+  color: #e53e3e;
+  margin-top: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.modal-btn {
+  padding: 10px 25px;
+  border-radius: 8px;
+  border: none;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
+}
+
+.modal-btn.cancel {
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+.modal-btn.danger {
+  background: #e53e3e;
+  color: white;
+  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+}
