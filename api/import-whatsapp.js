@@ -50,12 +50,17 @@ function extractRegion(messageText, availableRegions) {
   return 'أخرى';
 }
 
-// Basic Regex Classifier (Fallback/Boost)
+// Advanced Classifier based on User's New Schema
 function classifyMessageRegex(messageText) {
   const text = messageText.toLowerCase();
 
-  let category = 'عقار';
+  // 1. نوع الإعلان (Category) -> Rent/Sell/Buy
+  let category = 'بيع'; // Default
+  if (text.includes('مطلوب') || text.includes('شراء')) category = 'مطلوب';
+  else if (text.includes('للايجار') || text.includes('إيجار') || text.includes('ايجار') || text.includes('للسكن')) category = 'إيجار';
+  else if (text.includes('للبيع') || text.includes('بيع') || text.includes('تنازل')) category = 'بيع';
 
+  // 2. نوع العقار (Property Type) -> Apartment, Villa, Land
   let propertyType = 'أخرى';
   if (text.match(/شقة|شقق|شقه/)) propertyType = 'شقة';
   else if (text.match(/فيلا|فيلات/)) propertyType = 'فيلا';
@@ -68,10 +73,14 @@ function classifyMessageRegex(messageText) {
   else if (text.match(/مخزن/)) propertyType = 'مخزن';
   else if (text.match(/ارضي|دور ارضي/)) propertyType = 'دور أرضي';
 
-  let purpose = 'بيع';
-  if (text.includes('مطلوب')) purpose = 'مطلوب';
-  else if (text.includes('للايجار') || text.includes('إيجار') || text.includes('ايجار') || text.includes('للسكن')) purpose = 'إيجار';
-  else if (text.includes('للبيع') || text.includes('بيع') || text.includes('تنازل')) purpose = 'بيع';
+  // 3. الغرض (Purpose) -> Commercial / Residential / Industrial
+  let purpose = 'سكني'; // Default to Residential
+  if (text.match(/محل|مكتب|اداري|تجاري|عيادة|مول/)) purpose = 'تجاري';
+  else if (text.match(/مصنع|ورشة|مخزن|صناعي|هنجر/)) purpose = 'صناعي';
+  else if (text.match(/شقة|فيلا|منزل|بيت|سكن|عائلي/)) purpose = 'سكني';
+
+  // Special case: Land can be undetermined, but usually residential unless in industrial area
+  if (propertyType === 'أرض' && text.match(/صناعية|منطقة صناعية/)) purpose = 'صناعي';
 
   return { category, propertyType, purpose };
 }
