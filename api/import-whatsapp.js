@@ -1,104 +1,24 @@
 const { messages, regions, corsHeaders, verifyToken } = require('../lib/database');
-
-// Vercel payload size limit workaround - process in chunks
-const MAX_CHUNK_SIZE = 3 * 1024 * 1024; // 3MB to stay under 4.5MB limit
+const { analyzeMessage } = require('../lib/ai');
 
 // Helper to parse request body
 async function parseBody(req) {
   if (req.body) return req.body;
-
   return new Promise((resolve) => {
     let body = '';
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
+    req.on('data', chunk => { body += chunk.toString(); });
     req.on('end', () => {
       try {
-        const parsed = JSON.parse(body);
-        resolve(parsed);
-      } catch (error) {
-        console.error('Body parse error:', error);
+        resolve(JSON.parse(body));
+      } catch {
         resolve({});
       }
-    });
-    req.on('error', (error) => {
-      console.error('Request error:', error);
-      resolve({});
     });
   });
 }
 
-// Parse WhatsApp text format
-function parseWhatsAppText(text) {
-  const lines = text.split('\n');
-  const parsedMessages = [];
-
-  // WhatsApp format: [DD/MM/YYYY, HH:MM:SS] Sender Name: Message
-  // or: DD/MM/YYYY, HH:MM - Sender Name: Message
-  const messageRegex = /^\[?(\d{1,2}\/\d{1,2}\/\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AP]M)?)\]?\s*-?\s*([^:]+):\s*(.+)$/i;
-
-  let currentMessage = null;
-
-  for (const line of lines) {
-    const match = line.match(messageRegex);
-
-    if (match) {
-      // Save previous message if exists
-      if (currentMessage) {
-        parsedMessages.push(currentMessage);
-      }
-
-      const [, date, time, sender, messageText] = match;
-
-      // Parse date (handle DD/MM/YYYY or DD/MM/YY)
-      const dateParts = date.split('/');
-      let day = parseInt(dateParts[0]);
-      let month = parseInt(dateParts[1]) - 1; // JS months are 0-indexed
-      let year = parseInt(dateParts[2]);
-
-      // Handle 2-digit years
-      if (year < 100) {
-        year += 2000;
-      }
-
-      // Parse time
-      const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M))?/i);
-      let hours = parseInt(timeParts[1]);
-      const minutes = parseInt(timeParts[2]);
-      const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
-      const ampm = timeParts[4];
-
-      // Convert to 24-hour format if needed
-      if (ampm) {
-        if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
-        if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
-      }
-
-      const messageDate = new Date(year, month, day, hours, minutes, seconds);
-
-      currentMessage = {
-        sender: sender.trim(),
-        message: messageText.trim(),
-        date: messageDate.toISOString()
-      };
-    } else if (currentMessage && line.trim()) {
-      // Continuation of previous message
-      currentMessage.message += '\n' + line;
-    }
-  }
-
-  // Add last message
-  if (currentMessage) {
-    parsedMessages.push(currentMessage);
-  }
-
-  return parsedMessages;
-}
-
 // Extract mobile numbers from text
 function extractMobileNumber(text) {
-  // Egyptian mobile: 01[0-9]{9} or +201[0-9]{9}
-  // Saudi mobile: 05[0-9]{8} or +9665[0-9]{8}
   const mobileRegex = /(?:\+?966|0)?5\d{8}|(?:\+?20|0)?1\d{9}/g;
   const matches = text.match(mobileRegex);
   return matches ? matches[0] : '';
@@ -107,44 +27,50 @@ function extractMobileNumber(text) {
 // Extract region from message
 function extractRegion(messageText, availableRegions) {
   const text = messageText.toLowerCase();
-
   for (const region of availableRegions) {
     if (text.includes(region.name.toLowerCase())) {
       return region.name;
     }
   }
-
   return 'أخرى';
 }
 
-// Classify message
-function classifyMessage(messageText) {
+// Basic Regex Classifier (Fallback/Boost)
+function classifyMessageRegex(messageText) {
   const text = messageText.toLowerCase();
 
-  // Category
   let category = 'أخرى';
   if (text.includes('عقار') || text.includes('عقارات')) category = 'عقار';
-  if (text.includes('شقة') || text.includes('شقق')) category = 'شقة';
-  if (text.includes('فيلا')) category = 'فيلا';
-  if (text.includes('أرض') || text.includes('ارض')) category = 'أرض';
-  if (text.includes('محل') || text.includes('محلات')) category = 'محل';
-  if (text.includes('مكتب')) category = 'مكتب';
+  else if (text.includes('شقة') || text.includes('شقق')) category = 'شقة';
+  else if (text.includes('فيلا')) category = 'فيلا';
+  else if (text.includes('أرض') || text.includes('ارض')) category = 'أرض';
+  else if (text.includes('محل') || text.includes('محلات')) category = 'محل';
+  else if (text.includes('مكتب')) category = 'مكتب';
 
-  // Property type
   let propertyType = 'أخرى';
   if (text.includes('شقة')) propertyType = 'شقة';
-  if (text.includes('فيلا')) propertyType = 'فيلا';
-  if (text.includes('دور')) propertyType = 'دور';
-  if (text.includes('أرض')) propertyType = 'أرض';
-  if (text.includes('عمارة')) propertyType = 'عمارة';
+  else if (text.includes('فيلا')) propertyType = 'فيلا';
+  else if (text.includes('دور')) propertyType = 'دور';
+  else if (text.includes('أرض')) propertyType = 'أرض';
+  else if (text.includes('عمارة')) propertyType = 'عمارة';
 
-  // Purpose
-  let purpose = 'أخرى';
+  let purpose = 'بيع';
   if (text.includes('للبيع') || text.includes('بيع')) purpose = 'بيع';
-  if (text.includes('للإيجار') || text.includes('ايجار') || text.includes('إيجار')) purpose = 'إيجار';
-  if (text.includes('مطلوب')) purpose = 'مطلوب';
+  else if (text.includes('للإيجار') || text.includes('ايجار') || text.includes('إيجار')) purpose = 'إيجار';
+  else if (text.includes('مطلوب')) purpose = 'مطلوب';
 
   return { category, propertyType, purpose };
+}
+
+// Helper to process in chunks for AI
+async function processInGroups(items, groupSize, task) {
+  const results = [];
+  for (let i = 0; i < items.length; i += groupSize) {
+    const group = items.slice(i, i + groupSize);
+    const groupResults = await Promise.all(group.map(task));
+    results.push(...groupResults);
+  }
+  return results;
 }
 
 module.exports = async (req, res) => {
@@ -170,72 +96,72 @@ module.exports = async (req, res) => {
     const payload = verifyToken(token);
 
     if (!payload || payload.role !== 'admin') {
-      return res.status(403).json({ error: 'Admin access required to import messages' });
+      return res.status(403).json({ error: 'Admin access required' });
     }
 
     const body = await parseBody(req);
-    const { messages: parsedMessages, fileName } = body;
+    const { messages: rawMessages, fileName } = body;
     const finalFileName = fileName || `batch_${Date.now()}.txt`;
 
-    if (!parsedMessages || !Array.isArray(parsedMessages)) {
+    if (!rawMessages || !Array.isArray(rawMessages)) {
       return res.status(400).json({ error: 'Invalid messages format' });
     }
 
     // Get available regions
     const availableRegions = await regions.getAll();
+    const hasAI = !!process.env.AI_API_KEY;
 
-    // Import messages
-    let imported = 0;
-    let skipped = 0;
+    console.log(`🚀 Processing ${rawMessages.length} messages. AI Enabled: ${hasAI}`);
 
-    // Direct regex extraction to MariaDB - no AI needed
-    for (const msg of parsedMessages) {
+    // Process with AI in small parallel groups to maintain speed without hitting limits
+    const processedMessages = await processInGroups(rawMessages, 5, async (msg) => {
       try {
-        // Extract data directly using regex patterns
-        const region = extractRegion(msg.message, availableRegions);
-        const classification = classifyMessage(msg.message);
         const mobile = extractMobileNumber(msg.message);
+        const regexClass = classifyMessageRegex(msg.message);
+        const autoRegion = extractRegion(msg.message, availableRegions);
 
-        const finalCategory = classification.category;
-        const finalPropertyType = classification.propertyType;
-        const finalPurpose = classification.purpose;
-        const finalRegion = region;
+        let aiResult = null;
+        if (hasAI) {
+          try {
+            aiResult = await analyzeMessage(msg.message);
+          } catch (e) {
+            console.warn('AI error, using regex.');
+          }
+        }
 
-        const result = await messages.create({
+        return {
           message: msg.message || null,
           sender_name: msg.sender || null,
           sender_mobile: mobile || null,
           date_of_creation: msg.date || null,
           source_file: finalFileName || null,
           image_url: null,
-          category: finalCategory || 'أخرى',
-          property_type: finalPropertyType || 'أخرى',
-          region: finalRegion || 'أخرى',
-          purpose: finalPurpose || 'أخرى'
-        });
-
-        if (result.success) {
-          imported++;
-        } else {
-          skipped++;
-        }
-      } catch (error) {
-        skipped++;
-        console.error('Import insert error:', error.message);
+          category: aiResult?.category || regexClass.category,
+          property_type: aiResult?.propertyType || regexClass.propertyType,
+          region: aiResult?.region || autoRegion,
+          purpose: aiResult?.purpose || regexClass.purpose
+        };
+      } catch (err) {
+        return null;
       }
+    });
+
+    const validMessages = processedMessages.filter(m => m !== null);
+    if (validMessages.length === 0) {
+      return res.status(200).json({ success: true, imported: 0, skipped: rawMessages.length });
     }
+
+    const result = await messages.createBatch(validMessages);
 
     return res.status(200).json({
       success: true,
-      imported,
-      skipped,
-      total: parsedMessages.length
+      imported: result.count || 0,
+      skipped: rawMessages.length - (result.count || 0),
+      total: rawMessages.length,
+      aiUsed: hasAI
     });
   } catch (error) {
     console.error('Import error:', error);
-    return res.status(500).json({
-      error: 'Failed to import batch',
-      details: error.message
-    });
+    return res.status(500).json({ error: 'Failed' });
   }
 };

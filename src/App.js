@@ -13,8 +13,11 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [stats, setStats] = useState({ totalMessages: 0, totalFiles: 0, files: [] });
+  const [stats, setStats] = useState({ totalMessages: 0, totalFiles: 0, files: [], filters: { categories: [], propertyTypes: [], purposes: [] } });
   const [regions, setRegions] = useState([]);
+  const [availableCategories, setAvailableCategories] = useState(['مطلوب', 'معروض', 'أخرى']);
+  const [availablePropertyTypes, setAvailablePropertyTypes] = useState(['شقة', 'أرض', 'فيلا', 'محل', 'مكتب', 'عمارة', 'أخرى']);
+  const [availablePurposes, setAvailablePurposes] = useState(['بيع', 'إيجار', 'مطلوب', 'أخرى']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
@@ -193,6 +196,20 @@ function App() {
       const response = await apiCall('/api/stats');
       const data = await response.json();
       setStats(data);
+
+      // Update dynamic filter options from stats
+      if (data.filters) {
+        if (data.filters.categories?.length > 0) setAvailableCategories(data.filters.categories);
+        if (data.filters.propertyTypes?.length > 0) setAvailablePropertyTypes(data.filters.propertyTypes);
+        if (data.filters.purposes?.length > 0) setAvailablePurposes(data.filters.purposes);
+        if (data.filters.regions?.length > 0) {
+          // Merge dynamic regions with any existing regions, ensuring uniqueness
+          setRegions(prev => {
+            const combined = [...new Set([...prev, ...data.filters.regions])];
+            return combined;
+          });
+        }
+      }
     } catch (err) {
       console.error('Error fetching stats:', err);
     }
@@ -605,9 +622,9 @@ function App() {
             className="filter-select"
           >
             <option value="الكل">الكل</option>
-            <option value="مطلوب">مطلوب</option>
-            <option value="معروض">معروض</option>
-            <option value="أخرى">أخرى</option>
+            {availableCategories.map(cat => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
           </select>
 
           <label className="filter-label">نوع العقار:</label>
@@ -617,22 +634,9 @@ function App() {
             className="filter-select"
           >
             <option value="الكل">الكل</option>
-            <option value="شقة">شقة</option>
-            <option value="أرض">أرض / قطعة</option>
-            <option value="مزرعة">مزرعة / فدان</option>
-            <option value="فيلا">فيلا</option>
-            <option value="بيت">بيت / منزل</option>
-            <option value="محل">محل / دكان</option>
-            <option value="مكتب">مكتب</option>
-            <option value="عمارة">عمارة</option>
-            <option value="استوديو">استوديو</option>
-            <option value="دوبلكس">دوبلكس</option>
-            <option value="بدروم">بدروم</option>
-            <option value="هنجر">هنجر</option>
-            <option value="مصنع">مصنع</option>
-            <option value="مخزن">مخزن</option>
-            <option value="جراج">جراج</option>
-            <option value="أخرى">أخرى</option>
+            {availablePropertyTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
 
           <label className="filter-label">المنطقة:</label>
@@ -654,9 +658,9 @@ function App() {
             className="filter-select"
           >
             <option value="الكل">الكل</option>
-            <option value="بيع">للبيع</option>
-            <option value="إيجار">للإيجار</option>
-            <option value="أخرى">أخرى</option>
+            {availablePurposes.map(p => (
+              <option key={p} value={p}>{p === 'بيع' ? 'للبيع' : p === 'إيجار' ? 'للإيجار' : p}</option>
+            ))}
           </select>
 
           <div className="results-count">
