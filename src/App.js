@@ -790,10 +790,10 @@ function App() {
                       <span className="detail-value">{selectedUnit.category}</span>
                     </div>
                   )}
-                  {selectedUnit.propertyType && selectedUnit.propertyType !== 'أخرى' && (
+                  {selectedUnit.property_type && selectedUnit.property_type !== 'أخرى' && (
                     <div className="detail-info-item">
                       <span className="detail-label">نوع العقار</span>
-                      <span className="detail-value">{selectedUnit.propertyType}</span>
+                      <span className="detail-value">{selectedUnit.property_type}</span>
                     </div>
                   )}
                   {selectedUnit.region && selectedUnit.region !== 'أخرى' && (
