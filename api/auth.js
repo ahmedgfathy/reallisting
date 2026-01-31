@@ -45,13 +45,7 @@ module.exports = async (req, res) => {
       const user = await users.verifyPassword(loginIdentifier, password);
 
       if (!user) {
-        // Temporary debug info for setup phase
-        const { hashPassword } = require('../lib/database');
-        return res.status(401).json({
-          error: 'بيانات تسجيل الدخول غير صحيحة',
-          debug_identifier: loginIdentifier,
-          debug_expected_hash: hashPassword(password)
-        });
+        return res.status(401).json({ error: 'بيانات تسجيل الدخول غير صحيحة' });
       }
 
       const token = generateToken(user.mobile, user.role, !!user.is_active);
