@@ -123,6 +123,7 @@ function AdminDashboard({ onClose }) {
   const [importMode, setImportMode] = useState('file'); // 'file' or 'text'
   const [importText, setImportText] = useState('');
   const [aiUsedInBatch, setAiUsedInBatch] = useState(false);
+  const [importLog, setImportLog] = useState([]); // Real-time AI logs
 
   const token = localStorage.getItem('token') || '';
 
@@ -361,8 +362,8 @@ function AdminDashboard({ onClose }) {
 
       setUploadProgress(20);
 
-      // Batch processing
-      const BATCH_SIZE = 50;
+      // Batch processing for AI feedback
+      const BATCH_SIZE = 10;
       const batches = [];
       for (let i = 0; i < parsedMessages.length; i += BATCH_SIZE) {
         batches.push(parsedMessages.slice(i, i + BATCH_SIZE));
@@ -371,6 +372,7 @@ function AdminDashboard({ onClose }) {
       let totalImported = 0;
       let totalSkipped = 0;
       let totalErrors = 0;
+      setImportLog([]); // Clear previous log
 
       for (let i = 0; i < batches.length; i++) {
         const batch = batches[i];
@@ -379,10 +381,16 @@ function AdminDashboard({ onClose }) {
           const result = await adminAPI.importMessagesBatch(batch, filename);
           totalImported += result.imported;
           totalSkipped += result.skipped;
+
           if (result.aiUsed) setAiUsedInBatch(true);
+
+          // Update log with latest classifications
+          if (result.classifications) {
+            setImportLog(prev => [...result.classifications.slice(-5), ...prev].slice(0, 15));
+          }
         } catch (err) {
           console.error('Batch import failed:', err);
-          totalErrors += batch.length; // Count full batch as error if failed
+          totalErrors += batch.length;
         }
 
         // Update progress (20% to 100%)
@@ -725,11 +733,29 @@ function AdminDashboard({ onClose }) {
             )}
 
             {importing && uploadProgress > 0 && (
-              <div className="upload-progress">
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+              <div className="upload-progress-container">
+                <div className="upload-progress">
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${uploadProgress}%` }}></div>
+                  </div>
+                  <span className="progress-text">{uploadProgress}%</span>
                 </div>
-                <span className="progress-text">{uploadProgress}%</span>
+
+                {importLog.length > 0 && (
+                  <div className="import-live-log">
+                    <div className="log-header">📡 تصنيفات ذكية مباشرة:</div>
+                    <div className="log-entries">
+                      {importLog.map((log, i) => (
+                        <div key={i} className="log-entry">
+                          <span className="log-msg">{log.msg}</span>
+                          <span className="log-badge region">{log.region}</span>
+                          <span className="log-badge type">{log.type}</span>
+                          <span className="log-badge purpose">{log.purpose}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

@@ -136,7 +136,13 @@ module.exports = async (req, res) => {
           category: aiResult?.category || regexClass.category,
           property_type: aiResult?.propertyType || regexClass.propertyType,
           region: aiResult?.region || autoRegion,
-          purpose: aiResult?.purpose || regexClass.purpose
+          purpose: aiResult?.purpose || regexClass.purpose,
+          ai_metadata: aiResult ? {
+            district: aiResult.district,
+            area: aiResult.area,
+            price: aiResult.price,
+            keywords: aiResult.keywords
+          } : {}
         };
       } catch (err) {
         return null;
@@ -155,7 +161,13 @@ module.exports = async (req, res) => {
       imported: result.count || 0,
       skipped: rawMessages.length - (result.count || 0),
       total: rawMessages.length,
-      aiUsed: hasAI
+      aiUsed: hasAI,
+      classifications: validMessages.map(m => ({
+        msg: m.message.substring(0, 30) + '...',
+        region: m.region,
+        type: m.property_type,
+        purpose: m.purpose
+      }))
     });
   } catch (error) {
     console.error('Import error:', error);

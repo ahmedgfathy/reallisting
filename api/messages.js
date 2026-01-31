@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
 
     // Get messages from database
     const filters = {};
-    
+
     // Only add filters if they're not "الكل" (All)
     if (category && category !== 'الكل') filters.category = category;
     if (propertyType && propertyType !== 'الكل') filters.property_type = propertyType;
@@ -76,7 +76,8 @@ module.exports = async (req, res) => {
         category: msg.category || 'أخرى',
         property_type: msg.property_type || 'أخرى',
         region: msg.region || 'أخرى',
-        purpose: msg.purpose || 'أخرى'
+        purpose: msg.purpose || 'أخرى',
+        ai_metadata: msg.ai_metadata || {}
       };
 
       // Only show contact info for approved users
@@ -93,12 +94,10 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       data: formattedMessages,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: total,
-        totalPages: Math.ceil(total / parseInt(limit))
-      },
+      total: total,
+      totalPages: Math.ceil(total / parseInt(limit)),
+      page: parseInt(page),
+      limit: parseInt(limit),
       hasMore: formattedMessages.length === parseInt(limit)
     });
 
