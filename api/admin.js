@@ -107,10 +107,15 @@ module.exports = async (req, res) => {
       }
 
       const result = await messages.deleteMultiple(targetIds);
+      const deletedCount = result.deletedCount;
+
+      if (deletedCount === 0) {
+        return res.status(404).json({ error: 'No messages were deleted. They may not exist or you lack permission.' });
+      }
 
       return res.status(200).json({
         success: true,
-        deletedCount: result.deletedCount || targetIds.length
+        deletedCount: deletedCount
       });
     } catch (error) {
       console.error('Delete messages error:', error);

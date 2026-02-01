@@ -481,6 +481,8 @@ function App() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        console.log(`Deleted ${data.deletedCount} messages`);
         setSelectedMessages(new Set());
         setMessages([]);
         setHasMore(true);
@@ -488,14 +490,14 @@ function App() {
         fetchMessages(1, { append: false });
         fetchStats();
       } else {
-        // We can use a toast here ideally, but for now just avoid window.alert if possible, 
-        // or just log error. User said "fail i hate alert message".
-        // Let's rely on the AdminDashboard live log or similar if we had it, 
-        // but for main app, maybe just console.error or a subtle UI feedback (omitted for brevity unless requested).
-        console.error('Delete failed');
+        const errorData = await response.json();
+        const errorMessage = errorData.error || 'Failed to delete messages';
+        console.error('Delete failed:', errorMessage);
+        setError(errorMessage); // Show error in UI
       }
     } catch (err) {
       console.error('Error deleting messages:', err);
+      setError('An unexpected error occurred while deleting');
     }
   };
 
