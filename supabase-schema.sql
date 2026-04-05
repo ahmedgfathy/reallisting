@@ -112,5 +112,18 @@ INSERT INTO regions (id, name) VALUES
   (md5(random()::text || clock_timestamp()::text)::varchar(32), 'أخرى')
 ON CONFLICT (name) DO NOTHING;
 
+-- Insert default admin users
+-- Password hashing: SHA256(password + 'reallisting_secret_key_2025_secure')
+-- admin  / Admin@2025  → 40c670f136bb7575f05c71bbc271f140d618e1f5896efb47aec739a1edab6ea7
+-- xinreal / zerocall   → b1033538c309334e491175cde9272538619a848bbe233b0568c1660dbddc1229
+INSERT INTO users (id, mobile, password, name, role, is_active) VALUES
+  ('c1f6e1ad5f7d65ec2ae6fdcf375839e8', 'admin',   '40c670f136bb7575f05c71bbc271f140d618e1f5896efb47aec739a1edab6ea7', 'Super Admin', 'admin', TRUE),
+  ('0faf85ee1c377fa2e23d099536d2870d', 'xinreal', 'b1033538c309334e491175cde9272538619a848bbe233b0568c1660dbddc1229', 'XinReal Admin', 'admin', TRUE)
+ON CONFLICT (mobile) DO UPDATE
+  SET password  = EXCLUDED.password,
+      name      = EXCLUDED.name,
+      role      = EXCLUDED.role,
+      is_active = EXCLUDED.is_active;
+
 -- Success message
 SELECT 'Database schema created successfully!' as status;
