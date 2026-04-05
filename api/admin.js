@@ -6,7 +6,7 @@ const {
   deduplicateMessages,
   listResetRequests,
   processResetRequest
-} = require('../lib/database');
+} = require('../lib/db');
 
 // Helper to parse request body
 async function parseBody(req) {

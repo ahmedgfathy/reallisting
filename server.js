@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const apiHandler = require('./api/index');
-const { initDatabase, DB_FILE } = require('./lib/database');
+const { initDatabase, DB_FILE } = require('./lib/db');
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '5001', 10);

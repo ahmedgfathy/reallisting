@@ -1,4 +1,4 @@
-const { regions, corsHeaders } = require('../lib/database');
+const { regions, corsHeaders } = require('../lib/db');
 
 module.exports = async (req, res) => {
   // Handle CORS
