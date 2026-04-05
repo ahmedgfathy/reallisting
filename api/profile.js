@@ -50,11 +50,13 @@ module.exports = async (req, res) => {
       }
 
       return res.status(200).json({
-        mobile: user.mobile,
-        name: user.name,
-        role: user.role,
-        isActive: user.is_active === 1,
-        subscriptionEndDate: user.subscription_end_date || null
+        user: {
+          mobile: user.mobile,
+          name: user.name,
+          role: user.role,
+          isActive: !!user.is_active,
+          subscriptionEndDate: user.subscription_end_date || null
+        }
       });
     } catch (error) {
       console.error('Get profile error:', error);
@@ -101,7 +103,7 @@ module.exports = async (req, res) => {
           mobile: updatedUser.mobile,
           name: updatedUser.name,
           role: updatedUser.role,
-          isActive: updatedUser.is_active === 1,
+          isActive: !!updatedUser.is_active,
           subscriptionEndDate: updatedUser.subscription_end_date || null
         }
       });

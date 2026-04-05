@@ -1,0 +1,45 @@
+declare -x DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus"
+declare -x DISPLAY=":0"
+declare -x HOME="/home/xinreal"
+declare -x HOSTTYPE="x86_64"
+declare -x LANG="C.UTF-8"
+declare -x LOGNAME="xinreal"
+declare -x NAME="AHMEDGFATHY"
+declare -x OLDPWD
+declare -x PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/ahmed/.codex/tmp/arg0/codex-arg0xYmFxp:/mnt/c/Program Files/WindowsApps/MicrosoftCorporationII.WindowsSubsystemForLinux_2.6.3.0_x64__8wekyb3d8bbwe:/mnt/c/WINDOWS/system32:/mnt/c/WINDOWS:/mnt/c/WINDOWS/System32/Wbem:/mnt/c/WINDOWS/System32/WindowsPowerShell/v1.0/:/mnt/c/WINDOWS/System32/OpenSSH/:/mnt/c/Program Files/dotnet/:/mnt/c/Program Files/Git/cmd:/mnt/c/Program Files/Cloudflare/Cloudflare WARP/:/mnt/c/Users/ahmed/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/ahmed/AppData/Local/Programs/Microsoft VS Code/bin:/mnt/c/Users/ahmed/.vscode/extensions/openai.chatgpt-26.325.31654-win32-x64/bin/windows-x86_64:/snap/bin"
+declare -x PULSE_SERVER="unix:/mnt/wslg/PulseServer"
+declare -x PWD="/home/xinreal/dev/reallisting"
+declare -x SHELL="/bin/bash"
+declare -x SHLVL="2"
+declare -x TERM="xterm-256color"
+declare -x USER="xinreal"
+declare -x WAYLAND_DISPLAY="wayland-0"
+declare -x WSL2_GUI_APPS_ENABLED="1"
+declare -x WSLENV="ELECTRON_RUN_AS_NODE/w:"
+declare -x WSL_DISTRO_NAME="Ubuntu"
+declare -x WSL_INTEROP="/run/WSL/6129_interop"
+declare -x XDG_DATA_DIRS="/usr/local/share:/usr/share:/var/lib/snapd/desktop"
+declare -x XDG_RUNTIME_DIR="/run/user/1000/"
+
+> reallisting@0.1.0 start
+> react-scripts start
+
+Starting the development server...
+
+Compiled successfully!
+
+You can now view reallisting in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://172.22.178.237:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Compiled successfully!
+webpack compiled successfully

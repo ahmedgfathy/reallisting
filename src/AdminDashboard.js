@@ -220,7 +220,7 @@ function AdminDashboard({ onClose }) {
     setProcessingReset(mobile);
     setGeneratedPassword(null);
     try {
-      const response = await fetch('/api/admin?path=reset-requests', {
+      const response = await apiCall('/api/admin?path=reset-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ function AdminDashboard({ onClose }) {
     if (!token) return;
     setProcessingReset(mobile);
     try {
-      const response = await fetch('/api/admin?path=reset-requests', {
+      const response = await apiCall('/api/admin?path=reset-requests', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ function AdminDashboard({ onClose }) {
   const handleSetSubscription = async (mobile) => {
     if (!token || !subscriptionDays) return;
     try {
-      const response = await fetch('/api/admin?path=subscription', {
+      const response = await apiCall('/api/admin?path=subscription', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

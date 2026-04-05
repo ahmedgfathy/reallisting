@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
   // Get the path relative to /api
   // In Vercel, req.url might be "/api/auth/login" or just "/auth/login"
   let fullPath = req.url.split('?')[0];
-  let path = fullPath.replace(/^\/api\//, '').replace(/^\/+|\/+$/g, '');
+  let path = fullPath.replace(/^\/api(?:\/|$)/, '').replace(/^\/+|\/+$/g, '');
 
   console.log(`📡 [API] ${req.method} ${fullPath} -> Clean path: ${path}`);
 
@@ -41,6 +41,10 @@ module.exports = async (req, res) => {
   } else if (path === 'import-whatsapp' || path.startsWith('import-whatsapp/')) {
     return importWhatsappHandler(req, res);
   } else if (path === 'messages' || path.startsWith('messages/')) {
+    if (path === 'messages/delete') {
+      req.query.path = 'messages';
+      return adminHandler(req, res);
+    }
     return messagesHandler(req, res);
   } else if (path === 'admin' || path.startsWith('admin/')) {
     return adminHandler(req, res);
@@ -48,13 +52,18 @@ module.exports = async (req, res) => {
     return regionsHandler(req, res);
   } else if (path === 'stats' || path.startsWith('stats/')) {
     return statsHandler(req, res);
+  } else if (path === 'refresh') {
+    return res.status(200).json({
+      success: true,
+      message: 'Refresh acknowledged'
+    });
   } else if (path === 'profile' || path.startsWith('profile/')) {
     return profileHandler(req, res);
   } else if (path === '' || path === 'index') {
     return res.status(200).json({
       status: 'ok',
       message: 'RealListing API is running',
-      database: 'Supabase',
+      database: 'Local JSON DB',
       timestamp: new Date().toISOString()
     });
   } else {

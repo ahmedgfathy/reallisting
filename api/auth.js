@@ -1,4 +1,4 @@
-const { users, messages, generateToken, corsHeaders } = require('../lib/database');
+const { users, createResetRequest, generateToken, corsHeaders } = require('../lib/database');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -125,6 +125,28 @@ module.exports = async (req, res) => {
     } catch (error) {
       console.error('Verify error:', error);
       return res.status(401).json({ authenticated: false });
+    }
+  }
+
+  // RESET PASSWORD REQUEST
+  if ((path === 'reset-password' || path === '/reset-password') && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const mobile = (body?.mobile || '').toString().trim();
+
+      if (!mobile) {
+        return res.status(400).json({ error: 'رقم الموبايل مطلوب' });
+      }
+
+      await createResetRequest(mobile);
+
+      return res.status(200).json({
+        success: true,
+        message: 'تم استلام الطلب وسيظهر في لوحة المشرف المحلية.'
+      });
+    } catch (error) {
+      console.error('Reset password request error:', error);
+      return res.status(500).json({ error: 'Failed to submit reset request' });
     }
   }
 

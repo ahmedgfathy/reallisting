@@ -1,4 +1,12 @@
-const { users, messages, verifyToken, corsHeaders } = require('../lib/database');
+const {
+  users,
+  messages,
+  verifyToken,
+  corsHeaders,
+  deduplicateMessages,
+  listResetRequests,
+  processResetRequest
+} = require('../lib/database');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -64,6 +72,45 @@ module.exports = async (req, res) => {
     }
   }
 
+  // DEDUPLICATE MESSAGES
+  if ((path === 'deduplicate' || path === '/deduplicate') && req.method === 'POST') {
+    try {
+      const result = await deduplicateMessages();
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Deduplicate error:', error);
+      return res.status(500).json({ error: 'Failed to deduplicate messages' });
+    }
+  }
+
+  // RESET REQUESTS
+  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'GET') {
+    try {
+      const requests = await listResetRequests();
+      return res.status(200).json(requests);
+    } catch (error) {
+      console.error('Get reset requests error:', error);
+      return res.status(500).json({ error: 'Failed to fetch reset requests' });
+    }
+  }
+
+  if ((path === 'reset-requests' || path === '/reset-requests') && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const { mobile, action } = body || {};
+
+      if (!mobile || !action) {
+        return res.status(400).json({ error: 'Mobile and action are required' });
+      }
+
+      const result = await processResetRequest(mobile, action);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Process reset request error:', error);
+      return res.status(500).json({ error: 'Failed to process reset request' });
+    }
+  }
+
   // UPDATE USER STATUS
   if (path.includes('/status') && req.method === 'POST') {
     try {
@@ -84,9 +131,11 @@ module.exports = async (req, res) => {
         user: {
           id: user.id,
           mobile: user.mobile,
+          name: user.name,
           role: user.role,
           isActive: !!user.is_active,
-          subscriptionEndDate: user.subscription_end_date
+          subscriptionEndDate: user.subscription_end_date,
+          createdAt: user.created_at
         }
       });
     } catch (error) {
