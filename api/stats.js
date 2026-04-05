@@ -1,4 +1,4 @@
-const { getStats, corsHeaders } = require('../lib/database');
+const { getStats, corsHeaders } = require('../lib/db');
 
 module.exports = async (req, res) => {
   // Handle CORS

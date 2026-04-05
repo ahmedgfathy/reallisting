@@ -1,4 +1,4 @@
-const { users, createResetRequest, generateToken, corsHeaders } = require('../lib/database');
+const { users, createResetRequest, generateToken, corsHeaders } = require('../lib/db');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -100,7 +100,7 @@ module.exports = async (req, res) => {
         return res.status(401).json({ authenticated: false });
       }
 
-      const { verifyToken } = require('../lib/database');
+      const { verifyToken } = require('../lib/db');
       const payload = verifyToken(token);
 
       if (!payload) {

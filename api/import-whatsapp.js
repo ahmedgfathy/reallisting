@@ -1,4 +1,4 @@
-const { messages, regions, corsHeaders, verifyToken } = require('../lib/database');
+const { messages, regions, corsHeaders, verifyToken } = require('../lib/db');
 const { analyzeMessage } = require('../lib/ai');
 
 // Helper to parse request body

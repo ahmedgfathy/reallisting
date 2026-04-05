@@ -1,4 +1,4 @@
-const { users, verifyToken, corsHeaders } = require('../lib/database');
+const { users, verifyToken, corsHeaders } = require('../lib/db');
 
 // Helper to parse request body
 async function parseBody(req) {

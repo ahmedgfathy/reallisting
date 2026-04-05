@@ -60,10 +60,15 @@ module.exports = async (req, res) => {
   } else if (path === 'profile' || path.startsWith('profile/')) {
     return profileHandler(req, res);
   } else if (path === '' || path === 'index') {
+    const usingSupabase = !!(process.env.SUPABASE_URL && (
+      process.env.SUPABASE_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ));
     return res.status(200).json({
       status: 'ok',
       message: 'RealListing API is running',
-      database: 'Local JSON DB',
+      database: usingSupabase ? 'Supabase' : 'Local JSON DB',
       timestamp: new Date().toISOString()
     });
   } else {
