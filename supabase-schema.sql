@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Add ai_metadata to existing tables that were created before this column was added
+-- Add ai_metadata to existing messages table that was created before this column was added
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS ai_metadata JSONB DEFAULT '{}';
 
 CREATE INDEX IF NOT EXISTS idx_messages_category ON messages(category);
