@@ -45,8 +45,8 @@ function parseWhatsAppText(text) {
   const parsedMessages = [];
 
   // Flexible WhatsApp format: captures [Date, Time] Name: Message OR Date, Time - Name: Message
-  // Supports various date separators (/ or .) and both English and Arabic numerals
-  const messageRegex = new RegExp('^\\[?([\\d/. \\s-]+)[,،]\\s*([\\d:ap\\s]+[AP]M?)\\]?\\s*[-:]?\\s*([^:]+):\\s*(.+)$', 'i');
+  // Supports various date separators (/ or .), English & Arabic numerals, 24-hour and 12-hour (AM/PM or ص/م)
+  const messageRegex = new RegExp('^\\[?([\\d/. \\s-]+)[,،]\\s*([\\d:\\s]+(?:[AP]M?|[\\u0645\\u0635])?)\\]?\\s*[-:]?\\s*([^:]+):\\s*(.+)$', 'i');
 
   let currentMessage = null;
 
@@ -344,8 +344,6 @@ function AdminDashboard({ onClose }) {
         filename = `text_import_${Date.now()}.txt`;
       }
 
-      setUploadProgress(30);
-
       setUploadProgress(10);
 
       // Parse messages on client side
@@ -372,6 +370,7 @@ function AdminDashboard({ onClose }) {
       let totalImported = 0;
       let totalSkipped = 0;
       let totalErrors = 0;
+      let localAiUsed = false;
       setImportLog([]); // Clear previous log
 
       for (let i = 0; i < batches.length; i++) {
@@ -382,7 +381,10 @@ function AdminDashboard({ onClose }) {
           totalImported += result.imported;
           totalSkipped += result.skipped;
 
-          if (result.aiUsed) setAiUsedInBatch(true);
+          if (result.aiUsed) {
+            localAiUsed = true;
+            setAiUsedInBatch(true);
+          }
 
           // Update log with latest classifications
           if (result.classifications) {
@@ -413,7 +415,7 @@ function AdminDashboard({ onClose }) {
         }
       };
 
-      setImportResult({ ...formattedResult, aiUsed: aiUsedInBatch });
+      setImportResult({ ...formattedResult, aiUsed: localAiUsed });
       setSelectedFile(null);
       setImportText('');
       setShowImportModal(false);
