@@ -292,6 +292,11 @@ function App() {
     [limit, search, category, propertyType, region, purpose]
   );
 
+  const handleImportSuccess = useCallback(() => {
+    fetchMessages(1, { append: false });
+    fetchStats();
+  }, [fetchMessages, fetchStats]);
+
   useEffect(() => {
     setMessages([]);
     setSelectedMessages(new Set());
@@ -965,7 +970,7 @@ function App() {
                 <h2 className="detail-title">⚙️ لوحة التحكم</h2>
               </div>
               <div className="unit-detail-content">
-                <AdminDashboard onClose={() => setShowAdminDashboard(false)} />
+                <AdminDashboard onClose={() => setShowAdminDashboard(false)} onImportSuccess={handleImportSuccess} />
               </div>
             </div>
           </div>

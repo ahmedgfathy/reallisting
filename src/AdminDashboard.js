@@ -103,7 +103,7 @@ function parseWhatsAppText(text) {
   return parsedMessages;
 }
 
-function AdminDashboard({ onClose }) {
+function AdminDashboard({ onClose, onImportSuccess }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -419,6 +419,10 @@ function AdminDashboard({ onClose }) {
       setSelectedFile(null);
       setImportText('');
       setShowImportModal(false);
+
+      if (totalImported > 0 && onImportSuccess) {
+        onImportSuccess();
+      }
 
     } catch (err) {
       setError(err.message);
