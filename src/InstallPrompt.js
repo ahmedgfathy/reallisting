@@ -72,7 +72,7 @@ function InstallPrompt() {
         <button className="install-close" onClick={handleDismiss}>✕</button>
         
         <div className="install-icon">
-          <img src="/logo192.png" alt="كونتابو" />
+          <img src="/logo.svg" alt="كونتابو" />
         </div>
         
         <h2>تثبيت كونتابو</h2>

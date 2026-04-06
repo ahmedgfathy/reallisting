@@ -582,8 +582,11 @@ function App() {
       <div className="app">
         <div className="error-container">
           <div className="brand">
-            <img src="/logo192.png" alt="كونتابو" className="brand-logo" />
-            <h1>كونتابو</h1>
+            <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
+            <div className="brand-copy">
+              <h1>كونتابو</h1>
+              <p className="brand-tagline">شبكة الإعلانات العقارية الذكية</p>
+            </div>
           </div>
           <div className="error-message">
             <p>خطأ في الاتصال بالـ API</p>
@@ -605,8 +608,11 @@ function App() {
       <header className="header">
         <div className="header-row-1">
           <div className="brand">
-            <img src="/logo192.png" alt="كونتابو" className="brand-logo" />
-            <h1>كونتابو</h1>
+            <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
+            <div className="brand-copy">
+              <h1>كونتابو</h1>
+              <p className="brand-tagline">منصة رسائل عقارية أسرع للوسطاء والسماسرة</p>
+            </div>
           </div>
           <div className="header-actions">
             {isAdmin && (
@@ -648,9 +654,18 @@ function App() {
           </div>
         </div>
         <div className="header-row-2">
-          <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
-          <span className="stat-item">👤 الوسطاء: <strong>{stats.totalSenders || 0}</strong></span>
-          <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
+          <span className="stat-item">
+            <span className="stat-label">الوحدات</span>
+            <strong>{stats.totalMessages}</strong>
+          </span>
+          <span className="stat-item">
+            <span className="stat-label">الوسطاء</span>
+            <strong>{stats.totalSenders || 0}</strong>
+          </span>
+          <span className="stat-item">
+            <span className="stat-label">المشتركين</span>
+            <strong>{stats.totalSubscribers || 0}</strong>
+          </span>
         </div>
       </header>
 

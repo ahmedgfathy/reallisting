@@ -1,9 +1,10 @@
 // Service Worker for كونتابو PWA
-const CACHE_NAME = 'contaboo-v1';
+const CACHE_NAME = 'contaboo-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/logo.svg',
   '/logo192.png',
   '/logo512.png',
   '/favicon.ico'
