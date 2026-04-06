@@ -40,6 +40,38 @@ const adminAPI = {
 };
 
 // WhatsApp parsing logic (moved from server)
+function normalizeImportedDate(messageDate, originalYear) {
+  if (!(messageDate instanceof Date) || Number.isNaN(messageDate.getTime())) {
+    return new Date();
+  }
+
+  const now = new Date();
+  const maxAllowedFuture = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  let normalizedDate = new Date(messageDate);
+
+  // WhatsApp exports should not produce chat messages years in the future.
+  // If the parsed value is in the future, keep stepping it back by one year
+  // until it becomes plausible relative to the current date.
+  if (normalizedDate > maxAllowedFuture) {
+    while (normalizedDate > maxAllowedFuture) {
+      normalizedDate.setFullYear(normalizedDate.getFullYear() - 1);
+    }
+  }
+
+  // Two-digit years from localized exports can still land in the wrong decade.
+  // After the future clamp above, prefer a recent year close to "now".
+  if (originalYear < 100) {
+    const oldestAllowed = new Date(now);
+    oldestAllowed.setFullYear(now.getFullYear() - 10);
+
+    while (normalizedDate < oldestAllowed) {
+      normalizedDate.setFullYear(normalizedDate.getFullYear() + 1);
+    }
+  }
+
+  return normalizedDate;
+}
+
 function parseWhatsAppText(text) {
   // Remove invisible Unicode directional/formatting characters that WhatsApp
   // (especially Arabic locale) embeds in exported files (LRM, RLM, BOM, etc.)
@@ -72,11 +104,13 @@ function parseWhatsAppText(text) {
         // Try simple split first for common formats
         const dateParts = date.trim().split(/[./-]/).map(p => parseInt(p, 10));
         let day, month, year;
+        let originalYear;
 
         if (dateParts[0] > 1000) { // YYYY/MM/DD
+          originalYear = dateParts[0];
           year = dateParts[0]; month = dateParts[1] - 1; day = dateParts[2];
         } else { // DD/MM/YYYY
-          day = dateParts[0]; month = dateParts[1] - 1; year = dateParts[2];
+          day = dateParts[0]; month = dateParts[1] - 1; originalYear = dateParts[2]; year = dateParts[2];
           if (year < 100) year += 2000;
         }
 
@@ -94,6 +128,7 @@ function parseWhatsAppText(text) {
 
         messageDate = new Date(year, month, day, hours, minutes, seconds);
         if (isNaN(messageDate.getTime())) throw new Error();
+        messageDate = normalizeImportedDate(messageDate, originalYear);
       } catch (e) {
         messageDate = new Date(); // Fallback to current
       }
