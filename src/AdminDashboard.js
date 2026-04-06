@@ -41,6 +41,15 @@ const adminAPI = {
 
 // WhatsApp parsing logic (moved from server)
 function parseWhatsAppText(text) {
+  // Remove invisible Unicode directional/formatting characters that WhatsApp
+  // (especially Arabic locale) embeds in exported files (LRM, RLM, BOM, etc.)
+  text = text.replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '');
+
+  // Normalize Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩) and Extended Arabic-Indic
+  // digits (used in Farsi/Urdu: ۰۱۲۳۴۵۶۷۸۹) to ASCII digits (0-9)
+  text = text.replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660));
+  text = text.replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x06F0));
+
   const lines = text.split('\n');
   const parsedMessages = [];
 
@@ -61,7 +70,7 @@ function parseWhatsAppText(text) {
       let messageDate;
       try {
         // Try simple split first for common formats
-        const dateParts = date.split(/[./-]/).map(p => parseInt(p));
+        const dateParts = date.trim().split(/[./-]/).map(p => parseInt(p));
         let day, month, year;
 
         if (dateParts[0] > 1000) { // YYYY/MM/DD
@@ -71,7 +80,7 @@ function parseWhatsAppText(text) {
           if (year < 100) year += 2000;
         }
 
-        const timeParts = time.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M|ص|م))?/i);
+        const timeParts = time.trim().match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M|ص|م))?/i);
         let hours = parseInt(timeParts[1]);
         const minutes = parseInt(timeParts[2]);
         const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
