@@ -21,15 +21,17 @@ const SUPABASE_KEY =
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error(
-    '❌  Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY/SUPABASE_ANON_KEY.\n' +
-    '   Set them in .env or pass them as environment variables.'
+  console.log(
+    'ℹ️  Skipping admin seed: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY/SUPABASE_ANON_KEY not set.'
   );
-  process.exit(1);
+  process.exit(0);
 }
 
+// Use the same priority as lib/supabase.js so the hash matches at login time
 const JWT_SECRET =
-  process.env.JWT_SECRET || 'reallisting_secret_key_2025_secure';
+  process.env.SUPABASE_JWT_SECRET ||
+  process.env.JWT_SECRET ||
+  'reallisting_secret_key_2025_secure';
 
 // NOTE: SHA-256 is used here for consistency with the existing hashing scheme
 // already established across lib/database.js, lib/supabase.js, and
