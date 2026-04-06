@@ -95,15 +95,6 @@ function App() {
     return digits;
   }, [normalizeDigits]);
 
-  const buildWhatsAppHref = useCallback((rawNumber, senderName, unit) => {
-    const normalizedNumber = buildWhatsAppNumber(rawNumber);
-    if (!normalizedNumber) return '';
-
-    return `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(
-      `مرحباً ${senderName || ''}، أستفسر عن:\n${buildCardTitle(unit)}`
-    )}`;
-  }, [buildCardTitle, buildWhatsAppNumber]);
-
   const buildCardTitle = useCallback((msg) => {
     const parts = [];
     if (msg.property_type && msg.property_type !== 'أخرى') {
@@ -121,6 +112,15 @@ function App() {
     }
     return parts.length > 0 ? parts.join(' | ') : 'تفاصيل غير متوفرة';
   }, [formatPurpose]);
+
+  const buildWhatsAppHref = useCallback((rawNumber, senderName, unit) => {
+    const normalizedNumber = buildWhatsAppNumber(rawNumber);
+    if (!normalizedNumber) return '';
+
+    return `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(
+      `مرحباً ${senderName || ''}، أستفسر عن:\n${buildCardTitle(unit)}`
+    )}`;
+  }, [buildCardTitle, buildWhatsAppNumber]);
 
   // Check authentication on mount
   useEffect(() => {
