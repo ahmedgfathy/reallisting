@@ -205,3 +205,29 @@
     max-width: 380px;
   }
 }
+
+/* ==========================================
+   Modern Theme Override
+   ========================================== */
+
+.install-prompt-overlay {
+  background: rgba(10, 19, 31, 0.52);
+}
+
+.install-prompt {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 -18px 40px rgba(10, 19, 31, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.install-close {
+  background: rgba(21, 50, 75, 0.08);
+}
+
+.install-btn.primary {
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-2) 100%);
+}
+
+.install-btn.primary:hover {
+  box-shadow: 0 10px 24px rgba(21, 50, 75, 0.24);
+}

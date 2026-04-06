@@ -929,3 +929,94 @@
   background: #229954;
   transform: translateY(-2px);
 }
+
+/* ==========================================
+   Modern Theme Override
+   ========================================== */
+
+.admin-dashboard {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 244, 237, 0.92) 100%);
+  color: var(--theme-text);
+}
+
+.admin-dashboard-actions button,
+.activate-btn,
+.dedupe-close-btn,
+.import-close-btn {
+  border-radius: 14px;
+  box-shadow: var(--theme-shadow-soft);
+}
+
+.admin-dashboard-refresh {
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-2) 100%);
+}
+
+.admin-dedupe-btn {
+  background: linear-gradient(135deg, #c95f51 0%, #ab473f 100%);
+}
+
+.admin-dedupe-report {
+  background: linear-gradient(135deg, rgba(31, 143, 104, 0.12) 0%, rgba(219, 245, 232, 0.9) 100%);
+  border: 1px solid rgba(31, 143, 104, 0.24);
+  border-radius: 20px;
+}
+
+.dedupe-stat,
+.reset-request-item,
+.import-result-box,
+.admin-reset-requests,
+.subscription-modal-content,
+.generated-password-box {
+  border-radius: 18px;
+  box-shadow: var(--theme-shadow-soft);
+}
+
+.dedupe-stat,
+.reset-request-item,
+.import-result-box {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.admin-dashboard-error {
+  background: rgba(249, 219, 213, 0.9);
+  border: 1px solid rgba(201, 87, 71, 0.2);
+  border-radius: 16px;
+}
+
+.admin-dashboard-loading,
+.admin-dashboard-empty,
+.admin-reset-requests {
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 20px;
+  border: 1px solid rgba(21, 50, 75, 0.08);
+}
+
+.admin-dashboard-table-wrapper {
+  border: 1px solid rgba(21, 50, 75, 0.08);
+  border-radius: 20px;
+  box-shadow: var(--theme-shadow-soft);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.admin-users-table th {
+  background: linear-gradient(180deg, #f6f8fb 0%, #edf2f6 100%);
+  color: var(--theme-primary);
+}
+
+.admin-users-table tbody tr:hover {
+  background: rgba(199, 139, 55, 0.08);
+}
+
+.status-active {
+  background: rgba(31, 143, 104, 0.14);
+  color: #16684c;
+}
+
+.status-pending {
+  background: rgba(198, 94, 80, 0.14);
+  color: #95352f;
+}
+
+.activate-btn {
+  background: linear-gradient(135deg, var(--theme-success) 0%, #35a67b 100%);
+}

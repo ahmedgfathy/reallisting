@@ -334,3 +334,40 @@
     max-width: 100%;
   }
 }
+
+/* ==========================================
+   Modern Theme Override
+   ========================================== */
+
+.register-container {
+  background:
+    radial-gradient(circle at top right, rgba(199, 139, 55, 0.22), transparent 22%),
+    radial-gradient(circle at bottom left, rgba(31, 143, 104, 0.18), transparent 24%),
+    linear-gradient(135deg, #10273b 0%, #1b4058 52%, #255969 100%);
+}
+
+.register-box,
+.subscription-box {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 26px;
+  box-shadow: 0 26px 60px rgba(8, 18, 31, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(18px);
+}
+
+.register-header,
+.subscription-header {
+  background:
+    radial-gradient(circle at top right, rgba(199, 139, 55, 0.34), transparent 28%),
+    linear-gradient(135deg, #16324c 0%, #1d4760 100%);
+}
+
+.register-btn,
+.instapay-link {
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-2) 100%);
+}
+
+.register-btn:hover:not(:disabled),
+.instapay-link:hover {
+  box-shadow: 0 12px 24px rgba(21, 50, 75, 0.28);
+}

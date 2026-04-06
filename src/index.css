@@ -1,10 +1,69 @@
+:root {
+  --theme-bg: #f4efe6;
+  --theme-bg-soft: #fbf7f1;
+  --theme-surface: rgba(255, 255, 255, 0.78);
+  --theme-surface-strong: rgba(255, 255, 255, 0.92);
+  --theme-line: rgba(27, 48, 70, 0.11);
+  --theme-line-strong: rgba(27, 48, 70, 0.2);
+  --theme-text: #182536;
+  --theme-muted: #6b778c;
+  --theme-primary: #15324b;
+  --theme-primary-2: #2a5b73;
+  --theme-accent: #c78b37;
+  --theme-success: #1f8f68;
+  --theme-danger: #c65e50;
+  --theme-shadow: 0 24px 60px rgba(15, 28, 41, 0.12);
+  --theme-shadow-soft: 0 14px 30px rgba(15, 28, 41, 0.08);
+  --theme-radius-xl: 28px;
+  --theme-radius-lg: 22px;
+  --theme-radius-md: 16px;
+  --theme-radius-sm: 12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Cairo', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(circle at top left, rgba(199, 139, 55, 0.14), transparent 24%),
+    radial-gradient(circle at top right, rgba(31, 143, 104, 0.1), transparent 22%),
+    linear-gradient(180deg, #f9f5ee 0%, #f4efe6 52%, #eef3f5 100%);
+  color: var(--theme-text);
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+body::before {
+  width: 280px;
+  height: 280px;
+  left: -80px;
+  bottom: 8%;
+  background: rgba(199, 139, 55, 0.12);
+}
+
+body::after {
+  width: 320px;
+  height: 320px;
+  right: -100px;
+  top: 8%;
+  background: rgba(42, 91, 115, 0.12);
+}
+
+#root {
+  min-height: 100vh;
 }
 
 code {
