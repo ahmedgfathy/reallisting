@@ -2979,6 +2979,7 @@ body {
     radial-gradient(circle at top left, rgba(58, 176, 130, 0.12), transparent 22%),
     linear-gradient(135deg, #0f1b2a 0%, #16283c 54%, #1c354b 100%);
   box-shadow: 0 24px 60px rgba(7, 16, 26, 0.28);
+  transition: padding-bottom 0.28s ease, box-shadow 0.28s ease;
 }
 
 .header::before {
@@ -3073,6 +3074,64 @@ body {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  max-height: 320px;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateY(0);
+  transform-origin: top;
+  transition:
+    max-height 0.28s ease,
+    margin-top 0.28s ease,
+    padding-top 0.28s ease,
+    opacity 0.22s ease,
+    transform 0.28s ease,
+    border-top-color 0.22s ease;
+}
+
+.header-collapsed {
+  padding-bottom: 10px;
+}
+
+.header-collapsed .header-row-2 {
+  max-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  border-top-color: transparent;
+  pointer-events: none;
+}
+
+.header:focus-within .header-row-2,
+.header-expanded .header-row-2 {
+  max-height: 320px;
+  margin-top: 14px;
+  padding-top: 14px;
+  opacity: 1;
+  transform: translateY(0);
+  border-top-color: rgba(255, 255, 255, 0.08);
+  pointer-events: auto;
+}
+
+.header:focus-within,
+.header-expanded {
+  padding-bottom: 16px;
+}
+
+@media (hover: hover) {
+  .header:hover .header-row-2 {
+    max-height: 320px;
+    margin-top: 14px;
+    padding-top: 14px;
+    opacity: 1;
+    transform: translateY(0);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    pointer-events: auto;
+  }
+
+  .header:hover {
+    padding-bottom: 16px;
+  }
 }
 
 .stat-item {
@@ -3201,6 +3260,15 @@ body {
 
   .header-row-2 {
     grid-template-columns: 1fr;
+  }
+
+  .header-collapsed {
+    padding-bottom: 8px;
+  }
+
+  .header:focus-within,
+  .header-expanded {
+    padding-bottom: 16px;
   }
 
   .stat-item {

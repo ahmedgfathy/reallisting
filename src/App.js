@@ -41,6 +41,9 @@ function App() {
   const detailRef = useRef(null);
   const touchStartX = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const headerRef = useRef(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
@@ -61,6 +64,46 @@ function App() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(hover: none), (pointer: coarse)');
+    const updateTouchMode = (event) => {
+      setIsTouchDevice(event.matches);
+    };
+
+    updateTouchMode(mediaQuery);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', updateTouchMode);
+      return () => mediaQuery.removeEventListener('change', updateTouchMode);
+    }
+
+    mediaQuery.addListener(updateTouchMode);
+    return () => mediaQuery.removeListener(updateTouchMode);
+  }, []);
+
+  useEffect(() => {
+    if (!isTouchDevice) {
+      setIsHeaderExpanded(false);
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (!headerRef.current?.contains(event.target)) {
+        setIsHeaderExpanded(false);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [isTouchDevice]);
+
+  const handleHeaderToggle = useCallback((event) => {
+    if (!isTouchDevice) return;
+    if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return;
+
+    setIsHeaderExpanded(prev => !prev);
+  }, [isTouchDevice]);
 
   const formatPurpose = useCallback((value) => {
     if (value === 'بيع') return 'للبيع';
@@ -605,7 +648,12 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
+      <header
+        ref={headerRef}
+        className={`header ${isHeaderExpanded ? 'header-expanded' : 'header-collapsed'}`}
+        onClick={handleHeaderToggle}
+        tabIndex={0}
+      >
         <div className="header-row-1">
           <div className="brand">
             <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
