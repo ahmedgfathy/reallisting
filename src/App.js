@@ -248,8 +248,12 @@ function App() {
       }
 
       try {
+        const token = localStorage.getItem('token');
         const response = await apiCall(
-          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`
+          `/api/messages?page=${targetPage}&limit=${limit}&search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&propertyType=${encodeURIComponent(propertyType)}&region=${encodeURIComponent(region)}&purpose=${encodeURIComponent(purpose)}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          }
         );
         const data = await response.json();
 
@@ -289,7 +293,7 @@ function App() {
         }
       }
     },
-    [limit, search, category, propertyType, region, purpose]
+    [limit, search, category, propertyType, region, purpose, isAuthenticated, isAdmin, isUserActive]
   );
 
   const handleImportSuccess = useCallback(() => {

@@ -19,8 +19,9 @@ async function parseBody(req) {
 
 // Extract mobile numbers from text
 function extractMobileNumber(text) {
-  const mobileRegex = /(?:\+?966|0)?5\d{8}|(?:\+?20|0)?1\d{9}/g;
-  const matches = text.match(mobileRegex);
+  const normalized = String(text || '').replace(/[^\d+]/g, '');
+  const mobileRegex = /(?:\+?966|00966|0)?5\d{8}|(?:\+?20|0020|0)?1\d{9}/g;
+  const matches = normalized.match(mobileRegex);
   return matches ? matches[0] : '';
 }
 
@@ -139,7 +140,7 @@ module.exports = async (req, res) => {
     // Process with AI in small parallel groups to maintain speed without hitting limits
     const processedMessages = await processInGroups(rawMessages, 5, async (msg) => {
       try {
-        const mobile = extractMobileNumber(msg.message);
+        const mobile = extractMobileNumber(msg.sender) || extractMobileNumber(msg.message);
         const regexClass = classifyMessageRegex(msg.message);
         const autoRegion = extractRegion(msg.message, availableRegions);
 
