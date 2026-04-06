@@ -70,7 +70,7 @@ function parseWhatsAppText(text) {
       let messageDate;
       try {
         // Try simple split first for common formats
-        const dateParts = date.trim().split(/[./-]/).map(p => parseInt(p));
+        const dateParts = date.trim().split(/[./-]/).map(p => parseInt(p, 10));
         let day, month, year;
 
         if (dateParts[0] > 1000) { // YYYY/MM/DD
@@ -81,9 +81,9 @@ function parseWhatsAppText(text) {
         }
 
         const timeParts = time.trim().match(/(\d{1,2}):(\d{2})(?::(\d{2}))?(?:\s?([AP]M|ص|م))?/i);
-        let hours = parseInt(timeParts[1]);
-        const minutes = parseInt(timeParts[2]);
-        const seconds = timeParts[3] ? parseInt(timeParts[3]) : 0;
+        let hours = parseInt(timeParts[1], 10);
+        const minutes = parseInt(timeParts[2], 10);
+        const seconds = timeParts[3] ? parseInt(timeParts[3], 10) : 0;
         const ampm = timeParts[4]?.toLowerCase();
 
         if (ampm === 'pm' || ampm === 'م') {
