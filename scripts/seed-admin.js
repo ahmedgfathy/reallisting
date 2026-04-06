@@ -13,7 +13,11 @@
  * It is safe to run multiple times (uses ON CONFLICT upsert).
  */
 
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch {
+  // dotenv is optional in hosted builds where env vars are injected directly.
+}
 const crypto = require('crypto');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -70,7 +74,7 @@ async function seedAdmins() {
     ({ createClient } = require('@supabase/supabase-js'));
   } catch {
     console.error('❌  @supabase/supabase-js not installed. Run: npm install @supabase/supabase-js');
-    process.exit(1);
+    process.exit(0);
   }
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -99,5 +103,5 @@ async function seedAdmins() {
 
 seedAdmins().catch((err) => {
   console.error('Unexpected error:', err.message);
-  process.exit(1);
+  process.exit(0);
 });

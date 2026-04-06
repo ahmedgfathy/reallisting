@@ -293,7 +293,7 @@ function App() {
         }
       }
     },
-    [limit, search, category, propertyType, region, purpose, isAuthenticated, isAdmin, isUserActive]
+    [limit, search, category, propertyType, region, purpose]
   );
 
   const handleImportSuccess = useCallback(() => {
