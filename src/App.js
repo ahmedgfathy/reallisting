@@ -13,7 +13,7 @@ function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [stats, setStats] = useState({ totalMessages: 0, totalFiles: 0, files: [], filters: { categories: [], propertyTypes: [], purposes: [] } });
+  const [stats, setStats] = useState({ totalMessages: 0, totalSenders: 0, totalFiles: 0, files: [], filters: { categories: [], propertyTypes: [], purposes: [] } });
   const [regions, setRegions] = useState([]);
   const [availableCategories, setAvailableCategories] = useState(['مطلوب', 'معروض', 'أخرى']);
   const [availablePropertyTypes, setAvailablePropertyTypes] = useState(['شقة', 'أرض', 'فيلا', 'محل', 'مكتب', 'عمارة', 'أخرى']);
@@ -649,7 +649,7 @@ function App() {
         </div>
         <div className="header-row-2">
           <span className="stat-item">📊 الوحدات: <strong>{stats.totalMessages}</strong></span>
-          <span className="stat-item">📁 الوسطاء: <strong>{stats.totalFiles}</strong></span>
+          <span className="stat-item">👤 الوسطاء: <strong>{stats.totalSenders || 0}</strong></span>
           <span className="stat-item">✅ المشتركين: <strong>{stats.totalSubscribers || 0}</strong></span>
         </div>
       </header>
