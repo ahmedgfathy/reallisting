@@ -21,7 +21,7 @@ const adminAPI = {
     });
     if (!res.ok) throw new Error('Failed to update status');
     return res.json();
-  }, // Corrected: Moved the comma inside the object to separate properties
+  },
   importMessagesBatch: async (messages, fileName) => {
     const res = await apiCall('/api/import-whatsapp', {
       method: 'POST',
@@ -156,7 +156,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
   }, [token]);
 
   const loadResetRequests = useCallback(async () => {
-    // Reset requests are not currently prioritized in Appwrite migration
+    // Reset requests are currently not surfaced in the admin dashboard.
     setResetRequests([]);
   }, []);
 
