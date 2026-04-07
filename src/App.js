@@ -115,14 +115,51 @@ function App() {
     return parts.length > 0 ? parts.join(' | ') : 'تفاصيل غير متوفرة';
   }, [formatPurpose]);
 
+  const buildWhatsAppMessage = useCallback((senderName, unit) => {
+    const lines = [];
+    lines.push(`مرحباً ${senderName || ''}، أستفسر عن طلبك التالي:`);
+    lines.push('');
+    lines.push('📋 تفاصيل الطلب:');
+
+    if (unit.category && unit.category !== 'أخرى') {
+      lines.push(`• نوع الإعلان: ${unit.category}`);
+    }
+    if (unit.property_type && unit.property_type !== 'أخرى') {
+      lines.push(`• نوع العقار: ${unit.property_type}`);
+    }
+    if (unit.region && unit.region !== 'أخرى') {
+      lines.push(`• المنطقة: ${unit.region}`);
+    }
+    if (unit.purpose && unit.purpose !== 'أخرى') {
+      lines.push(`• الغرض: ${formatPurpose(unit.purpose)}`);
+    }
+
+    const meta = unit.ai_metadata;
+    if (meta && (meta.district || meta.area || meta.price)) {
+      lines.push('');
+      lines.push('✨ تفاصيل إضافية:');
+      if (meta.district) lines.push(`• المكان: ${meta.district}`);
+      if (meta.area) lines.push(`• المساحة: ${meta.area} م²`);
+      if (meta.price) lines.push(`• السعر: ${Number(meta.price).toLocaleString('ar-EG')} ج.م`);
+    }
+
+    if (unit.message) {
+      lines.push('');
+      lines.push('💬 نص الإعلان:');
+      lines.push(unit.message);
+    }
+
+    return lines.join('\n');
+  }, [formatPurpose]);
+
   const buildWhatsAppHref = useCallback((rawNumber, senderName, unit) => {
     const normalizedNumber = buildWhatsAppNumber(rawNumber);
     if (!normalizedNumber) return '';
 
     return `https://wa.me/${normalizedNumber}?text=${encodeURIComponent(
-      `مرحباً ${senderName || ''}، أستفسر عن:\n${buildCardTitle(unit)}`
+      buildWhatsAppMessage(senderName, unit)
     )}`;
-  }, [buildCardTitle, buildWhatsAppNumber]);
+  }, [buildWhatsAppMessage, buildWhatsAppNumber]);
 
   // Check authentication on mount
   useEffect(() => {
