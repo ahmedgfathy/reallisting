@@ -5,6 +5,7 @@ const regionsHandler = require('./regions');
 const statsHandler = require('./stats');
 const profileHandler = require('./profile');
 const importWhatsappHandler = require('./import-whatsapp');
+const analyzeHandler = require('./analyze');
 
 module.exports = async (req, res) => {
   // CORS configuration
@@ -57,6 +58,8 @@ module.exports = async (req, res) => {
       success: true,
       message: 'Refresh acknowledged'
     });
+  } else if (path === 'analyze' || path.startsWith('analyze/')) {
+    return analyzeHandler(req, res);
   } else if (path === 'profile' || path.startsWith('profile/')) {
     return profileHandler(req, res);
   } else if (path === '' || path === 'index') {
