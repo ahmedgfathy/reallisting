@@ -75,7 +75,7 @@ module.exports = async (req, res) => {
             role: 'system',
             content: `You extract Arabic real estate messages into strict JSON only.
 Return valid JSON with no markdown and no explanation.
-Fields: ad_type, property_type, purpose, area, district, title, description, price, currency, space_m2, bedrooms, bathrooms, finishing, phone, contact_name, listing_intent, confidence
+Fields: ad_type, property_type, purpose, area, district, title, description, price, currency, space_m2, bedrooms, bathrooms, finishing, phone, contact_name
 If unknown, use null.`.trim(),
           },
           {
