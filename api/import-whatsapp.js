@@ -1,5 +1,6 @@
 const { messages, regions, corsHeaders, verifyToken } = require('../lib/db');
 const { analyzeMessage } = require('../lib/ai');
+const { extractWithRegex } = require('../lib/regex');
 
 // Helper to parse request body
 async function parseBody(req) {
@@ -133,7 +134,7 @@ module.exports = async (req, res) => {
 
     // Get available regions
     const availableRegions = await regions.getAll();
-    const hasAI = !!(process.env.GEMINI_API_KEY || process.env.AI_API_KEY);
+    const hasAI = !!(process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || process.env.AI_API_KEY);
 
     console.log(`🚀 Processing ${rawMessages.length} messages. AI Enabled: ${hasAI}`);
 
@@ -141,6 +142,7 @@ module.exports = async (req, res) => {
     const processedMessages = await processInGroups(rawMessages, 5, async (msg) => {
       try {
         const mobile = extractMobileNumber(msg.sender) || extractMobileNumber(msg.message);
+        const regexData = extractWithRegex(msg.message);
         const regexClass = classifyMessageRegex(msg.message);
         const autoRegion = extractRegion(msg.message, availableRegions);
 
@@ -153,29 +155,39 @@ module.exports = async (req, res) => {
           }
         }
 
-        const propertyType = aiResult?.propertyType || regexClass.propertyType;
+        const propertyType = aiResult?.propertyType || regexData.property_type || regexClass.propertyType;
         const mainRegion = aiResult?.region || autoRegion;
-        const specificDistrict = aiResult?.district || (autoRegion !== 'أخرى' ? autoRegion : 'أخرى');
+        const specificDistrict = aiResult?.district || regexData.district || (autoRegion !== 'أخرى' ? autoRegion : 'أخرى');
 
         return {
           message: msg.message || null,
           sender_name: msg.sender || null,
-          sender_mobile: mobile || null,
+          sender_mobile: mobile || regexData.phone || null,
           date_of_creation: msg.date || null,
           source_file: finalFileName || null,
           image_url: null,
-          category: aiResult?.category || regexClass.category,
+          category: aiResult?.category || regexData.ad_type || regexClass.category,
           property_type: propertyType,
           region: specificDistrict, // Prioritize the specific area (e.g. "الحي 22") for the region filter
-          purpose: aiResult?.purpose || regexClass.purpose,
+          purpose: aiResult?.purpose || regexData.purpose || regexClass.purpose,
           ai_metadata: aiResult ? {
             main_region: mainRegion,
             district: specificDistrict,
             area: aiResult.area,
             price: aiResult.price,
-            keywords: aiResult.keywords
+            keywords: aiResult.keywords,
+            space_m2: regexData.space_m2,
+            bedrooms: regexData.bedrooms,
+            bathrooms: regexData.bathrooms,
+            finishing: regexData.finishing,
           } : {
-            district: specificDistrict
+            district: specificDistrict,
+            space_m2: regexData.space_m2,
+            bedrooms: regexData.bedrooms,
+            bathrooms: regexData.bathrooms,
+            finishing: regexData.finishing,
+            raw_price: regexData.raw_price,
+            price_unit: regexData.price_unit,
           }
         };
       } catch (err) {
