@@ -1,5 +1,21 @@
 const { messages, verifyToken, corsHeaders } = require('../lib/db');
 
+// Helper to parse request body
+async function parseBody(req) {
+  if (req.body) return req.body;
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch {
+        resolve({});
+      }
+    });
+  });
+}
+
 module.exports = async (req, res) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
@@ -12,6 +28,62 @@ module.exports = async (req, res) => {
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
+
+  // POST - Create new message/property listing (requires active user or admin)
+  if (req.method === 'POST') {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'يجب تسجيل الدخول لإضافة إعلان' });
+      }
+      const token = authHeader.substring(7);
+      const payload = verifyToken(token);
+      if (!payload) {
+        return res.status(401).json({ error: 'جلسة غير صالحة، يرجى إعادة تسجيل الدخول' });
+      }
+      const isAllowed = payload.role === 'admin' || payload.isActive === true;
+      if (!isAllowed) {
+        return res.status(403).json({ error: 'حسابك في انتظار الموافقة من المشرف' });
+      }
+
+      const body = await parseBody(req);
+      const {
+        message,
+        sender_name,
+        sender_mobile,
+        category,
+        property_type,
+        region,
+        purpose
+      } = body || {};
+
+      if (!message || !message.trim()) {
+        return res.status(400).json({ error: 'نص الإعلان مطلوب' });
+      }
+
+      const result = await messages.create({
+        message: message.trim(),
+        sender_name: (sender_name || '').trim(),
+        sender_mobile: (sender_mobile || '').trim(),
+        date_of_creation: new Date().toISOString(),
+        source_file: 'إضافة يدوية',
+        category: category || 'أخرى',
+        property_type: property_type || 'أخرى',
+        region: region || 'أخرى',
+        purpose: purpose || 'أخرى',
+        ai_metadata: {}
+      });
+
+      if (!result.success) {
+        return res.status(500).json({ error: result.error || 'فشل إضافة الإعلان' });
+      }
+
+      return res.status(201).json({ success: true, id: result.id });
+    } catch (error) {
+      console.error('Create message error:', error);
+      return res.status(500).json({ error: 'فشل إضافة الإعلان' });
+    }
+  }
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

@@ -2493,6 +2493,42 @@ body {
   text-align: center;
 }
 
+/* ---- Modal overlay / container (shared by delete confirm + add property) ---- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+  direction: rtl;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: slideDown 0.18s ease-out;
+}
+
+.modal-header {
+  margin-bottom: 4px;
+}
+
+.modal-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a2b3c;
+}
+
 .modal-body {
   padding: 20px 0;
   font-size: 1.1rem;
@@ -2536,6 +2572,115 @@ body {
   color: white;
   box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #e7b556 0%, #c78b37 100%);
+  color: #101b28;
+  box-shadow: 0 4px 12px rgba(231, 181, 86, 0.35);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---- Add Property Button ---- */
+.add-property-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  border: 1px solid rgba(231, 181, 86, 0.45);
+  background: linear-gradient(135deg, rgba(231, 181, 86, 0.22), rgba(199, 139, 55, 0.14));
+  color: #e7b556;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(231, 181, 86, 0.18);
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+
+.add-property-btn:hover {
+  background: linear-gradient(135deg, rgba(231, 181, 86, 0.36), rgba(199, 139, 55, 0.26));
+  transform: translateY(-1px);
+}
+
+/* ---- Add Property Form ---- */
+.add-property-modal {
+  max-width: 580px;
+}
+
+.add-property-form {
+  padding: 0;
+  font-size: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex: 1;
+}
+
+.form-row {
+  display: flex;
+  gap: 14px;
+}
+
+.form-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  padding: 9px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #2d3748;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: #e7b556;
+  background: #fff;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.form-error {
+  color: #e53e3e;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  .modal-content {
+    padding: 20px 16px 18px;
+    border-radius: 16px;
+  }
+}
+
 
 /* ==========================================
    Modern Theme Override
@@ -2979,7 +3124,7 @@ body {
     radial-gradient(circle at top left, rgba(58, 176, 130, 0.12), transparent 22%),
     linear-gradient(135deg, #0f1b2a 0%, #16283c 54%, #1c354b 100%);
   box-shadow: 0 24px 60px rgba(7, 16, 26, 0.28);
-  transition: padding-bottom 0.28s ease, box-shadow 0.28s ease;
+  transition: padding-bottom 0.12s ease, box-shadow 0.12s ease;
 }
 
 .header::before {
@@ -3080,12 +3225,12 @@ body {
   transform: translateY(0);
   transform-origin: top;
   transition:
-    max-height 0.28s ease,
-    margin-top 0.28s ease,
-    padding-top 0.28s ease,
-    opacity 0.22s ease,
-    transform 0.28s ease,
-    border-top-color 0.22s ease;
+    max-height 0.12s ease,
+    margin-top 0.12s ease,
+    padding-top 0.12s ease,
+    opacity 0.10s ease,
+    transform 0.12s ease,
+    border-top-color 0.10s ease;
 }
 
 .header-collapsed {
