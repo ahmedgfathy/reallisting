@@ -41,9 +41,6 @@ function App() {
   const detailRef = useRef(null);
   const touchStartX = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const headerRef = useRef(null);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [isHeaderExpanded, setIsHeaderExpanded] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
@@ -65,45 +62,7 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(hover: none), (pointer: coarse)');
-    const updateTouchMode = (event) => {
-      setIsTouchDevice(event.matches);
-    };
 
-    updateTouchMode(mediaQuery);
-
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', updateTouchMode);
-      return () => mediaQuery.removeEventListener('change', updateTouchMode);
-    }
-
-    mediaQuery.addListener(updateTouchMode);
-    return () => mediaQuery.removeListener(updateTouchMode);
-  }, []);
-
-  useEffect(() => {
-    if (!isTouchDevice) {
-      setIsHeaderExpanded(false);
-      return undefined;
-    }
-
-    const handlePointerDown = (event) => {
-      if (!headerRef.current?.contains(event.target)) {
-        setIsHeaderExpanded(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [isTouchDevice]);
-
-  const handleHeaderToggle = useCallback((event) => {
-    if (!isTouchDevice) return;
-    if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return;
-
-    setIsHeaderExpanded(prev => !prev);
-  }, [isTouchDevice]);
 
   const formatPurpose = useCallback((value) => {
     if (value === 'بيع') return 'للبيع';
@@ -693,15 +652,10 @@ function App() {
       </div>
     );
   }
-
+
   return (
     <div className="app">
-      <header
-        ref={headerRef}
-        className={`header ${isHeaderExpanded ? 'header-expanded' : 'header-collapsed'}`}
-        onClick={handleHeaderToggle}
-        tabIndex={0}
-      >
+      <header className="header">
         <div className="header-row-1">
           <div className="brand">
             <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
@@ -727,7 +681,7 @@ function App() {
               <button
                 type="button"
                 className="add-property-btn"
-                onClick={(e) => { e.stopPropagation(); setShowAddProperty(true); }}
+                onClick={() => setShowAddProperty(true)}
                 title="إضافة إعلان جديد"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
