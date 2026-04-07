@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { apiCall } from './apiConfig';
 import './AdminDashboard.css';
+import TestAIBlock from './TestAIBlock';
 
 const adminAPI = {
   getUsers: async () => {
@@ -517,6 +518,8 @@ function AdminDashboard({ onClose, onImportSuccess }) {
           📥 استيراد من واتساب
         </button>
       </div>
+
+      <TestAIBlock />
 
       {dedupeReport && (
         <div className="admin-dedupe-report">
