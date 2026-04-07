@@ -49,7 +49,7 @@ function App() {
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
 
-  const [activeView, setActiveView] = useState('listings');
+  const [activeView, setActiveView] = useState('dashboard');
   const [darkMode, setDarkMode] = useState(false);
 
   const handleViewChange = (view) => {
@@ -679,31 +679,7 @@ function App() {
     );
   }
 
-  if (error && messages.length === 0) {
-    return (
-      <div className="app">
-        <div className="error-container">
-          <div className="brand">
-            <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
-            <div className="brand-copy">
-              <h1>كونتابو</h1>
-              <p className="brand-tagline">شبكة الإعلانات العقارية الذكية</p>
-            </div>
-          </div>
-          <div className="error-message">
-            <p>خطأ في الاتصال بالـ API</p>
-            <p>يرجى التحقق من:</p>
-            <ul style={{ textAlign: 'right', marginTop: '10px' }}>
-              <li>اتصال الإنترنت</li>
-              <li>حالة الخادم</li>
-              <li>الرجاء التأكد من تشغيل الخادم المحلي (npm run server)</li>
-            </ul>
-            <p>أو حاول مرة أخرى لاحقاً.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // API error is handled inline inside AppShell (not as a full-page takeover)
 
 
   const renderPageContent = () => {
@@ -761,6 +737,11 @@ function App() {
     // Default: listings view
     return (
       <div className="main-content">
+        {error && messages.length === 0 && (
+          <div className="api-error-banner">
+            <span>⚠️ تعذّر الاتصال بالخادم — يرجى التحقق من تشغيل الـ API أو إعادة المحاولة لاحقاً.</span>
+          </div>
+        )}
         <div className="controls">
           <input
             type="text"
