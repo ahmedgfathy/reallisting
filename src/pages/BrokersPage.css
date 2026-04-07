@@ -1,0 +1,75 @@
+.brokers-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.brokers-page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brokers-page-header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.brokers-count {
+  background: rgba(79, 70, 229, 0.12);
+  color: var(--color-primary);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+}
+
+.brokers-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  transition: var(--transition);
+}
+
+.brokers-search:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.brokers-search-icon {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.brokers-search-input {
+  flex: 1;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-primary);
+  outline: none;
+  direction: rtl;
+}
+
+.brokers-search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.brokers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.brokers-empty {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-muted);
+}

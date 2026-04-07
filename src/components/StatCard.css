@@ -1,0 +1,61 @@
+.stat-card {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.stat-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background: rgba(79, 70, 229, 0.12);
+  color: var(--stat-color, var(--color-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.stat-card-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.stat-card-trend {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.stat-card-trend.up {
+  color: var(--color-success);
+}
+
+.stat-card-trend.down {
+  color: var(--color-danger);
+}
