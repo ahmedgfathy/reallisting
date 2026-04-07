@@ -5,6 +5,10 @@ import Register from './Register';
 import AdminDashboard from './AdminDashboard';
 import { apiCall } from './apiConfig';
 import InstallPrompt from './InstallPrompt';
+import AppShell from './components/AppShell';
+import DashboardPage from './pages/DashboardPage';
+import BrokersPage from './pages/BrokersPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,6 +48,17 @@ function App() {
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
+
+  const [activeView, setActiveView] = useState('dashboard');
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleViewChange = (view) => {
+    setActiveView(view);
+  };
+
+  const handleToggleDark = () => {
+    setDarkMode(prev => !prev);
+  };
 
   // Count active filters
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
@@ -636,8 +651,8 @@ function App() {
   // Show loading while checking auth
   if (authLoading) {
     return (
-      <div className="app">
-        <div className="loading">جاري التحقق من الجلسة...</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-app)' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>جاري التحقق من الجلسة...</div>
       </div>
     );
   }
@@ -664,111 +679,69 @@ function App() {
     );
   }
 
-  if (error && messages.length === 0) {
-    return (
-      <div className="app">
-        <div className="error-container">
-          <div className="brand">
-            <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
-            <div className="brand-copy">
-              <h1>كونتابو</h1>
-              <p className="brand-tagline">شبكة الإعلانات العقارية الذكية</p>
-            </div>
-          </div>
-          <div className="error-message">
-            <p>خطأ في الاتصال بالـ API</p>
-            <p>يرجى التحقق من:</p>
-            <ul style={{ textAlign: 'right', marginTop: '10px' }}>
-              <li>اتصال الإنترنت</li>
-              <li>حالة الخادم</li>
-              <li>الرجاء التأكد من تشغيل الخادم المحلي (npm run server)</li>
-            </ul>
-            <p>أو حاول مرة أخرى لاحقاً.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="app">
-      <header className="header">
-        <div className="header-row-1">
-          <div className="brand">
-            <img src="/logo.svg" alt="كونتابو" className="brand-logo" />
-            <div className="brand-copy">
-              <h1>كونتابو</h1>
-              <p className="brand-tagline">منصة رسائل عقارية أسرع للوسطاء والسماسرة</p>
-            </div>
-          </div>
-          <div className="header-actions">
-            {isAdmin && (
-              <button
-                type="button"
-                className="admin-link"
-                onClick={() => setShowAdminDashboard(true)}
-                title="لوحة التحكم"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                  <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
-                </svg>
-              </button>
-            )}
-            {isUserActive && (
-              <button
-                type="button"
-                className="add-property-btn"
-                onClick={() => setShowAddProperty(true)}
-                title="إضافة إعلان جديد"
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                </svg>
-              </button>
-            )}
-            {isAuthenticated ? (
-              <>
-                <span className="user-info">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style={{ verticalAlign: 'middle', marginLeft: '4px' }}>
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-                  </svg>
-                  {user?.username}
-                </span>
-                <button onClick={handleLogout} className="logout-btn" title="تسجيل الخروج">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M17 8l-1.41 1.41L17.17 11H9v2h8.17l-1.58 1.58L17 16l4-4-4-4zM5 5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5V5z" />
-                  </svg>
-                </button>
-              </>
-            ) : (
-              <div className="auth-buttons">
-                <button onClick={handleShowLogin} className="auth-btn login">
-                  دخول
-                </button>
-                <button onClick={handleShowRegister} className="auth-btn register">
-                  تسجيل
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="header-row-2">
-          <span className="stat-item">
-            <span className="stat-label">الوحدات</span>
-            <strong>{stats.totalMessages}</strong>
-          </span>
-          <span className="stat-item">
-            <span className="stat-label">الوسطاء</span>
-            <strong>{stats.totalSenders || 0}</strong>
-          </span>
-          <span className="stat-item">
-            <span className="stat-label">المشتركين</span>
-            <strong>{stats.totalSubscribers || 0}</strong>
-          </span>
-        </div>
-      </header>
+  // API error is handled inline inside AppShell (not as a full-page takeover)
 
+
+  const renderPageContent = () => {
+    if (activeView === 'dashboard') {
+      return (
+        <DashboardPage
+          stats={stats}
+          messages={messages}
+          user={user}
+          onViewChange={handleViewChange}
+          isUserActive={isUserActive}
+          buildWhatsAppHref={buildWhatsAppHref}
+          buildCardTitle={buildCardTitle}
+        />
+      );
+    }
+
+    if (activeView === 'brokers') {
+      return (
+        <BrokersPage
+          messages={messages}
+          isUserActive={isUserActive}
+        />
+      );
+    }
+
+    if (activeView === 'settings') {
+      return (
+        <SettingsPage
+          user={user}
+          isAdmin={isAdmin}
+          onShowAdminDashboard={() => setShowAdminDashboard(true)}
+        />
+      );
+    }
+
+    if (activeView === 'import') {
+      return (
+        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+          {isAdmin ? (
+            <div>
+              <p>لفتح أداة الاستيراد، انقر هنا:</p>
+              <button
+                style={{ marginTop: '12px', padding: '10px 20px', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}
+                onClick={() => setShowAdminDashboard(true)}
+              >
+                فتح لوحة التحكم
+              </button>
+            </div>
+          ) : 'هذه الميزة متاحة للمشرفين فقط'}
+        </div>
+      );
+    }
+
+    // Default: listings view
+    return (
       <div className="main-content">
+        {error && messages.length === 0 && (
+          <div className="api-error-banner">
+            <span>⚠️ تعذّر الاتصال بالخادم — يرجى التحقق من تشغيل الـ API أو إعادة المحاولة لاحقاً.</span>
+          </div>
+        )}
         <div className="controls">
           <input
             type="text"
@@ -801,11 +774,7 @@ function App() {
 
         <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
           <label className="filter-label">نوع الإعلان:</label>
-          <select
-            value={category}
-            onChange={handleCategoryChange}
-            className="filter-select"
-          >
+          <select value={category} onChange={handleCategoryChange} className="filter-select">
             <option value="الكل">الكل</option>
             {availableCategories.map(cat => (
               <option key={cat} value={cat}>{cat}</option>
@@ -813,11 +782,7 @@ function App() {
           </select>
 
           <label className="filter-label">نوع العقار:</label>
-          <select
-            value={propertyType}
-            onChange={handlePropertyTypeChange}
-            className="filter-select"
-          >
+          <select value={propertyType} onChange={handlePropertyTypeChange} className="filter-select">
             <option value="الكل">الكل</option>
             {availablePropertyTypes.map(type => (
               <option key={type} value={type}>{type}</option>
@@ -825,11 +790,7 @@ function App() {
           </select>
 
           <label className="filter-label">المنطقة:</label>
-          <select
-            value={region}
-            onChange={handleRegionChange}
-            className="filter-select"
-          >
+          <select value={region} onChange={handleRegionChange} className="filter-select">
             <option value="الكل">الكل</option>
             {regions.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -837,11 +798,7 @@ function App() {
           </select>
 
           <label className="filter-label">الغرض:</label>
-          <select
-            value={purpose}
-            onChange={handlePurposeChange}
-            className="filter-select"
-          >
+          <select value={purpose} onChange={handlePurposeChange} className="filter-select">
             <option value="الكل">الكل</option>
             {availablePurposes.map(p => (
               <option key={p} value={p}>{p === 'بيع' ? 'للبيع' : p === 'إيجار' ? 'للإيجار' : p}</option>
@@ -857,7 +814,6 @@ function App() {
           <div className="loading">جاري تحميل الوحدات...</div>
         ) : (
           <>
-            {/* Grid View */}
             <div className="grid-container">
               {isAdmin && messages.length > 0 && (
                 <div className="grid-select-all">
@@ -936,8 +892,23 @@ function App() {
           </>
         )}
       </div>
+    );
+  };
 
-      {/* Unit Detail View */}
+  return (
+    <AppShell
+      activeView={activeView}
+      onViewChange={handleViewChange}
+      user={user}
+      onLogout={handleLogout}
+      stats={stats}
+      isAuthenticated={isAuthenticated}
+      onShowLogin={handleShowLogin}
+      darkMode={darkMode}
+      onToggleDark={handleToggleDark}
+    >
+      {renderPageContent()}
+
       {selectedUnit && (
         <div
           className={`unit-detail-overlay ${detailClosing ? 'closing' : ''}`}
@@ -1095,45 +1066,41 @@ function App() {
                       </button>
                     </div>
                   )}
-                </div >
-              </div >
+                </div>
+              </div>
 
               <div className="detail-section detail-meta">
                 <span>🗓️ {selectedUnit.date_of_creation}</span>
                 {selectedUnit.source_file && <span>📁 {selectedUnit.source_file}</span>}
               </div>
-            </div >
+            </div>
 
             <div className="swipe-hint">
               <span>← اسحب للإغلاق →</span>
             </div>
-          </div >
-        </div >
-      )
-      }
+          </div>
+        </div>
+      )}
 
-      {
-        isAdmin && showAdminDashboard && (
-          <div className="unit-detail-overlay" onClick={() => setShowAdminDashboard(false)}>
-            <div
-              className="unit-detail-panel admin-dashboard-panel"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="unit-detail-header">
-                <button className="detail-close-btn" onClick={() => setShowAdminDashboard(false)}>
-                  ✕
-                </button>
-                <h2 className="detail-title">⚙️ لوحة التحكم</h2>
-              </div>
-              <div className="unit-detail-content">
-                <AdminDashboard onClose={() => setShowAdminDashboard(false)} onImportSuccess={handleImportSuccess} />
-              </div>
+      {isAdmin && showAdminDashboard && (
+        <div className="unit-detail-overlay" onClick={() => setShowAdminDashboard(false)}>
+          <div
+            className="unit-detail-panel admin-dashboard-panel"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="unit-detail-header">
+              <button className="detail-close-btn" onClick={() => setShowAdminDashboard(false)}>
+                ✕
+              </button>
+              <h2 className="detail-title">⚙️ لوحة التحكم</h2>
+            </div>
+            <div className="unit-detail-content">
+              <AdminDashboard onClose={() => setShowAdminDashboard(false)} onImportSuccess={handleImportSuccess} />
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
 
-      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
           <div className="modal-content confirm-modal" onClick={e => e.stopPropagation()}>
@@ -1145,16 +1112,10 @@ function App() {
               <p className="modal-note">لا يمكن التراجع عن هذا الإجراء.</p>
             </div>
             <div className="modal-actions">
-              <button
-                className="modal-btn cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
+              <button className="modal-btn cancel" onClick={() => setShowDeleteConfirm(false)}>
                 إلغاء
               </button>
-              <button
-                className="modal-btn danger"
-                onClick={confirmDelete}
-              >
+              <button className="modal-btn danger" onClick={confirmDelete}>
                 نعم، احذف
               </button>
             </div>
@@ -1162,7 +1123,6 @@ function App() {
         </div>
       )}
 
-      {/* Add Property Modal */}
       {showAddProperty && (
         <div className="modal-overlay" onClick={() => setShowAddProperty(false)}>
           <div className="modal-content add-property-modal" onClick={e => e.stopPropagation()}>
@@ -1253,22 +1213,16 @@ function App() {
         </div>
       )}
 
-
-
-      {/* PWA Install Prompt */}
       <InstallPrompt />
 
-      {/* Scroll to Top Button */}
-      {
-        showScrollTop && (
-          <button className="scroll-top-btn" onClick={scrollToTop} title="العودة للأعلى">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
-            </svg>
-          </button>
-        )
-      }
-    </div >
+      {showScrollTop && (
+        <button className="scroll-top-btn" onClick={scrollToTop} title="العودة للأعلى">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
+          </svg>
+        </button>
+      )}
+    </AppShell>
   );
 }
 
