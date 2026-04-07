@@ -547,6 +547,13 @@ function App() {
   };
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAddProperty, setShowAddProperty] = useState(false);
+  const [addPropertyForm, setAddPropertyForm] = useState({
+    message: '', sender_name: '', sender_mobile: '',
+    category: 'أخرى', property_type: 'أخرى', region: 'أخرى', purpose: 'أخرى'
+  });
+  const [addPropertyLoading, setAddPropertyLoading] = useState(false);
+  const [addPropertyError, setAddPropertyError] = useState('');
 
   // ... existing code ...
 
@@ -581,11 +588,52 @@ function App() {
         const errorData = await response.json();
         const errorMessage = errorData.error || 'Failed to delete messages';
         console.error('Delete failed:', errorMessage);
-        setError(errorMessage); // Show error in UI
+        setError(errorMessage);
       }
     } catch (err) {
       console.error('Error deleting messages:', err);
       setError('An unexpected error occurred while deleting');
+    }
+  };
+
+  const handleAddPropertyChange = (e) => {
+    const { name, value } = e.target;
+    setAddPropertyForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAddPropertySubmit = async (e) => {
+    e.preventDefault();
+    setAddPropertyLoading(true);
+    setAddPropertyError('');
+    try {
+      const response = await apiCall('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(addPropertyForm)
+      });
+      if (response.ok) {
+        setShowAddProperty(false);
+        setAddPropertyForm({
+          message: '', sender_name: '', sender_mobile: '',
+          category: 'أخرى', property_type: 'أخرى', region: 'أخرى', purpose: 'أخرى'
+        });
+        setMessages([]);
+        setHasMore(true);
+        setPage(1);
+        fetchMessages(1, { append: false });
+        fetchStats();
+      } else {
+        const errorData = await response.json();
+        setAddPropertyError(errorData.error || 'فشل إضافة الإعلان');
+      }
+    } catch (err) {
+      console.error('Error adding property:', err);
+      setAddPropertyError('حدث خطأ غير متوقع، يرجى المحاولة مرة أخرى');
+    } finally {
+      setAddPropertyLoading(false);
     }
   };
 
@@ -672,6 +720,18 @@ function App() {
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                   <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                </svg>
+              </button>
+            )}
+            {isUserActive && (
+              <button
+                type="button"
+                className="add-property-btn"
+                onClick={(e) => { e.stopPropagation(); setShowAddProperty(true); }}
+                title="إضافة إعلان جديد"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                 </svg>
               </button>
             )}
@@ -1110,6 +1170,99 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Add Property Modal */}
+      {showAddProperty && (
+        <div className="modal-overlay" onClick={() => setShowAddProperty(false)}>
+          <div className="modal-content add-property-modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>➕ إضافة إعلان عقاري جديد</h3>
+            </div>
+            <form className="modal-body add-property-form" onSubmit={handleAddPropertySubmit}>
+              <div className="form-group">
+                <label htmlFor="ap-message" className="form-label">نص الإعلان *</label>
+                <textarea
+                  id="ap-message"
+                  name="message"
+                  className="form-textarea"
+                  rows={4}
+                  placeholder="اكتب تفاصيل العقار هنا..."
+                  value={addPropertyForm.message}
+                  onChange={handleAddPropertyChange}
+                  required
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="ap-sender-name" className="form-label">اسم المرسل</label>
+                  <input
+                    id="ap-sender-name"
+                    type="text"
+                    name="sender_name"
+                    className="form-input"
+                    placeholder="الاسم"
+                    value={addPropertyForm.sender_name}
+                    onChange={handleAddPropertyChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="ap-sender-mobile" className="form-label">رقم الهاتف</label>
+                  <input
+                    id="ap-sender-mobile"
+                    type="text"
+                    name="sender_mobile"
+                    className="form-input"
+                    placeholder="رقم الموبايل"
+                    value={addPropertyForm.sender_mobile}
+                    onChange={handleAddPropertyChange}
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="ap-category" className="form-label">نوع الإعلان</label>
+                  <select id="ap-category" name="category" className="form-select" value={addPropertyForm.category} onChange={handleAddPropertyChange}>
+                    {availableCategories.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="ap-property-type" className="form-label">نوع العقار</label>
+                  <select id="ap-property-type" name="property_type" className="form-select" value={addPropertyForm.property_type} onChange={handleAddPropertyChange}>
+                    {availablePropertyTypes.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="ap-region" className="form-label">المنطقة</label>
+                  <select id="ap-region" name="region" className="form-select" value={addPropertyForm.region} onChange={handleAddPropertyChange}>
+                    <option value="أخرى">أخرى</option>
+                    {regions.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="ap-purpose" className="form-label">الغرض</label>
+                  <select id="ap-purpose" name="purpose" className="form-select" value={addPropertyForm.purpose} onChange={handleAddPropertyChange}>
+                    {availablePurposes.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+              {addPropertyError && <p className="form-error">{addPropertyError}</p>}
+              <div className="modal-actions">
+                <button type="button" className="modal-btn cancel" onClick={() => setShowAddProperty(false)}>
+                  إلغاء
+                </button>
+                <button type="submit" className="modal-btn primary" disabled={addPropertyLoading}>
+                  {addPropertyLoading ? 'جاري الإضافة...' : 'إضافة الإعلان'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
 
       {/* PWA Install Prompt */}
       <InstallPrompt />
