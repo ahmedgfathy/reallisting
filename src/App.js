@@ -1090,6 +1090,9 @@ function App() {
               <button className="detail-close-btn" onClick={() => setShowAdminDashboard(false)}>
                 ✕
               </button>
+              <button className="detail-back-btn" onClick={() => setShowAdminDashboard(false)}>
+                → رجوع
+              </button>
               <h2 className="detail-title">⚙️ لوحة التحكم</h2>
             </div>
             <div className="unit-detail-content">
