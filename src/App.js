@@ -50,15 +50,15 @@ function App() {
   const isUserActive = Boolean(user?.isActive || isAdmin);
 
   const [activeView, setActiveView] = useState('dashboard');
-  const [darkMode, setDarkMode] = useState(false);
 
   const handleViewChange = (view) => {
     setActiveView(view);
   };
 
-  const handleToggleDark = () => {
-    setDarkMode(prev => !prev);
-  };
+  // Always enforce dark mode on the document root so body/html backgrounds are dark
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }, []);
 
   // Count active filters
   const activeFiltersCount = [category, propertyType, region, purpose].filter(f => f !== 'الكل').length;
@@ -904,8 +904,6 @@ function App() {
       stats={stats}
       isAuthenticated={isAuthenticated}
       onShowLogin={handleShowLogin}
-      darkMode={darkMode}
-      onToggleDark={handleToggleDark}
     >
       {renderPageContent()}
 
