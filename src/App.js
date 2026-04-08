@@ -50,7 +50,6 @@ function App() {
   const isUserActive = Boolean(user?.isActive || isAdmin);
 
   const [activeView, setActiveView] = useState('dashboard');
-  const darkMode = true;
 
   const handleViewChange = (view) => {
     setActiveView(view);
@@ -905,7 +904,6 @@ function App() {
       stats={stats}
       isAuthenticated={isAuthenticated}
       onShowLogin={handleShowLogin}
-      darkMode={darkMode}
     >
       {renderPageContent()}
 

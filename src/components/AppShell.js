@@ -4,7 +4,7 @@ import MobileBottomNav from './MobileBottomNav';
 import Header from './Header';
 import './AppShell.css';
 
-function AppShell({ children, activeView, onViewChange, user, onLogout, stats, isAuthenticated, onShowLogin, darkMode, onToggleDark }) {
+function AppShell({ children, activeView, onViewChange, user, onLogout, stats, isAuthenticated, onShowLogin }) {
   return (
     <div className="app-shell dark" data-theme="dark">
       <aside className="app-sidebar">
@@ -17,8 +17,6 @@ function AppShell({ children, activeView, onViewChange, user, onLogout, stats, i
           onLogout={onLogout}
           isAuthenticated={isAuthenticated}
           onShowLogin={onShowLogin}
-          darkMode={darkMode}
-          onToggleDark={onToggleDark}
         />
         <main className="app-content">
           {children}

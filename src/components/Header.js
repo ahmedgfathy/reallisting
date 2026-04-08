@@ -11,7 +11,7 @@ const viewTitles = {
   settings: 'الإعدادات'
 };
 
-function Header({ activeView, user, onLogout, isAuthenticated, onShowLogin, darkMode, onToggleDark }) {
+function Header({ activeView, user, onLogout, isAuthenticated, onShowLogin }) {
   return (
     <header className="mobile-header">
       <div className="mobile-header-title">
