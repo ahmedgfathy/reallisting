@@ -4059,3 +4059,102 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================
+   DARK MODE — Detail Panel Inner Elements
+   ========================================== */
+
+[data-theme="dark"] .detail-info-item {
+  background: var(--bg-card-soft, #22314d);
+  border-color: var(--border-color);
+  border-right-color: var(--color-primary-light, #6366f1);
+}
+
+[data-theme="dark"] .detail-info-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .detail-message {
+  background: var(--bg-card-soft, #22314d);
+  border-color: var(--border-color);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .ai-extraction {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.25);
+}
+
+[data-theme="dark"] .ai-meta-item {
+  background: var(--bg-card-soft, #22314d);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ai-meta-label {
+  color: var(--text-accent, #60a5fa);
+}
+
+[data-theme="dark"] .ai-meta-value {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .contact-info-card {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .sender-profile {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .sender-label {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .sender-name {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .mobile-label {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .mobile-number {
+  color: var(--text-accent, #60a5fa);
+}
+
+[data-theme="dark"] .contact-item {
+  background: var(--bg-card-soft, #22314d);
+}
+
+[data-theme="dark"] .contact-text {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .contact-hidden {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="dark"] .contact-hidden span {
+  color: #fde68a;
+}
+
+[data-theme="dark"] .detail-meta {
+  background: var(--bg-card-soft, #22314d);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .swipe-hint {
+  background: transparent;
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .upload-progress-container {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .detail-section.ai-extraction h3 {
+  color: var(--text-primary, #f8fafc);
+}
