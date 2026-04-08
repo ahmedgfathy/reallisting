@@ -20,7 +20,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-family: inherit;
   font-size: 10px;
   transition: var(--transition);
@@ -28,7 +28,17 @@
 }
 
 .bottom-nav-item.active {
-  color: var(--color-primary);
+  color: var(--color-primary-light, #6366f1);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+[data-theme="dark"] .bottom-nav-item {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .bottom-nav-item.active {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.15);
 }
 
 .bottom-nav-icon {
