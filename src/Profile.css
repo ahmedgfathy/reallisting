@@ -268,3 +268,76 @@
 .profile-submit:hover:not(:disabled) {
   box-shadow: 0 12px 24px rgba(21, 50, 75, 0.22);
 }
+
+/* ==========================================
+   Dark Mode Overrides
+   ========================================== */
+
+[data-theme="dark"] .profile-container {
+  background: var(--bg-surface, #111827);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .profile-header {
+  background: var(--bg-surface-2, #162033);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .profile-header h2 {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .profile-field label {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .profile-input {
+  background: var(--bg-surface-2, #162033);
+  border-color: var(--border-color);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .profile-input:focus {
+  background: var(--bg-card, #1b2740);
+  border-color: rgba(99, 102, 241, 0.6);
+}
+
+[data-theme="dark"] .profile-input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .profile-input-disabled {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .profile-divider::before {
+  background: var(--border-color);
+}
+
+[data-theme="dark"] .profile-divider span {
+  background: var(--bg-surface, #111827);
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .profile-close {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .profile-close:hover {
+  background: var(--bg-surface-2, #162033);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .profile-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: #86efac;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+[data-theme="dark"] .profile-form .profile-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.3);
+}
