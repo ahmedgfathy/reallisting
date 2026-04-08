@@ -231,3 +231,50 @@
 .install-btn.primary:hover {
   box-shadow: 0 10px 24px rgba(21, 50, 75, 0.24);
 }
+
+/* ==========================================
+   Dark Mode Overrides
+   ========================================== */
+
+[data-theme="dark"] .install-prompt {
+  background: var(--bg-surface, #111827);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: none;
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .install-prompt h2 {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .install-prompt > p {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .install-close {
+  background: var(--bg-surface-2, #162033);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .install-close:hover {
+  background: var(--bg-card, #1b2740);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .ios-step {
+  background: var(--bg-surface-2, #162033);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .install-btn.secondary {
+  background: var(--bg-surface-2, #162033);
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .install-btn.secondary:hover {
+  background: var(--bg-card, #1b2740);
+}
+
+[data-theme="dark"] .install-features {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}

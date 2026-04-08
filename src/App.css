@@ -3749,11 +3749,13 @@ body {
 }
 
 [data-theme="dark"] .controls,
+[data-theme="dark"] .filters,
 [data-theme="dark"] .filters.filters-open,
 [data-theme="dark"] .grid-container,
 [data-theme="dark"] .no-data-grid {
   background: var(--bg-surface);
   border-color: var(--border-color);
+  backdrop-filter: none;
 }
 
 [data-theme="dark"] .search-input,

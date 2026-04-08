@@ -171,3 +171,54 @@
 .login-btn:hover:not(:disabled) {
   box-shadow: 0 12px 24px rgba(21, 50, 75, 0.28);
 }
+
+/* ==========================================
+   Dark Mode Overrides
+   ========================================== */
+
+[data-theme="dark"] .login-box {
+  background: var(--bg-surface, #111827);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-form {
+  background: var(--bg-surface, #111827);
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .form-group input {
+  background: var(--bg-surface-2, #162033);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary, #f8fafc);
+}
+
+[data-theme="dark"] .form-group input:focus {
+  background: var(--bg-card, #1b2740);
+  border-color: rgba(99, 102, 241, 0.6);
+}
+
+[data-theme="dark"] .form-group input::placeholder {
+  color: var(--text-muted, #94a3b8);
+}
+
+[data-theme="dark"] .login-error {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .login-footer {
+  background: var(--bg-surface-2, #162033);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .login-footer p {
+  color: var(--text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .link-btn {
+  color: var(--text-accent, #60a5fa);
+}
