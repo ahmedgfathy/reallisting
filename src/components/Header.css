@@ -44,6 +44,17 @@
   color: var(--text-primary);
 }
 
+[data-theme="dark"] .header-icon-btn {
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .header-icon-btn:hover {
+  background: var(--bg-card-soft, #22314d);
+  color: var(--text-primary);
+}
+
 .header-user {
   display: flex;
   align-items: center;

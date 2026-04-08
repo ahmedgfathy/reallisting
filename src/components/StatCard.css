@@ -15,6 +15,15 @@
   transform: translateY(-2px);
 }
 
+[data-theme="dark"] .stat-card {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .stat-card:hover {
+  background: var(--bg-card-soft, #22314d);
+}
+
 .stat-card-icon {
   width: 52px;
   height: 52px;
@@ -25,6 +34,10 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+[data-theme="dark"] .stat-card-icon {
+  background: rgba(129, 140, 248, 0.15);
 }
 
 .stat-card-body {

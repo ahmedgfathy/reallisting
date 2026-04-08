@@ -57,6 +57,10 @@
   margin-right: auto;
 }
 
+[data-theme="dark"] .filter-result-count {
+  color: var(--text-secondary);
+}
+
 .filter-panel-body {
   display: flex;
   flex-wrap: wrap;
@@ -93,4 +97,15 @@
 
 .filter-item-select:focus {
   border-color: var(--color-primary);
+}
+
+[data-theme="dark"] .filter-item-select {
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .filter-item-select option {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
 }

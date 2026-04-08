@@ -3739,8 +3739,13 @@ body {
 
 /* Dark mode for cards */
 [data-theme="dark"] .property-card {
-  background: var(--bg-surface);
+  background: var(--bg-card, #1b2740);
   border-color: var(--border-color);
+}
+
+[data-theme="dark"] .property-card:hover {
+  background: var(--bg-card-soft, #22314d);
+  border-color: var(--border-strong);
 }
 
 [data-theme="dark"] .controls,
@@ -3761,6 +3766,10 @@ body {
   color: var(--text-primary);
 }
 
+[data-theme="dark"] .search-input::placeholder {
+  color: var(--text-muted);
+}
+
 [data-theme="dark"] .modal-content {
   background: var(--bg-surface);
   border-color: var(--border-color);
@@ -3770,8 +3779,239 @@ body {
   background: var(--bg-surface);
 }
 
+[data-theme="dark"] .unit-detail-header {
+  background: var(--bg-surface);
+  border-bottom-color: var(--border-color);
+}
+
 [data-theme="dark"] .detail-section {
+  background: var(--bg-card, #1b2740);
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .detail-section h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .detail-label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .detail-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Dark mode for card content */
+[data-theme="dark"] .card-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .card-message {
+  color: var(--text-secondary);
   background: var(--bg-surface-2);
+  border-right-color: var(--border-strong);
+}
+
+[data-theme="dark"] .card-name {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .card-date {
+  color: var(--text-secondary);
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .card-footer {
+  background: linear-gradient(180deg, transparent 0%, var(--bg-card-soft, #22314d) 100%);
+  border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .card-phone {
+  color: var(--text-accent, #60a5fa);
+}
+
+/* Dark mode phone number link in detail */
+[data-theme="dark"] .contact-action-link.call {
+  background: rgba(96, 165, 250, 0.12);
+  border-color: rgba(96, 165, 250, 0.25);
+  color: var(--text-accent, #60a5fa);
+}
+
+[data-theme="dark"] .contact-action-link.call:hover {
+  background: rgba(96, 165, 250, 0.2);
+}
+
+[data-theme="dark"] .contact-action-link.whatsapp {
+  background: rgba(37, 211, 102, 0.12);
+  border-color: rgba(37, 211, 102, 0.25);
+  color: #4ade80;
+}
+
+[data-theme="dark"] .contact-action-link.whatsapp:hover {
+  background: rgba(37, 211, 102, 0.2);
+}
+
+/* Dark mode buttons */
+[data-theme="dark"] .refresh-btn,
+[data-theme="dark"] .reset-btn,
+[data-theme="dark"] .filter-toggle-btn {
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .refresh-btn:hover,
+[data-theme="dark"] .reset-btn:hover {
+  background: var(--bg-card, #1b2740);
+  border-color: rgba(129, 140, 248, 0.5);
+  color: #818cf8;
+}
+
+[data-theme="dark"] .filter-toggle-btn.has-active-filters {
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.4);
+  color: #818cf8;
+}
+
+[data-theme="dark"] .delete-btn {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+[data-theme="dark"] .detail-close-btn,
+[data-theme="dark"] .detail-back-btn {
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .detail-close-btn:hover,
+[data-theme="dark"] .detail-back-btn:hover {
+  border-color: rgba(129, 140, 248, 0.5);
+  color: #818cf8;
+}
+
+/* Dark mode modal */
+[data-theme="dark"] .modal-header {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .modal-header h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .modal-btn.cancel {
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Dark mode results count & filter label */
+[data-theme="dark"] .results-count {
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .filter-label {
+  color: var(--text-secondary);
+}
+
+/* Dark mode source/date metadata */
+[data-theme="dark"] .date-cell {
+  color: var(--text-secondary);
+}
+
+/* Dark mode info box */
+[data-theme="dark"] .info-box {
+  background: rgba(96, 165, 250, 0.08);
+  border-color: rgba(96, 165, 250, 0.2);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .info-box code {
+  background: var(--bg-surface-2);
+  color: var(--text-accent, #60a5fa);
+}
+
+/* Dark mode select-all checkbox area */
+[data-theme="dark"] .grid-select-all {
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .grid-select-all label {
+  color: var(--text-secondary);
+}
+
+/* Dark mode AI keyword tags */
+[data-theme="dark"] .ai-keyword-tag {
+  background: rgba(129, 140, 248, 0.12);
+  color: #818cf8;
+  border-color: rgba(129, 140, 248, 0.25);
+}
+
+/* Dark mode table rows */
+[data-theme="dark"] .messages-table th {
+  background: var(--bg-surface-2);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .messages-table td {
+  border-bottom-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .messages-table tbody tr:hover {
+  background: var(--bg-card, #1b2740);
+}
+
+[data-theme="dark"] .messages-table tbody tr:nth-child(even) {
+  background: rgba(255,255,255,0.02);
+}
+
+[data-theme="dark"] .table-container {
+  background: var(--bg-surface);
+}
+
+[data-theme="dark"] .name-cell {
+  color: #818cf8;
+}
+
+[data-theme="dark"] .mobile-cell a,
+[data-theme="dark"] .mobile-cell span {
+  color: var(--text-accent, #60a5fa);
+}
+
+/* Dark mode error states */
+[data-theme="dark"] .error-message {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: var(--text-secondary);
+}
+
+/* Dark mode infinite loader */
+[data-theme="dark"] .infinite-loader {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .infinite-loader span {
+  background: var(--bg-surface-2);
+  color: var(--text-secondary);
+}
+
+/* Dark mode loading state */
+[data-theme="dark"] .loading,
+[data-theme="dark"] .no-data {
+  color: var(--text-secondary);
 }
 
 /* AI keyword tags */

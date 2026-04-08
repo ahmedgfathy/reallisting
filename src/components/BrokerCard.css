@@ -14,6 +14,15 @@
   transform: translateY(-1px);
 }
 
+[data-theme="dark"] .broker-card {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .broker-card:hover {
+  background: var(--bg-card-soft, #22314d);
+}
+
 .broker-avatar {
   width: 44px;
   height: 44px;
@@ -49,15 +58,28 @@
   color: var(--text-secondary);
 }
 
+[data-theme="dark"] .broker-phone {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 .broker-phone-locked {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+[data-theme="dark"] .broker-phone-locked {
+  color: var(--text-secondary);
 }
 
 .broker-count {
   font-size: 11px;
   color: var(--color-primary);
   font-weight: 600;
+}
+
+[data-theme="dark"] .broker-count {
+  color: #818cf8;
 }
 
 .broker-actions {
@@ -79,6 +101,11 @@
 .broker-action-btn.phone {
   background: rgba(79, 70, 229, 0.12);
   color: var(--color-primary);
+}
+
+[data-theme="dark"] .broker-action-btn.phone {
+  background: rgba(129, 140, 248, 0.18);
+  color: #818cf8;
 }
 
 .broker-action-btn.phone:hover {

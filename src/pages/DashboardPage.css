@@ -80,6 +80,17 @@
   box-shadow: var(--shadow-sm);
 }
 
+[data-theme="dark"] .quick-action-btn {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .quick-action-btn:hover {
+  background: rgba(129, 140, 248, 0.12);
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
 .quick-action-icon {
   font-size: 24px;
 }
@@ -108,6 +119,14 @@
   background: rgba(79, 70, 229, 0.1);
 }
 
+[data-theme="dark"] .see-all-btn {
+  color: #818cf8;
+}
+
+[data-theme="dark"] .see-all-btn:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+
 .recent-listings {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -128,6 +147,16 @@
   border-color: var(--border-strong);
 }
 
+[data-theme="dark"] .recent-listing-item {
+  background: var(--bg-card, #1b2740);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .recent-listing-item:hover {
+  background: var(--bg-card-soft, #22314d);
+  border-color: var(--border-strong);
+}
+
 .recent-listing-badges {
   display: flex;
   gap: 6px;
@@ -144,6 +173,11 @@
   padding: 2px 8px;
 }
 
+[data-theme="dark"] .recent-badge {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+}
+
 .recent-region {
   background: rgba(6, 182, 212, 0.12);
   color: var(--color-accent);
@@ -151,6 +185,11 @@
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
+}
+
+[data-theme="dark"] .recent-region {
+  background: rgba(34, 211, 238, 0.12);
+  color: #22d3ee;
 }
 
 .recent-listing-text {

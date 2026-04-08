@@ -26,6 +26,11 @@
   padding: 3px 10px;
 }
 
+[data-theme="dark"] .brokers-count {
+  background: rgba(129, 140, 248, 0.15);
+  color: #818cf8;
+}
+
 .brokers-search {
   display: flex;
   align-items: center;
@@ -42,8 +47,17 @@
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
 }
 
+[data-theme="dark"] .brokers-search {
+  background: var(--bg-surface-2);
+}
+
+[data-theme="dark"] .brokers-search:focus-within {
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.12);
+}
+
 .brokers-search-icon {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -62,6 +76,10 @@
   color: var(--text-muted);
 }
 
+[data-theme="dark"] .brokers-search-input::placeholder {
+  color: var(--text-secondary);
+}
+
 .brokers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -71,5 +89,5 @@
 .brokers-empty {
   text-align: center;
   padding: 48px 0;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
