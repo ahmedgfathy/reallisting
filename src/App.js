@@ -702,6 +702,7 @@ function App() {
         <BrokersPage
           messages={messages}
           isUserActive={isUserActive}
+          buildWhatsAppHref={buildWhatsAppHref}
         />
       );
     }
@@ -1012,7 +1013,7 @@ function App() {
                           </div>
                           <div className="sender-details">
                             <span className="sender-label">المرسل</span>
-                            <span className="sender-name">{selectedUnit.sender_name}</span>
+                            <span className="sender-name" dir={/^[+\d\s()-]{7,}$/.test((selectedUnit.sender_name || '').trim()) ? 'ltr' : undefined}>{selectedUnit.sender_name}</span>
                           </div>
                         </div>
                       )}

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import BrokerCard from '../components/BrokerCard';
 import './BrokersPage.css';
 
-function BrokersPage({ messages, isUserActive }) {
+function BrokersPage({ messages, isUserActive, buildWhatsAppHref }) {
   const [search, setSearch] = useState('');
 
   const brokers = useMemo(() => {
@@ -58,7 +58,7 @@ function BrokersPage({ messages, isUserActive }) {
       ) : (
         <div className="brokers-grid">
           {filtered.map((broker, i) => (
-            <BrokerCard key={i} broker={broker} isUserActive={isUserActive} />
+            <BrokerCard key={i} broker={broker} isUserActive={isUserActive} buildWhatsAppHref={buildWhatsAppHref} />
           ))}
         </div>
       )}

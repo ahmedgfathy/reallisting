@@ -56,6 +56,12 @@
 .broker-phone {
   font-size: 13px;
   color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.broker-phone:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
 }
 
 [data-theme="dark"] .broker-phone {
@@ -110,5 +116,20 @@
 
 .broker-action-btn.phone:hover {
   background: var(--color-primary);
+  color: #fff;
+}
+
+.broker-action-btn.whatsapp {
+  background: rgba(37, 211, 102, 0.12);
+  color: #25d366;
+}
+
+[data-theme="dark"] .broker-action-btn.whatsapp {
+  background: rgba(37, 211, 102, 0.18);
+  color: #25d366;
+}
+
+.broker-action-btn.whatsapp:hover {
+  background: #25d366;
   color: #fff;
 }
