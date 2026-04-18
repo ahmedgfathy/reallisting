@@ -195,3 +195,22 @@
   text-align: center;
   padding: 8px;
 }
+
+.sidebar-login-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.sidebar-login-btn:hover {
+  background: var(--color-primary-dark);
+}

@@ -49,7 +49,7 @@ const navItems = [
   }
 ];
 
-function Sidebar({ activeView, onViewChange, user, onLogout, stats }) {
+function Sidebar({ activeView, onViewChange, user, onLogout, stats, onShowLogin }) {
   return (
     <div className="sidebar">
       <div className="sidebar-brand">
@@ -105,6 +105,9 @@ function Sidebar({ activeView, onViewChange, user, onLogout, stats }) {
         ) : (
           <div className="sidebar-user-placeholder">
             <span>غير مسجل</span>
+            <button type="button" className="sidebar-login-btn" onClick={onShowLogin}>
+              تسجيل الدخول
+            </button>
           </div>
         )}
       </div>

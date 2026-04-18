@@ -8,7 +8,14 @@ function AppShell({ children, activeView, onViewChange, user, onLogout, stats, i
   return (
     <div className="app-shell dark" data-theme="dark">
       <aside className="app-sidebar">
-        <Sidebar activeView={activeView} onViewChange={onViewChange} user={user} onLogout={onLogout} stats={stats} />
+        <Sidebar
+          activeView={activeView}
+          onViewChange={onViewChange}
+          user={user}
+          onLogout={onLogout}
+          stats={stats}
+          onShowLogin={onShowLogin}
+        />
       </aside>
       <div className="app-main">
         <Header
