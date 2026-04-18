@@ -16,6 +16,28 @@ async function parseBody(req) {
   });
 }
 
+// Normalize Arabic/Persian digits to ASCII digits.
+function normalizeDigits(value) {
+  return String(value || '')
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06F0));
+}
+
+// Try to extract a phone from one or more candidate strings.
+function extractContactMobile(...candidates) {
+  const mobileRegex = /(?:\+?20|0020|0)?1[0-9]{9}|(?:\+?966|00966|0)?5[0-9]{8}/g;
+
+  for (const value of candidates) {
+    const text = normalizeDigits(value);
+    const match = text.match(mobileRegex);
+    if (match && match[0]) {
+      // Keep only digits/+ for safe tel links in UI.
+      return match[0].replace(/[^\d+]/g, '');
+    }
+  }
+  return '';
+}
+
 module.exports = async (req, res) => {
   // Handle CORS
   if (req.method === 'OPTIONS') {
@@ -127,7 +149,7 @@ module.exports = async (req, res) => {
     const data = await messages.getAll(filters, parseInt(limit), offset);
     const total = await messages.count(filters);
 
-    const MOBILE_REGEX = /(?:\+20|0)?1[0-9]{9}/g;
+    const MOBILE_REGEX = /(?:\+?20|0020|0)?1[0-9]{9}|(?:\+?966|00966|0)?5[0-9]{8}/g;
 
     // Format response - mask sensitive data for unapproved users
     const formattedMessages = data.map(msg => {
@@ -153,9 +175,15 @@ module.exports = async (req, res) => {
       };
 
       // Only show contact info for approved users
+      // If sender_mobile is missing, recover it from sender_name/message for old imports.
       if (isApprovedUser) {
+        const recoveredMobile = extractContactMobile(
+          msg.sender_mobile,
+          msg.sender_name,
+          msg.message
+        );
         formatted.sender_name = msg.sender_name || '';
-        formatted.sender_mobile = msg.sender_mobile || '';
+        formatted.sender_mobile = recoveredMobile || '';
       } else {
         formatted.sender_name = '';
         formatted.sender_mobile = '';
