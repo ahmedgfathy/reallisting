@@ -159,7 +159,6 @@ function AdminDashboard({ onClose, onImportSuccess }) {
 
   const token = localStorage.getItem('token') || '';
   const showUserManagement = process.env.REACT_APP_MULTI_USER_MODE === 'true';
-  const showDeduplicationTools = showUserManagement;
 
   const loadUsers = useCallback(async () => {
     if (!token) {
@@ -475,7 +474,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
             🔄 تحديث القائمة
           </button>
         )}
-        {showDeduplicationTools && (
+        {showUserManagement && (
           <button
             type="button"
             className="admin-dedupe-btn"
@@ -502,7 +501,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
         </div>
       )}
 
-      {showDeduplicationTools && dedupeReport && (
+      {showUserManagement && dedupeReport && (
         <div className="admin-dedupe-report">
           <h3>📊 تقرير حذف المكررات</h3>
           <div className="dedupe-stats">
