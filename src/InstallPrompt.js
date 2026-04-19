@@ -8,6 +8,7 @@ function InstallPrompt() {
 
   useEffect(() => {
     let promptTimeoutId;
+    let beforeInstallPromptHandler;
 
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -21,22 +22,24 @@ function InstallPrompt() {
     if (isIOSDevice) {
       // Show iOS install instructions after 3 seconds
       promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 3000);
-      return () => {
-        window.clearTimeout(promptTimeoutId);
+    } else {
+      // For Android/Chrome
+      beforeInstallPromptHandler = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+        if (promptTimeoutId) {
+          window.clearTimeout(promptTimeoutId);
+        }
+        promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 2000);
       };
+
+      window.addEventListener('beforeinstallprompt', beforeInstallPromptHandler);
     }
 
-    // For Android/Chrome
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 2000);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
+      if (beforeInstallPromptHandler) {
+        window.removeEventListener('beforeinstallprompt', beforeInstallPromptHandler);
+      }
       if (promptTimeoutId) {
         window.clearTimeout(promptTimeoutId);
       }
