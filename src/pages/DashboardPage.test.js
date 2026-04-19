@@ -26,7 +26,7 @@ describe('DashboardPage', () => {
     act(() => {
       root.render(
         <DashboardPage
-          stats={{ totalMessages: 12, totalSenders: 7, totalSubscribers: 3, totalFiles: 5 }}
+          stats={{ totalMessages: 12, totalSenders: 7 }}
           messages={[]}
           user={{ username: 'admin', role: 'admin' }}
           onViewChange={() => {}}
