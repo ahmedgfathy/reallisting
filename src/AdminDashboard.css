@@ -143,6 +143,16 @@
   font-weight: 600;
 }
 
+.admin-single-user-note {
+  background: rgba(66, 103, 178, 0.1);
+  border: 1px solid rgba(66, 103, 178, 0.2);
+  color: #2d4373;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
 .admin-dashboard-loading,
 .admin-dashboard-empty {
   background: #f8f9fa;

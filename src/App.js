@@ -1070,7 +1070,7 @@ function App() {
               <button className="detail-back-btn" onClick={() => setShowAdminDashboard(false)}>
                 → رجوع
               </button>
-              <h2 className="detail-title">⚙️ لوحة التحكم</h2>
+              <h2 className="detail-title">⚙️ أدوات الإدارة</h2>
             </div>
             <div className="unit-detail-content">
               <AdminDashboard onClose={() => setShowAdminDashboard(false)} onImportSuccess={handleImportSuccess} />
