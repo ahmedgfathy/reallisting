@@ -7,6 +7,8 @@ function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    let promptTimeoutId;
+
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       return; // App is already installed
@@ -18,21 +20,26 @@ function InstallPrompt() {
 
     if (isIOSDevice) {
       // Show iOS install instructions after 3 seconds
-      setTimeout(() => setShowPrompt(true), 3000);
-      return;
+      promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 3000);
+      return () => {
+        window.clearTimeout(promptTimeoutId);
+      };
     }
 
     // For Android/Chrome
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setTimeout(() => setShowPrompt(true), 2000);
+      promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 2000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      if (promptTimeoutId) {
+        window.clearTimeout(promptTimeoutId);
+      }
     };
   }, []);
 
