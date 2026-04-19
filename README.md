@@ -114,7 +114,7 @@ cp .env.example .env
 
 ## Deployment
 
-- أمر البناء: `npm run vercel-build` (أو `npm run build`)
+- أمر البناء: `npm run build`
 - إعدادات Vercel موجودة في `vercel.json`
 - دليل نشر مفصل: `technical-documentation/DEPLOYMENT.md`
 
