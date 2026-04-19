@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { apiCall } from './apiConfig';
 import './AdminDashboard.css';
-import TestAIBlock from './TestAIBlock';
 
 const adminAPI = {
   getUsers: async () => {
@@ -492,14 +491,6 @@ function AdminDashboard({ onClose, onImportSuccess }) {
           📥 استيراد من واتساب
         </button>
       </div>
-
-      <TestAIBlock />
-
-      {!showUserManagement && (
-        <div className="admin-single-user-note">
-          تم إخفاء إدارة المستخدمين لأن النظام يعمل بحساب واحد فقط.
-        </div>
-      )}
 
       {showUserManagement && dedupeReport && (
         <div className="admin-dedupe-report">
