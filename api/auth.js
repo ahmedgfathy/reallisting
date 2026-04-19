@@ -65,30 +65,9 @@ module.exports = async (req, res) => {
     }
   }
 
-  // REGISTER
+  // REGISTER (disabled - access is restricted to existing users only)
   if ((path === 'register' || path === '/register') && req.method === 'POST') {
-    try {
-      const body = await parseBody(req);
-      const { mobile, password, name = '' } = body || {};
-
-      if (!mobile || !password) {
-        return res.status(400).json({ error: 'Mobile and password required' });
-      }
-
-      const result = await users.create(mobile, password, name);
-
-      if (!result.success) {
-        if (result.error.includes('exists')) {
-          return res.status(409).json({ error: 'هذا الرقم مسجل بالفعل' });
-        }
-        return res.status(500).json({ error: 'فشل التسجيل' });
-      }
-
-      return res.status(201).json({ message: 'تم التسجيل بنجاح. في انتظار موافقة المشرف.' });
-    } catch (error) {
-      console.error('Register error:', error);
-      return res.status(500).json({ error: 'Registration failed' });
-    }
+    return res.status(403).json({ error: 'تم إيقاف إنشاء الحسابات الجديدة' });
   }
 
   // VERIFY

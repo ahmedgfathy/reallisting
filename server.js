@@ -14,7 +14,7 @@ app.use(express.json({ limit: '10mb' }));
 app.get('/', (_req, res) => {
   res.json({
     status: 'ok',
-    message: 'RealListing local API server is running',
+    message: 'Contaboo local API server is running',
     apiBase: '/api',
     dbFile: DB_FILE
   });

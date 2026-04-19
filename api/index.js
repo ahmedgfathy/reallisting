@@ -72,7 +72,7 @@ module.exports = async (req, res) => {
     ));
     return res.status(200).json({
       status: 'ok',
-      message: 'RealListing API is running',
+      message: 'Contaboo API is running',
       database: usingSupabase ? 'Supabase' : 'Local JSON DB',
       timestamp: new Date().toISOString()
     });

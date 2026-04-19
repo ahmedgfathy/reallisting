@@ -72,10 +72,10 @@ function InstallPrompt() {
         <button className="install-close" onClick={handleDismiss}>✕</button>
         
         <div className="install-icon">
-          <img src="/logo.svg" alt="ريل ليستنج" />
+          <img src="/logo.svg" alt="كونتابو | Contaboo" />
         </div>
         
-        <h2>تثبيت ريل ليستنج</h2>
+        <h2>تثبيت كونتابو</h2>
         <p>أضف التطبيق لشاشتك الرئيسية</p>
         
         {isIOS ? (

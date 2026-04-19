@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import Login from './Login';
-import Register from './Register';
 import AdminDashboard from './AdminDashboard';
 import { apiCall } from './apiConfig';
 import InstallPrompt from './InstallPrompt';
@@ -14,8 +13,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
   const [messages, setMessages] = useState([]);
   const [stats, setStats] = useState({ totalMessages: 0, totalSenders: 0, totalFiles: 0, files: [], filters: { categories: [], propertyTypes: [], purposes: [] } });
   const [regions, setRegions] = useState([]);
@@ -241,15 +238,6 @@ function App() {
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
     setUser(userData);
-    setShowLogin(false);
-    setShowRegister(false);
-  };
-
-  const handleRegister = (userData) => {
-    setIsAuthenticated(true);
-    setUser(userData);
-    setShowLogin(false);
-    setShowRegister(false);
   };
 
   const handleLogout = () => {
@@ -261,18 +249,7 @@ function App() {
   };
 
   const handleShowLogin = () => {
-    setShowLogin(true);
-    setShowRegister(false);
-  };
-
-  const handleShowRegister = () => {
-    setShowRegister(true);
-    setShowLogin(false);
-  };
-
-  const handleCloseAuth = () => {
-    setShowLogin(false);
-    setShowRegister(false);
+    setIsAuthenticated(false);
   };
 
   useEffect(() => {
@@ -667,24 +644,11 @@ function App() {
     );
   }
 
-  // Show login modal
-  if (showLogin) {
+  // Force login screen when user is not authenticated
+  if (!isAuthenticated) {
     return (
       <Login
         onLogin={handleLogin}
-        onSwitchToRegister={handleShowRegister}
-        onBackToHome={handleCloseAuth}
-      />
-    );
-  }
-
-  // Show register modal
-  if (showRegister) {
-    return (
-      <Register
-        onRegister={handleRegister}
-        onSwitchToLogin={handleShowLogin}
-        onBackToHome={handleCloseAuth}
       />
     );
   }
@@ -1060,10 +1024,7 @@ function App() {
                     </div>
                   ) : (
                     <div className="contact-hidden">
-                      <span>🔒 سجل دخولك واشترك لرؤية معلومات التواصل</span>
-                      <button onClick={() => { closeUnitDetail(); setShowLogin(true); }} className="detail-login-btn">
-                        تسجيل الدخول
-                      </button>
+                      <span>🔒 اشتراكك غير مفعل. تواصل مع الإدارة لعرض معلومات التواصل</span>
                     </div>
                   )}
                 </div>
