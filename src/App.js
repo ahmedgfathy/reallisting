@@ -30,12 +30,16 @@ export const truncateCardMessage = (message, maxLength = 70) => {
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
-export const calculateHasMorePages = ({ page, limit, total, totalPages, currentPageSize }) => {
+export const calculateHasMorePages = ({ page, limit, total, totalPages, currentPageSize, hasMore }) => {
   const safePage = Number(page);
   const safeLimit = Number(limit);
   const safeTotal = Number(total);
   const safeTotalPages = Number(totalPages);
   const safeCurrentPageSize = Number(currentPageSize);
+
+  if (typeof hasMore === 'boolean') {
+    return hasMore;
+  }
 
   if (Number.isFinite(safeTotal) && safeTotal >= 0 && Number.isFinite(safeLimit) && safeLimit > 0 && Number.isFinite(safePage) && safePage > 0) {
     return safePage * safeLimit < safeTotal;
@@ -392,6 +396,7 @@ function App() {
           limit,
           total: data.total,
           totalPages: data.totalPages,
+          hasMore: data.hasMore,
           currentPageSize: Array.isArray(data.data) ? data.data.length : 0
         }));
 
@@ -902,8 +907,13 @@ function App() {
 
             <div ref={loaderRef} className="infinite-loader">
               {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
-              {!loadingMore && hasMore && messages.length > 0 && (
-                <button type="button" className="load-more-btn" onClick={() => setPage(prev => prev + 1)}>
+              {!loadingMore && hasMore && (
+                <button
+                  type="button"
+                  className="load-more-btn"
+                  aria-label="تحميل المزيد من العقارات"
+                  onClick={() => setPage(prev => prev + 1)}
+                >
                   تحميل المزيد
                 </button>
               )}

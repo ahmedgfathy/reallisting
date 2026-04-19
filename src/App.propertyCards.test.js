@@ -30,6 +30,8 @@ describe('property card helpers', () => {
   });
 
   it('calculates pagination continuation safely', () => {
+    expect(calculateHasMorePages({ hasMore: true })).toBe(true);
+    expect(calculateHasMorePages({ hasMore: false, page: 1, limit: 50, total: 26407 })).toBe(false);
     expect(calculateHasMorePages({ page: 1, limit: 50, total: 26407 })).toBe(true);
     expect(calculateHasMorePages({ page: 529, limit: 50, total: 26407 })).toBe(false);
     expect(calculateHasMorePages({ page: 2, limit: 50, totalPages: 3 })).toBe(true);
