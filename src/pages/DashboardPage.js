@@ -45,26 +45,6 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive }) {
           value={stats?.totalSenders || 0}
           color="var(--color-accent)"
         />
-        <StatCard
-          icon={
-            <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
-              <path d="M12 1C8.676 1 6 3.676 6 7c0 2.43 1.376 4.546 3.4 5.644C5.644 13.864 3 17.166 3 21h2c0-3.86 3.14-7 7-7s7 3.14 7 7h2c0-3.834-2.644-7.136-6.4-8.356C16.624 11.546 18 9.43 18 7c0-3.324-2.676-6-6-6zm0 2c2.206 0 4 1.794 4 4s-1.794 4-4 4-4-1.794-4-4 1.794-4 4-4z" />
-            </svg>
-          }
-          label="المشتركون"
-          value={stats?.totalSubscribers || 0}
-          color="var(--color-success)"
-        />
-        <StatCard
-          icon={
-            <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
-              <path d="M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z" />
-            </svg>
-          }
-          label="الملفات المستوردة"
-          value={stats?.totalFiles || 0}
-          color="var(--color-warning)"
-        />
       </div>
 
       <div className="dashboard-quick-actions">
@@ -77,10 +57,6 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive }) {
           <button className="quick-action-btn" onClick={() => onViewChange('leads')}>
             <span className="quick-action-icon">👥</span>
             <span>عرض العملاء المحتملين</span>
-          </button>
-          <button className="quick-action-btn" onClick={() => onViewChange('settings')}>
-            <span className="quick-action-icon">⚙️</span>
-            <span>الإعدادات</span>
           </button>
         </div>
       </div>
