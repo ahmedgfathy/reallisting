@@ -2379,7 +2379,7 @@ body {
 
 @media (max-width: 768px) {
   .scroll-top-btn {
-    bottom: 20px;
+    bottom: calc(var(--mobile-nav-height) + 16px);
     left: 20px;
     width: 45px;
     height: 45px;
