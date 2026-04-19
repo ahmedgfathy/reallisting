@@ -5,7 +5,7 @@
   <img src="./public/favicon-32.png" alt="RealListing Icon" width="32" height="32" />
 </div>
 
-منصة **RealListing (كونتابو)** هي تطبيق لإدارة الإعلانات العقارية العربية، مع تركيز على استيراد محادثات واتساب وتحويلها إلى بيانات عقارية منظمة قابلة للبحث والتصفية والمتابعة.
+منصة **RealListing (Contaboo | كونتابو)** هي تطبيق لإدارة الإعلانات العقارية العربية، مع تركيز على استيراد محادثات واتساب وتحويلها إلى بيانات عقارية منظمة قابلة للبحث والتصفية والمتابعة.
 
 ## Purpose of the Application
 
@@ -64,16 +64,17 @@
 - **Express server** عبر `npm run server` على المنفذ `5001`
 - **React dev server** عبر `npm start` على المنفذ `3000`
 
-## AI (Including Background/Batch Processing)
+## AI (Including Batch Processing During Import)
 
 منظومة الذكاء الاصطناعي تعمل على السيرفر فقط (لحماية المفاتيح) وتشمل:
 
 1. **Regex-first pass** لاستخراج سريع ومجاني.
 2. **AI enhancement** عند وجود مفاتيح API (OpenAI أو Gemini).
-3. **Batch processing in background-like flow** داخل الاستيراد:
+3. **Concurrent batch processing** داخل نفس طلب الاستيراد:
    - الرسائل تُقسَّم إلى مجموعات صغيرة
    - يتم تحليل كل مجموعة بالتوازي (`Promise.all`) لتسريع الإدخال
    - الواجهة تعرض تقدم الاستيراد وسجل تصنيفات ذكي مباشر
+   - لا يوجد worker منفصل؛ التنفيذ يتم أثناء دورة الطلب على الخادم
 
 الملفات المرتبطة:
 
