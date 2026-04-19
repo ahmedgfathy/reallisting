@@ -3383,11 +3383,18 @@ body {
   border-radius: var(--radius-xl, 20px);
   box-shadow: var(--shadow-sm);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .property-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,0.1));
+}
+
+.property-card::before {
+  display: none;
 }
 
 .property-card.selected-card {
@@ -3424,12 +3431,27 @@ body {
   color: var(--text-secondary, #475569);
   font-size: 13px;
   line-height: 1.6;
+  border-right: none;
 }
 
 .card-phone {
-  color: var(--color-primary, #4f46e5);
+  background: var(--bg-surface-2, #f1f5f9);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  color: var(--text-primary, #0f172a);
+  box-shadow: none;
+  text-decoration: none;
+  padding: 6px 10px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
   font-weight: 600;
   font-size: 13px;
+}
+
+.card-phone:hover {
+  background: var(--bg-surface, #ffffff);
+  border-color: var(--color-primary, #4f46e5);
+  box-shadow: none;
+  transform: none;
 }
 
 .card-name {
@@ -3852,7 +3874,9 @@ body {
 }
 
 [data-theme="dark"] .card-phone {
-  color: var(--text-accent, #60a5fa);
+  color: var(--text-primary, #e2e8f0);
+  background: var(--bg-surface-2);
+  border-color: var(--border-color);
 }
 
 /* Dark mode phone number link in detail */
