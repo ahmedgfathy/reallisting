@@ -64,7 +64,7 @@ function SettingsPage({ user, isAdmin, onShowAdminDashboard }) {
         <div className="settings-app-info">
           <div className="settings-field">
             <span className="settings-field-label">اسم التطبيق</span>
-            <span className="settings-field-value">ريل ليستنج</span>
+            <span className="settings-field-value">كونتابو | Contaboo</span>
           </div>
           <div className="settings-field">
             <span className="settings-field-label">الوصف</span>

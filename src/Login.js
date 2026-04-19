@@ -18,7 +18,7 @@ const auth = {
   }
 };
 
-function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
+function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -75,7 +75,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>🏠 ريل ليستنج</h1>
+          <h1>🏠 Contaboo | كونتابو</h1>
           <p>تسجيل الدخول</p>
         </div>
         <form onSubmit={handleSubmit} className="login-form">
@@ -115,19 +115,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
             نسيت كلمة المرور؟
           </button>
         </div>
-        <div className="login-footer">
-          <p>ليس لديك حساب؟{' '}
-            <button onClick={onSwitchToRegister} className="link-btn">
-              تسجيل وسيط جديد
-            </button>
-          </p>
-          <p style={{ marginTop: '10px' }}>
-            <button onClick={onBackToHome} className="link-btn">
-              🏠 العودة للصفحة الرئيسية
-            </button>
-          </p>
-        </div>
-        {/* Reset Password Dialog */}
+      {/* Reset Password Dialog */}
         {showReset && (
           <div className="reset-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.35)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="reset-dialog" style={{ background: '#fff', borderRadius: 18, boxShadow: '0 4px 32px rgba(0,0,0,0.13)', maxWidth: 340, width: '90vw', padding: 28, textAlign: 'center', position: 'relative' }}>

@@ -14,7 +14,7 @@ function Header({ activeView, user, onLogout, isAuthenticated, onShowLogin }) {
   return (
     <header className="mobile-header">
       <div className="mobile-header-title">
-        <h2>{viewTitles[activeView] || 'ريل ليستنج'}</h2>
+        <h2>{viewTitles[activeView] || 'كونتابو'}</h2>
       </div>
       <div className="mobile-header-actions">
         {isAuthenticated ? (

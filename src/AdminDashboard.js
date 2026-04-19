@@ -11,18 +11,6 @@ const adminAPI = {
     if (!res.ok) throw new Error('Failed to fetch users');
     return res.json();
   },
-  updateUserStatus: async (userId, isActive) => {
-    const res = await apiCall(`/api/admin/${userId}/status`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ isActive })
-    });
-    if (!res.ok) throw new Error('Failed to update status');
-    return res.json();
-  },
   importMessagesBatch: async (messages, fileName) => {
     const res = await apiCall('/api/import-whatsapp', {
       method: 'POST',
@@ -152,7 +140,6 @@ function AdminDashboard({ onClose, onImportSuccess }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
   const [deduplicating, setDeduplicating] = useState(false);
   const [dedupeReport, setDedupeReport] = useState(null);
   const [resetRequests, setResetRequests] = useState([]);
@@ -200,26 +187,6 @@ function AdminDashboard({ onClose, onImportSuccess }) {
     loadUsers();
     loadResetRequests();
   }, [loadUsers, loadResetRequests]);
-
-  const handleActivate = async (userId) => {
-    if (!token) {
-      setError('لا يوجد تصريح صالح. الرجاء تسجيل الدخول مرة أخرى.');
-      return;
-    }
-
-    setUpdatingId(userId);
-    try {
-      const result = await adminAPI.updateUserStatus(userId, true);
-      if (result && result.user) {
-        setUsers((prev) => prev.map((u) => (u.id === userId ? result.user : u)));
-        setError(null);
-      }
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
 
   const handleDeduplicate = async () => {
     if (!token) {
@@ -662,16 +629,6 @@ function AdminDashboard({ onClose, onImportSuccess }) {
                         >
                           ⏱️ اشتراك
                         </button>
-                        {!user.isActive && (
-                          <button
-                            type="button"
-                            className="activate-btn"
-                            onClick={() => handleActivate(user.id)}
-                            disabled={updatingId === user.id}
-                          >
-                            {updatingId === user.id ? '...' : 'تفعيل'}
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
