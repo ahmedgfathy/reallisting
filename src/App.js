@@ -24,7 +24,8 @@ export const buildCompactCardTitle = (msg, formatPurpose) => {
 };
 
 export const truncateCardMessage = (message, maxLength = 70) => {
-  const text = String(message || '').trim();
+  if (message === null || message === undefined) return 'لا يوجد وصف';
+  const text = String(message).trim();
   if (!text) return 'لا يوجد وصف';
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
