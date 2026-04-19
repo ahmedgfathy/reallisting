@@ -136,7 +136,7 @@ function parseWhatsAppText(text) {
   return parsedMessages;
 }
 
-function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false }) {
+function AdminDashboard({ onClose, onImportSuccess }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -158,6 +158,7 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
   const [importLog, setImportLog] = useState([]); // Real-time AI logs
 
   const token = localStorage.getItem('token') || '';
+  const showUserManagement = process.env.REACT_APP_MULTI_USER_MODE === 'true';
 
   const loadUsers = useCallback(async () => {
     if (!token) {
@@ -184,15 +185,11 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
   }, []);
 
   useEffect(() => {
-    loadUsers();
-    loadResetRequests();
-  }, [loadUsers, loadResetRequests]);
-
-  useEffect(() => {
-    if (initialOpenImport) {
-      setShowImportModal(true);
+    if (showUserManagement) {
+      loadUsers();
+      loadResetRequests();
     }
-  }, [initialOpenImport]);
+  }, [loadUsers, loadResetRequests, showUserManagement]);
 
   const handleDeduplicate = async () => {
     if (!token) {
@@ -472,17 +469,21 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard-actions">
-        <button type="button" className="admin-dashboard-refresh" onClick={loadUsers} disabled={loading}>
-          🔄 تحديث القائمة
-        </button>
-        <button
-          type="button"
-          className="admin-dedupe-btn"
-          onClick={handleDeduplicate}
-          disabled={deduplicating}
-        >
-          {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
-        </button>
+        {showUserManagement && (
+          <button type="button" className="admin-dashboard-refresh" onClick={loadUsers} disabled={loading}>
+            🔄 تحديث القائمة
+          </button>
+        )}
+        {showUserManagement && (
+          <button
+            type="button"
+            className="admin-dedupe-btn"
+            onClick={handleDeduplicate}
+            disabled={deduplicating}
+          >
+            {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
+          </button>
+        )}
         <button
           type="button"
           className="admin-import-btn"
@@ -494,7 +495,13 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
 
       <TestAIBlock />
 
-      {dedupeReport && (
+      {!showUserManagement && (
+        <div className="admin-single-user-note">
+          تم إخفاء إدارة المستخدمين لأن النظام يعمل بحساب واحد فقط.
+        </div>
+      )}
+
+      {showUserManagement && dedupeReport && (
         <div className="admin-dedupe-report">
           <h3>📊 تقرير حذف المكررات</h3>
           <div className="dedupe-stats">
@@ -518,7 +525,7 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
 
       {error && <div className="admin-dashboard-error">⚠️ {error}</div>}
 
-      {resetRequests.length > 0 && (
+      {showUserManagement && resetRequests.length > 0 && (
         <div className="admin-reset-requests">
           <h3>🔐 طلبات إعادة تعيين كلمة المرور ({resetRequests.length})</h3>
           <div className="reset-requests-list">
@@ -550,7 +557,7 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
         </div>
       )}
 
-      {generatedPassword && (
+      {showUserManagement && generatedPassword && (
         <div className="generated-password-overlay" onClick={() => setGeneratedPassword(null)}>
           <div className="generated-password-box" onClick={e => e.stopPropagation()}>
             <h3>🔑 كلمة المرور المؤقتة</h3>
@@ -568,84 +575,88 @@ function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false })
         </div>
       )}
 
-      {loading ? (
-        <div className="admin-dashboard-loading">جاري تحميل المستخدمين...</div>
-      ) : users.length === 0 ? (
-        <div className="admin-dashboard-empty">لا يوجد مستخدمين مسجلين حالياً.</div>
-      ) : (
-        <div className="admin-dashboard-table-wrapper">
-          <table className="admin-users-table">
-            <thead>
-              <tr>
-                <th>المستخدم</th>
-                <th>الحالة</th>
-                <th>نهاية الاشتراك</th>
-                <th>الأيام المتبقية</th>
-                <th>الدور</th>
-                <th>تاريخ التسجيل</th>
-                <th>الإجراء</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => {
-                const remaining = calculateRemainingDays(user.subscriptionEndDate);
-                const isExpired = remaining !== null && remaining === 0;
-                return (
-                  <tr key={user.id} className={user.isActive ? 'user-active' : 'user-inactive'}>
-                    <td>
-                      <div className="admin-user-mobile">📱 {user.mobile}</div>
-                      <div className="admin-user-id">#{user.id}</div>
-                    </td>
-                    <td>
-                      {user.isActive ? (
-                        <span className="status-badge status-active">مفعل</span>
-                      ) : (
-                        <span className="status-badge status-pending">غير مفعل</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className="subscription-date">
-                        {user.subscriptionEndDate ? (
-                          <>
-                            📅 {formatDate(user.subscriptionEndDate)}
-                            {isExpired && <span className="expired-badge">منتهي</span>}
-                          </>
-                        ) : (
-                          <span style={{ color: '#999' }}>غير محدد</span>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      {remaining !== null ? (
-                        <span className={`days-remaining ${remaining <= 3 ? 'days-warning' : remaining === 0 ? 'days-expired' : ''}`}>
-                          {remaining === 0 ? '⏰ منتهي' : `⏳ ${remaining} يوم`}
-                        </span>
-                      ) : (
-                        <span style={{ color: '#999' }}>-</span>
-                      )}
-                    </td>
-                    <td>{user.role === 'admin' ? 'مدير' : 'وسيط'}</td>
-                    <td>{user.createdAt ? new Date(user.createdAt).toLocaleString('ar-EG') : '—'}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          type="button"
-                          className="subscription-btn"
-                          onClick={() => setSubscriptionModal(user.mobile)}
-                        >
-                          ⏱️ اشتراك
-                        </button>
-                      </div>
-                    </td>
+      {showUserManagement && (
+        <>
+          {loading ? (
+            <div className="admin-dashboard-loading">جاري تحميل المستخدمين...</div>
+          ) : users.length === 0 ? (
+            <div className="admin-dashboard-empty">لا يوجد مستخدمين مسجلين حالياً.</div>
+          ) : (
+            <div className="admin-dashboard-table-wrapper">
+              <table className="admin-users-table">
+                <thead>
+                  <tr>
+                    <th>المستخدم</th>
+                    <th>الحالة</th>
+                    <th>نهاية الاشتراك</th>
+                    <th>الأيام المتبقية</th>
+                    <th>الدور</th>
+                    <th>تاريخ التسجيل</th>
+                    <th>الإجراء</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {users.map((user) => {
+                    const remaining = calculateRemainingDays(user.subscriptionEndDate);
+                    const isExpired = remaining !== null && remaining === 0;
+                    return (
+                      <tr key={user.id} className={user.isActive ? 'user-active' : 'user-inactive'}>
+                        <td>
+                          <div className="admin-user-mobile">📱 {user.mobile}</div>
+                          <div className="admin-user-id">#{user.id}</div>
+                        </td>
+                        <td>
+                          {user.isActive ? (
+                            <span className="status-badge status-active">مفعل</span>
+                          ) : (
+                            <span className="status-badge status-pending">غير مفعل</span>
+                          )}
+                        </td>
+                        <td>
+                          <div className="subscription-date">
+                            {user.subscriptionEndDate ? (
+                              <>
+                                📅 {formatDate(user.subscriptionEndDate)}
+                                {isExpired && <span className="expired-badge">منتهي</span>}
+                              </>
+                            ) : (
+                              <span style={{ color: '#999' }}>غير محدد</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          {remaining !== null ? (
+                            <span className={`days-remaining ${remaining <= 3 ? 'days-warning' : remaining === 0 ? 'days-expired' : ''}`}>
+                              {remaining === 0 ? '⏰ منتهي' : `⏳ ${remaining} يوم`}
+                            </span>
+                          ) : (
+                            <span style={{ color: '#999' }}>-</span>
+                          )}
+                        </td>
+                        <td>{user.role === 'admin' ? 'مدير' : 'وسيط'}</td>
+                        <td>{user.createdAt ? new Date(user.createdAt).toLocaleString('ar-EG') : '—'}</td>
+                        <td>
+                          <div className="action-buttons">
+                            <button
+                              type="button"
+                              className="subscription-btn"
+                              onClick={() => setSubscriptionModal(user.mobile)}
+                            >
+                              ⏱️ اشتراك
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
-      {subscriptionModal && (
+      {showUserManagement && subscriptionModal && (
         <div className="subscription-modal-overlay" onClick={() => setSubscriptionModal(null)}>
           <div className="subscription-modal" onClick={e => e.stopPropagation()}>
             <h3>⏱️ تعيين مدة الاشتراك</h3>
