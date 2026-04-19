@@ -3375,6 +3375,7 @@ body {
 /* Properties grid - new cards */
 .properties-grid {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: start;
 }
 
 .property-card {
@@ -3457,6 +3458,8 @@ body {
   font-size: 13px;
   line-height: 1.6;
   border-right: none;
+  --card-message-min-lines: 3;
+  min-height: calc(1.6em * var(--card-message-min-lines));
 }
 
 .card-phone {
