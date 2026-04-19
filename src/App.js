@@ -23,6 +23,14 @@ export const buildCompactCardTitle = (msg, formatPurpose) => {
   return compactTitle || 'عقار';
 };
 
+export const buildCardHeaderMeta = (msg) => {
+  const values = [msg?.category, msg?.region, msg?.property_type]
+    .map((value) => (typeof value === 'string' ? value.trim() : value))
+    .filter((value) => value && value !== 'أخرى');
+
+  return values.length > 0 ? values.join(' | ') : 'عقار';
+};
+
 export const truncateCardMessage = (message, maxLength = 70) => {
   if (message === null || message === undefined) return 'لا يوجد وصف';
   const text = String(message).trim();
@@ -857,7 +865,10 @@ function App() {
                         </div>
                       )}
 
-                      <div className="card-index">#{index + 1}</div>
+                      <div className="card-header">
+                        <div className="card-header-meta">{buildCardHeaderMeta(msg)}</div>
+                        <div className="card-index">#{index + 1}</div>
+                      </div>
 
                       <img
                         className="card-image"
@@ -871,11 +882,6 @@ function App() {
                           }
                         }}
                       />
-
-                      <div className="card-title">{buildCompactCardTitle(msg, formatPurpose)}</div>
-                      {msg.region && msg.region !== 'أخرى' && (
-                        <div className="card-region">📍 {msg.region}</div>
-                      )}
 
                       <div className="card-message">
                         {truncateCardMessage(msg.message)}
