@@ -3402,6 +3402,31 @@ body {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: var(--bg-surface-2, #f1f5f9);
+}
+
+.card-header-meta {
+  color: var(--text-primary, #0f172a);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-index {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
 .card-title {
   color: var(--text-primary, #0f172a);
   font-weight: 700;
@@ -4106,6 +4131,15 @@ body {
   .property-card {
     padding: 12px;
     border-radius: 14px;
+  }
+
+  .card-header {
+    padding: 5px 6px;
+    margin-bottom: 8px;
+  }
+
+  .card-header-meta {
+    font-size: 12px;
   }
 
   .card-title {

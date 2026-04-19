@@ -2,6 +2,7 @@ import {
   FALLBACK_PROPERTY_IMAGE,
   getPropertyImageUrl,
   buildCompactCardTitle,
+  buildCardHeaderMeta,
   truncateCardMessage
 } from './App';
 
@@ -20,6 +21,12 @@ describe('property card helpers', () => {
     expect(buildCompactCardTitle({ property_type: 'عمارة', category: 'معروض', purpose: 'بيع' }, formatPurpose)).toBe('عمارة');
     expect(buildCompactCardTitle({ property_type: 'أخرى', category: 'معروض', purpose: 'بيع' }, formatPurpose)).toBe('معروض');
     expect(buildCompactCardTitle({ property_type: 'أخرى', category: 'أخرى', purpose: 'بيع' }, formatPurpose)).toBe('للبيع');
+  });
+
+  it('builds card header metadata from category, region and property type', () => {
+    expect(buildCardHeaderMeta({ category: 'مطلوب', region: 'الحي 14', property_type: 'شقة' })).toBe('مطلوب | الحي 14 | شقة');
+    expect(buildCardHeaderMeta({ category: 'أخرى', region: 'الحي 21', property_type: 'أخرى' })).toBe('الحي 21');
+    expect(buildCardHeaderMeta({ category: 'أخرى', region: '', property_type: null })).toBe('عقار');
   });
 
   it('truncates long messages and handles missing text', () => {
