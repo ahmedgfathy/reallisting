@@ -23,7 +23,7 @@ describe('Admin dashboard single-user settings', () => {
     container.remove();
   });
 
-  it('keeps only import tools and hides non-essential controls', () => {
+  it('keeps import tools and shows duplicate-delete control in single-user mode', () => {
     act(() => {
       root.render(<AdminDashboard onClose={() => {}} onImportSuccess={() => {}} />);
     });
@@ -32,7 +32,7 @@ describe('Admin dashboard single-user settings', () => {
     expect(container.textContent).not.toContain('اختبار اتصال الذكاء الاصطناعي');
     expect(container.textContent).not.toContain('تم إخفاء إدارة المستخدمين لأن النظام يعمل بحساب واحد فقط.');
     expect(container.textContent).not.toContain('تحديث القائمة');
-    expect(container.textContent).not.toContain('حذف المكررات');
+    expect(container.textContent).toContain('حذف المكررات');
     expect(container.textContent).not.toContain('لا يوجد مستخدمين مسجلين حالياً.');
   });
 

@@ -473,16 +473,14 @@ function AdminDashboard({ onClose, onImportSuccess }) {
             🔄 تحديث القائمة
           </button>
         )}
-        {showUserManagement && (
-          <button
-            type="button"
-            className="admin-dedupe-btn"
-            onClick={handleDeduplicate}
-            disabled={deduplicating}
-          >
-            {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
-          </button>
-        )}
+        <button
+          type="button"
+          className="admin-dedupe-btn"
+          onClick={handleDeduplicate}
+          disabled={deduplicating}
+        >
+          {deduplicating ? '⏳ جاري الحذف...' : '🗑️ حذف المكررات'}
+        </button>
         <button
           type="button"
           className="admin-import-btn"
@@ -492,7 +490,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
         </button>
       </div>
 
-      {showUserManagement && dedupeReport && (
+      {dedupeReport && (
         <div className="admin-dedupe-report">
           <h3>📊 تقرير حذف المكررات</h3>
           <div className="dedupe-stats">
