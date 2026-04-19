@@ -23,14 +23,14 @@ describe('Admin dashboard single-user settings', () => {
     container.remove();
   });
 
-  it('keeps import/AI tools and hides multi-user controls', () => {
+  it('keeps only import tools and hides non-essential controls', () => {
     act(() => {
       root.render(<AdminDashboard onClose={() => {}} onImportSuccess={() => {}} />);
     });
 
     expect(container.textContent).toContain('استيراد من واتساب');
-    expect(container.textContent).toContain('اختبار اتصال الذكاء الاصطناعي');
-    expect(container.textContent).toContain('تم إخفاء إدارة المستخدمين لأن النظام يعمل بحساب واحد فقط.');
+    expect(container.textContent).not.toContain('اختبار اتصال الذكاء الاصطناعي');
+    expect(container.textContent).not.toContain('تم إخفاء إدارة المستخدمين لأن النظام يعمل بحساب واحد فقط.');
     expect(container.textContent).not.toContain('تحديث القائمة');
     expect(container.textContent).not.toContain('حذف المكررات');
     expect(container.textContent).not.toContain('لا يوجد مستخدمين مسجلين حالياً.');
