@@ -36,7 +36,7 @@ describe('DashboardPage', () => {
     });
 
     expect(container.textContent).toContain('إجمالي العقارات');
-    expect(container.textContent).toContain('المرسلون');
+    expect(container.textContent).toContain('الوسطاء');
     expect(container.textContent).toContain('عرض العقارات');
     expect(container.textContent).toContain('عرض العملاء المحتملين');
 

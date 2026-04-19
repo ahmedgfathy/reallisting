@@ -1047,7 +1047,7 @@ function App() {
                             {selectedUnit.sender_name.charAt(0)}
                           </div>
                           <div className="sender-details">
-                            <span className="sender-label">المرسل</span>
+                            <span className="sender-label">الوسيط</span>
                             <span className="sender-name" dir={/^[+\d\s()-]{7,}$/.test((selectedUnit.sender_name || '').trim()) ? 'ltr' : undefined}>{selectedUnit.sender_name}</span>
                           </div>
                         </div>
@@ -1183,7 +1183,7 @@ function App() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="ap-sender-name" className="form-label">اسم المرسل</label>
+                  <label htmlFor="ap-sender-name" className="form-label">اسم الوسيط</label>
                   <input
                     id="ap-sender-name"
                     type="text"
