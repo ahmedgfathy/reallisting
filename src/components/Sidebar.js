@@ -48,9 +48,9 @@ function Sidebar({ activeView, onViewChange, user, onLogout, stats, onShowLogin 
   return (
     <div className="sidebar">
       <div className="sidebar-brand">
-        <img src="/logo.svg" alt="كونتابو | Contaboo" className="sidebar-logo" onError={e => { e.target.style.display = 'none'; }} />
+        <img src="/logo.svg" alt="كونتابو" className="sidebar-logo" onError={e => { e.target.style.display = 'none'; }} />
         <div className="sidebar-brand-text">
-          <span className="sidebar-brand-name">كونتابو | Contaboo</span>
+          <span className="sidebar-brand-name">كونتابو</span>
           <span className="sidebar-brand-tagline">شبكة الإعلانات العقارية</span>
         </div>
       </div>
