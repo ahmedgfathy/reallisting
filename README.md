@@ -1,8 +1,8 @@
 # RealListing | Contaboo
 
 <div align="center">
-  <img src="./public/logo.svg" alt="Contaboo Logo" width="110" />
-  <img src="./public/favicon-32.png" alt="Contaboo Icon" width="32" height="32" />
+  <img src="./public/logo.svg" alt="RealListing Logo" width="110" />
+  <img src="./public/favicon-32.png" alt="RealListing Icon" width="32" height="32" />
 </div>
 
 منصة **RealListing (كونتابو)** هي تطبيق لإدارة الإعلانات العقارية العربية، مع تركيز على استيراد محادثات واتساب وتحويلها إلى بيانات عقارية منظمة قابلة للبحث والتصفية والمتابعة.
