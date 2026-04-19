@@ -821,7 +821,7 @@ function App() {
                       <img
                         className="card-image"
                         src={getPropertyImageUrl(msg)}
-                        alt={buildCompactCardTitle(msg, formatPurpose)}
+                        alt={`${buildCompactCardTitle(msg, formatPurpose)}${msg.region && msg.region !== 'أخرى' ? ` - ${msg.region}` : ''}`}
                         loading="lazy"
                         onError={(e) => {
                           if (e.currentTarget.dataset.fallbackApplied !== 'true') {

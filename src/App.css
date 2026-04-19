@@ -4098,7 +4098,7 @@ body {
     font-size: 12px;
     line-height: 1.5;
     margin-bottom: 10px;
-    min-height: 56px;
+    min-height: 3.6em;
   }
 
   .card-footer {
