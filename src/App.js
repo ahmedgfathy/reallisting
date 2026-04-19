@@ -57,6 +57,7 @@ function App() {
   const loaderRef = useRef(null);
   const observerRef = useRef(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [openImportOnAdminOpen, setOpenImportOnAdminOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [detailClosing, setDetailClosing] = useState(false);
@@ -71,6 +72,11 @@ function App() {
 
   const handleViewChange = (view) => {
     setActiveView(view);
+  };
+
+  const closeAdminDashboard = () => {
+    setShowAdminDashboard(false);
+    setOpenImportOnAdminOpen(false);
   };
 
   // Enforce the brand theme globally so auth/PWA/mobile/desktop stay visually consistent.
@@ -695,7 +701,10 @@ function App() {
         <SettingsPage
           user={user}
           isAdmin={isAdmin}
-          onShowAdminDashboard={() => setShowAdminDashboard(true)}
+          onOpenImportTools={() => {
+            setOpenImportOnAdminOpen(true);
+            setShowAdminDashboard(true);
+          }}
         />
       );
     }
@@ -1058,22 +1067,26 @@ function App() {
       )}
 
       {isAdmin && showAdminDashboard && (
-        <div className="unit-detail-overlay" onClick={() => setShowAdminDashboard(false)}>
+        <div className="unit-detail-overlay" onClick={closeAdminDashboard}>
           <div
             className="unit-detail-panel admin-dashboard-panel"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="unit-detail-header">
-              <button className="detail-close-btn" onClick={() => setShowAdminDashboard(false)}>
+              <button className="detail-close-btn" onClick={closeAdminDashboard}>
                 ✕
               </button>
-              <button className="detail-back-btn" onClick={() => setShowAdminDashboard(false)}>
+              <button className="detail-back-btn" onClick={closeAdminDashboard}>
                 → رجوع
               </button>
               <h2 className="detail-title">⚙️ لوحة التحكم</h2>
             </div>
             <div className="unit-detail-content">
-              <AdminDashboard onClose={() => setShowAdminDashboard(false)} onImportSuccess={handleImportSuccess} />
+              <AdminDashboard
+                onClose={closeAdminDashboard}
+                onImportSuccess={handleImportSuccess}
+                initialOpenImport={openImportOnAdminOpen}
+              />
             </div>
           </div>
         </div>

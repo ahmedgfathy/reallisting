@@ -136,7 +136,7 @@ function parseWhatsAppText(text) {
   return parsedMessages;
 }
 
-function AdminDashboard({ onClose, onImportSuccess }) {
+function AdminDashboard({ onClose, onImportSuccess, initialOpenImport = false }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -187,6 +187,12 @@ function AdminDashboard({ onClose, onImportSuccess }) {
     loadUsers();
     loadResetRequests();
   }, [loadUsers, loadResetRequests]);
+
+  useEffect(() => {
+    if (initialOpenImport) {
+      setShowImportModal(true);
+    }
+  }, [initialOpenImport]);
 
   const handleDeduplicate = async () => {
     if (!token) {
