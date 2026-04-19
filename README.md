@@ -1,7 +1,7 @@
 # RealListing | Contaboo
 
 <div align="center">
-  <img src="./public/logo.svg" alt="RealListing Logo" width="110" />
+  <img src="./public/logo.svg" alt="RealListing Logo" width="110" height="110" />
   <img src="./public/favicon-32.png" alt="RealListing Icon" width="32" height="32" />
 </div>
 
@@ -27,7 +27,7 @@
 | App icon (192) | <img src="./public/logo192.png" alt="logo192" width="64" /> | `public/logo192.png` |
 | App icon (512) | <img src="./public/logo512.png" alt="logo512" width="64" /> | `public/logo512.png` |
 | Apple icon | <img src="./public/apple-touch-icon.png" alt="apple icon" width="64" /> | `public/apple-touch-icon.png` |
-| Browser favicon | <img src="./public/favicon-32.png" alt="favicon" width="32" height="32" /> | `public/favicon-32.png` |
+| Browser favicon | <img src="./public/favicon-32.png" alt="favicon" width="32" height="32" /> | `public/favicon-32.png`  |
 
 ## Core Features
 
