@@ -2,7 +2,8 @@ import {
   FALLBACK_PROPERTY_IMAGE,
   getPropertyImageUrl,
   buildCompactCardTitle,
-  truncateCardMessage
+  truncateCardMessage,
+  calculateHasMorePages
 } from './App';
 
 describe('property card helpers', () => {
@@ -26,5 +27,14 @@ describe('property card helpers', () => {
     expect(truncateCardMessage('نص قصير')).toBe('نص قصير');
     expect(truncateCardMessage('')).toBe('لا يوجد وصف');
     expect(truncateCardMessage('1234567890', 5)).toBe('12345...');
+  });
+
+  it('calculates pagination continuation safely', () => {
+    expect(calculateHasMorePages({ page: 1, limit: 50, total: 26407 })).toBe(true);
+    expect(calculateHasMorePages({ page: 529, limit: 50, total: 26407 })).toBe(false);
+    expect(calculateHasMorePages({ page: 2, limit: 50, totalPages: 3 })).toBe(true);
+    expect(calculateHasMorePages({ page: 3, limit: 50, totalPages: 3 })).toBe(false);
+    expect(calculateHasMorePages({ page: 1, limit: 50, currentPageSize: 50 })).toBe(true);
+    expect(calculateHasMorePages({ page: 1, limit: 50, currentPageSize: 14 })).toBe(false);
   });
 });

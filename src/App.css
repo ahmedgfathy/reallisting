@@ -3757,6 +3757,24 @@ body {
   font-size: 13px;
 }
 
+.load-more-btn {
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #0f172a);
+  border-radius: var(--radius-md, 12px);
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  border-color: var(--color-primary, #4f46e5);
+  color: var(--color-primary, #4f46e5);
+}
+
 /* Scroll top button */
 .scroll-top-btn {
   background: var(--color-primary, #4f46e5);

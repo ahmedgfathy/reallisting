@@ -30,6 +30,26 @@ export const truncateCardMessage = (message, maxLength = 70) => {
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
 
+export const calculateHasMorePages = ({ page, limit, total, totalPages, currentPageSize }) => {
+  const safePage = Number(page);
+  const safeLimit = Number(limit);
+  const safeTotal = Number(total);
+  const safeTotalPages = Number(totalPages);
+  const safeCurrentPageSize = Number(currentPageSize);
+
+  if (Number.isFinite(safeTotal) && safeTotal >= 0 && Number.isFinite(safeLimit) && safeLimit > 0 && Number.isFinite(safePage) && safePage > 0) {
+    return safePage * safeLimit < safeTotal;
+  }
+
+  if (Number.isFinite(safeTotalPages) && safeTotalPages > 0 && Number.isFinite(safePage) && safePage > 0) {
+    return safePage < safeTotalPages;
+  }
+
+  return Number.isFinite(safeCurrentPageSize) && Number.isFinite(safeLimit) && safeLimit > 0
+    ? safeCurrentPageSize >= safeLimit
+    : false;
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -367,7 +387,13 @@ function App() {
 
         setFilteredCount(data.total || 0);
         setTotalPages(data.totalPages || 1);
-        setHasMore(targetPage < (data.totalPages || 0));
+        setHasMore(calculateHasMorePages({
+          page: targetPage,
+          limit,
+          total: data.total,
+          totalPages: data.totalPages,
+          currentPageSize: Array.isArray(data.data) ? data.data.length : 0
+        }));
 
         if (append) {
           setMessages(prev => {
@@ -876,6 +902,11 @@ function App() {
 
             <div ref={loaderRef} className="infinite-loader">
               {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
+              {!loadingMore && hasMore && messages.length > 0 && (
+                <button type="button" className="load-more-btn" onClick={() => setPage(prev => prev + 1)}>
+                  تحميل المزيد
+                </button>
+              )}
               {!hasMore && messages.length > 0 && <span>تم عرض كل النتائج.</span>}
             </div>
           </>
