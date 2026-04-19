@@ -4095,10 +4095,11 @@ body {
   }
 
   .card-message {
+    --card-message-min-lines: 3;
     font-size: 12px;
     line-height: 1.5;
     margin-bottom: 10px;
-    min-height: calc(1.5em * 3);
+    min-height: calc(1.5em * var(--card-message-min-lines));
   }
 
   .card-footer {
