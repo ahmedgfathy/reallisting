@@ -3401,6 +3401,25 @@ body {
   font-size: 15px;
 }
 
+.card-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-surface-2, #f1f5f9);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.card-region {
+  color: var(--text-secondary, #475569);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
 .card-message {
   color: var(--text-secondary, #475569);
   font-size: 13px;
@@ -4056,7 +4075,42 @@ body {
   }
 
   .properties-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .property-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .card-title::before {
+    font-size: 1rem;
+  }
+
+  .card-message {
+    --card-message-min-lines: 3;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    min-height: calc(1.5em * var(--card-message-min-lines));
+  }
+
+  .card-footer {
+    margin: 0;
+    padding: 8px 0 0;
+    border-radius: 0;
+  }
+
+  .card-date {
+    font-size: 11px;
+    padding: 5px 8px;
   }
 }
 
