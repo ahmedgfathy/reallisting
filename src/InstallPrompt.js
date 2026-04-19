@@ -12,15 +12,6 @@ function InstallPrompt() {
       return; // App is already installed
     }
 
-    // Check if dismissed recently (within 24 hours)
-    const dismissed = localStorage.getItem('pwaPromptDismissed');
-    if (dismissed) {
-      const dismissedTime = parseInt(dismissed, 10);
-      if (Date.now() - dismissedTime < 24 * 60 * 60 * 1000) {
-        return;
-      }
-    }
-
     // Detect iOS
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     setIsIOS(isIOSDevice);
@@ -61,7 +52,6 @@ function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwaPromptDismissed', Date.now().toString());
   };
 
   if (!showPrompt) return null;
