@@ -17,7 +17,7 @@
 
 ## App Preview
 
-![RealListing Login Preview](https://github.com/user-attachments/assets/e15b7e8d-a6a9-4901-91f8-0bf8ffa94f64)
+![RealListing App Preview](https://github.com/user-attachments/assets/e15b7e8d-a6a9-4901-91f8-0bf8ffa94f64)
 
 ## App Images & Icons
 
@@ -123,6 +123,3 @@ cp .env.example .env
 - `technical-documentation/LOCAL-DEVELOPMENT.md`
 - `technical-documentation/DEPLOYMENT.md`
 
----
-
-إذا أردت، يمكن إضافة نسخة README باللغة الإنجليزية أيضًا.
