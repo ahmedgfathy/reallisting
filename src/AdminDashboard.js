@@ -158,8 +158,8 @@ function AdminDashboard({ onClose, onImportSuccess }) {
   const [importLog, setImportLog] = useState([]); // Real-time AI logs
 
   const token = localStorage.getItem('token') || '';
-  const showUserManagement = false;
-  const showDeduplicationTools = false;
+  const showUserManagement = process.env.REACT_APP_MULTI_USER_MODE === 'true';
+  const showDeduplicationTools = showUserManagement;
 
   const loadUsers = useCallback(async () => {
     if (!token) {
@@ -188,8 +188,8 @@ function AdminDashboard({ onClose, onImportSuccess }) {
   useEffect(() => {
     if (showUserManagement) {
       loadUsers();
+      loadResetRequests();
     }
-    loadResetRequests();
   }, [loadUsers, loadResetRequests, showUserManagement]);
 
   const handleDeduplicate = async () => {
