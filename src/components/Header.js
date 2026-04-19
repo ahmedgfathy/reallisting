@@ -4,7 +4,6 @@ import './Header.css';
 const viewTitles = {
   dashboard: 'لوحة التحكم',
   listings: 'الإعلانات',
-  brokers: 'الوسطاء',
   import: 'الاستيراد',
   review: 'المراجعة',
   duplicates: 'المكررات',

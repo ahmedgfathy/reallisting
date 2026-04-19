@@ -7,7 +7,6 @@ import { apiCall } from './apiConfig';
 import InstallPrompt from './InstallPrompt';
 import AppShell from './components/AppShell';
 import DashboardPage from './pages/DashboardPage';
-import BrokersPage from './pages/BrokersPage';
 import SettingsPage from './pages/SettingsPage';
 import './theme-v2.css';
 
@@ -281,6 +280,16 @@ function App() {
       setShowAdminDashboard(false);
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (activeView === 'brokers') {
+      setActiveView('dashboard');
+      return;
+    }
+    if (!isAdmin && activeView === 'import') {
+      setActiveView('dashboard');
+    }
+  }, [activeView, isAdmin]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -692,18 +701,9 @@ function App() {
           user={user}
           onViewChange={handleViewChange}
           isUserActive={isUserActive}
+          isAdmin={isAdmin}
           buildWhatsAppHref={buildWhatsAppHref}
           buildCardTitle={buildCardTitle}
-        />
-      );
-    }
-
-    if (activeView === 'brokers') {
-      return (
-        <BrokersPage
-          messages={messages}
-          isUserActive={isUserActive}
-          buildWhatsAppHref={buildWhatsAppHref}
         />
       );
     }

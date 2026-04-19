@@ -5,6 +5,8 @@ import Header from './Header';
 import './AppShell.css';
 
 function AppShell({ children, activeView, onViewChange, user, onLogout, stats, isAuthenticated, onShowLogin }) {
+  const isAdmin = user?.role === 'admin';
+
   return (
     <div className="app-shell" data-theme="brand">
       <aside className="app-sidebar">
@@ -29,7 +31,7 @@ function AppShell({ children, activeView, onViewChange, user, onLogout, stats, i
           {children}
         </main>
         <nav className="app-bottom-nav">
-          <MobileBottomNav activeView={activeView} onViewChange={onViewChange} />
+          <MobileBottomNav activeView={activeView} onViewChange={onViewChange} isAdmin={isAdmin} />
         </nav>
       </div>
     </div>
