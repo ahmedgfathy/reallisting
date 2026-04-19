@@ -2,8 +2,11 @@ import React from 'react';
 import StatCard from '../components/StatCard';
 import './DashboardPage.css';
 
-function DashboardPage({ stats, messages, user, onViewChange, isUserActive, isAdmin, buildWhatsAppHref, buildCardTitle }) {
+function DashboardPage({ stats, messages, user, onViewChange, isUserActive }) {
   const recentMessages = messages ? messages.slice(0, 6) : [];
+  const now = new Date();
+  const currentDate = new Intl.DateTimeFormat('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(now);
+  const currentTime = new Intl.DateTimeFormat('ar-EG', { hour: '2-digit', minute: '2-digit' }).format(now);
 
   return (
     <div className="dashboard-page">
@@ -11,6 +14,10 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive, isAd
         <div className="dashboard-welcome-text">
           <h1>مرحباً{user ? `، ${user.username}` : ''} 👋</h1>
           <p>هذا ملخص النشاط العقاري في منصتك</p>
+          <div className="dashboard-welcome-meta">
+            <span>{currentDate}</span>
+            <span>{currentTime}</span>
+          </div>
         </div>
         <div className="dashboard-welcome-badge">
           {user?.role === 'admin' ? '⚙️ مدير' : isUserActive ? '✅ مشترك' : '🔓 زائر'}
@@ -24,7 +31,7 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive, isAd
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
             </svg>
           }
-          label="إجمالي الإعلانات"
+          label="إجمالي العقارات"
           value={stats?.totalMessages || 0}
           color="var(--color-primary)"
         />
@@ -65,14 +72,12 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive, isAd
         <div className="quick-actions-grid">
           <button className="quick-action-btn" onClick={() => onViewChange('listings')}>
             <span className="quick-action-icon">🏠</span>
-            <span>عرض الإعلانات</span>
+            <span>عرض العقارات</span>
           </button>
-          {isAdmin && (
-            <button className="quick-action-btn" onClick={() => onViewChange('import')}>
-              <span className="quick-action-icon">📥</span>
-              <span>استيراد ملفات</span>
-            </button>
-          )}
+          <button className="quick-action-btn" onClick={() => onViewChange('leads')}>
+            <span className="quick-action-icon">👥</span>
+            <span>عرض العملاء المحتملين</span>
+          </button>
           <button className="quick-action-btn" onClick={() => onViewChange('settings')}>
             <span className="quick-action-icon">⚙️</span>
             <span>الإعدادات</span>
@@ -83,7 +88,7 @@ function DashboardPage({ stats, messages, user, onViewChange, isUserActive, isAd
       {recentMessages.length > 0 && (
         <div className="dashboard-recent">
           <div className="dashboard-section-header">
-            <h2>آخر الإعلانات</h2>
+            <h2>آخر العقارات</h2>
             <button className="see-all-btn" onClick={() => onViewChange('listings')}>عرض الكل</button>
           </div>
           <div className="recent-listings">

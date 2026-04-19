@@ -7,12 +7,13 @@
 .dashboard-welcome {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border-radius: var(--radius-xl);
-  padding: 28px 32px;
+  padding: 24px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: #fff;
   box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255,255,255,0.18);
 }
 
 .dashboard-welcome-text h1 {
@@ -25,6 +26,21 @@
   font-size: 14px;
   opacity: 0.85;
   margin: 0;
+}
+
+.dashboard-welcome-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dashboard-welcome-meta span {
+  background: rgba(255,255,255,0.14);
+  border-radius: 999px;
+  padding: 4px 10px;
 }
 
 .dashboard-welcome-badge {
@@ -209,5 +225,10 @@
 
   .dashboard-welcome-text h1 {
     font-size: 20px;
+  }
+
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 }

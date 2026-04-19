@@ -72,3 +72,19 @@
 .stat-card-trend.down {
   color: var(--color-danger);
 }
+
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-card-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .stat-card-value {
+    font-size: 22px;
+  }
+}

@@ -23,7 +23,7 @@ describe('Login page updates', () => {
     container.remove();
   });
 
-  it('shows Arabic app title only and hides forgot password link', () => {
+  it('shows Arabic app title only and uses username input label', () => {
     act(() => {
       root.render(<Login onLogin={() => {}} />);
     });
@@ -31,6 +31,9 @@ describe('Login page updates', () => {
     expect(container.textContent).toContain('🏠 كونتابو');
     expect(container.textContent).not.toContain('Contaboo |');
     expect(container.textContent).not.toContain('نسيت كلمة المرور؟');
+    expect(container.textContent).toContain('اسم المستخدم');
+    const usernameInput = container.querySelector('#username');
+    expect(usernameInput?.getAttribute('placeholder')).toBe('أدخل اسم المستخدم');
   });
 });
 

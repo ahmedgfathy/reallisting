@@ -263,10 +263,10 @@ function App() {
       setActiveView('dashboard');
       return;
     }
-    if (!isAdmin && activeView === 'import') {
-      setActiveView('dashboard');
+    if (activeView === 'import') {
+      setActiveView('settings');
     }
-  }, [activeView, isAdmin]);
+  }, [activeView]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -665,9 +665,6 @@ function App() {
           user={user}
           onViewChange={handleViewChange}
           isUserActive={isUserActive}
-          isAdmin={isAdmin}
-          buildWhatsAppHref={buildWhatsAppHref}
-          buildCardTitle={buildCardTitle}
         />
       );
     }
@@ -679,24 +676,6 @@ function App() {
           isAdmin={isAdmin}
           onShowAdminDashboard={() => setShowAdminDashboard(true)}
         />
-      );
-    }
-
-    if (activeView === 'import') {
-      return (
-        <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
-          {isAdmin ? (
-            <div>
-              <p>لفتح أداة الاستيراد، انقر هنا:</p>
-              <button
-                style={{ marginTop: '12px', padding: '10px 20px', background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px' }}
-                onClick={() => setShowAdminDashboard(true)}
-              >
-                فتح لوحة التحكم
-              </button>
-            </div>
-          ) : 'هذه الميزة متاحة للمشرفين فقط'}
-        </div>
       );
     }
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import './Sidebar.css';
 
-function getNavItems(isAdmin) {
-  const items = [
+function getNavItems() {
+  return [
     {
       id: 'dashboard',
       label: 'لوحة التحكم',
@@ -14,10 +14,19 @@ function getNavItems(isAdmin) {
     },
     {
       id: 'listings',
-      label: 'الإعلانات',
+      label: 'العقارات',
       icon: (
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
           <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+        </svg>
+      )
+    },
+    {
+      id: 'leads',
+      label: 'العملاء المحتملون',
+      icon: (
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4zm8 0c-.29 0-.62.02-.97.05 1.2.87 2.02 2.01 2.02 3.45V19H24v-2c0-2.66-5.33-4-8-4z" />
         </svg>
       )
     },
@@ -31,25 +40,10 @@ function getNavItems(isAdmin) {
       )
     }
   ];
-
-  if (isAdmin) {
-    items.splice(2, 0, {
-      id: 'import',
-      label: 'الاستيراد',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-        </svg>
-      )
-    });
-  }
-
-  return items;
 }
 
 function Sidebar({ activeView, onViewChange, user, onLogout, stats, onShowLogin }) {
-  const isAdmin = user?.role === 'admin';
-  const navItems = getNavItems(isAdmin);
+  const navItems = getNavItems();
 
   return (
     <div className="sidebar">
@@ -65,7 +59,7 @@ function Sidebar({ activeView, onViewChange, user, onLogout, stats, onShowLogin 
         <div className="sidebar-stats">
           <div className="sidebar-stat">
             <span className="sidebar-stat-value">{stats.totalMessages || 0}</span>
-            <span className="sidebar-stat-label">إعلان</span>
+            <span className="sidebar-stat-label">عقار</span>
           </div>
           <div className="sidebar-stat">
             <span className="sidebar-stat-value">{stats.totalSenders || 0}</span>

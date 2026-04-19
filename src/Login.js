@@ -54,13 +54,13 @@ function Login({ onLogin }) {
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="login-error">{error}</div>}
           <div className="form-group">
-            <label htmlFor="username">رقم الموبايل</label>
+            <label htmlFor="username">اسم المستخدم</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="01xxxxxxxxx"
+              placeholder="أدخل اسم المستخدم"
               required
               autoComplete="username"
               dir="ltr"
