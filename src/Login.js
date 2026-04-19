@@ -75,7 +75,7 @@ function Login({ onLogin, onSwitchToRegister, onBackToHome }) {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>🏠 نظام العقارات</h1>
+          <h1>🏠 ريل ليستنج</h1>
           <p>تسجيل الدخول</p>
         </div>
         <form onSubmit={handleSubmit} className="login-form">

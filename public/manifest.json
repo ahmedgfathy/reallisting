@@ -1,7 +1,7 @@
 {
-  "short_name": "كونتابو",
-  "name": "كونتابو",
-  "description": "كونتابو - منصة الوسطاء والسماسرة العقاريين",
+  "short_name": "ريل ليستنج",
+  "name": "ريل ليستنج",
+  "description": "ريل ليستنج - منصة عربية حديثة للإعلانات والوسطاء العقاريين",
   "icons": [
     {
       "src": "logo.svg",
@@ -32,8 +32,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#0f1b2a",
-  "background_color": "#0d1724",
+  "theme_color": "#163b57",
+  "background_color": "#f4eee2",
   "lang": "ar",
   "dir": "rtl",
   "categories": [

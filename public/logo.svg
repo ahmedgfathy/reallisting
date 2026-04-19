@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="logoTitle logoDesc">
-  <title id="logoTitle">Contaboo Logo</title>
-  <desc id="logoDesc">Modern real estate and messaging logo for Contaboo.</desc>
+  <title id="logoTitle">RealListing Logo</title>
+  <desc id="logoDesc">Modern real estate and messaging logo for RealListing.</desc>
   <defs>
     <linearGradient id="bgGradient" x1="72" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#0f1b2a"/>

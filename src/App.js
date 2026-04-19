@@ -9,6 +9,7 @@ import AppShell from './components/AppShell';
 import DashboardPage from './pages/DashboardPage';
 import BrokersPage from './pages/BrokersPage';
 import SettingsPage from './pages/SettingsPage';
+import './theme-v2.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,9 +56,9 @@ function App() {
     setActiveView(view);
   };
 
-  // Always enforce dark mode on the document root so body/html backgrounds are dark
+  // Enforce the brand theme globally so auth/PWA/mobile/desktop stay visually consistent.
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', 'dark');
+    document.documentElement.setAttribute('data-theme', 'brand');
   }, []);
 
   // Count active filters

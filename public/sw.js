@@ -1,5 +1,5 @@
-// Service Worker for كونتابو PWA
-const CACHE_NAME = 'contaboo-v2';
+// Service Worker for RealListing PWA
+const CACHE_NAME = 'reallisting-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -81,6 +81,6 @@ self.addEventListener('push', (event) => {
   };
   
   event.waitUntil(
-    self.registration.showNotification('كونتابو', options)
+    self.registration.showNotification('ريل ليستنج', options)
   );
 });

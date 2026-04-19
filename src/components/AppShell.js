@@ -6,7 +6,7 @@ import './AppShell.css';
 
 function AppShell({ children, activeView, onViewChange, user, onLogout, stats, isAuthenticated, onShowLogin }) {
   return (
-    <div className="app-shell dark" data-theme="dark">
+    <div className="app-shell" data-theme="brand">
       <aside className="app-sidebar">
         <Sidebar
           activeView={activeView}

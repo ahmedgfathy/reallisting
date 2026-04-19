@@ -64,11 +64,11 @@ function SettingsPage({ user, isAdmin, onShowAdminDashboard }) {
         <div className="settings-app-info">
           <div className="settings-field">
             <span className="settings-field-label">اسم التطبيق</span>
-            <span className="settings-field-value">كونتابو</span>
+            <span className="settings-field-value">ريل ليستنج</span>
           </div>
           <div className="settings-field">
             <span className="settings-field-label">الوصف</span>
-            <span className="settings-field-value">منصة الإعلانات العقارية الذكية</span>
+            <span className="settings-field-value">منصة عربية حديثة لإدارة وعرض الإعلانات العقارية</span>
           </div>
           <div className="settings-field">
             <span className="settings-field-label">اللغة</span>
