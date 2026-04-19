@@ -9,6 +9,26 @@ import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
 import './theme-v2.css';
 
+export const FALLBACK_PROPERTY_IMAGE = '/logo192.png';
+
+export const getPropertyImageUrl = (msg) => {
+  const image = typeof msg?.image_url === 'string' ? msg.image_url.trim() : '';
+  return image || FALLBACK_PROPERTY_IMAGE;
+};
+
+export const buildCompactCardTitle = (msg, formatPurpose) => {
+  const purposeLabel = formatPurpose(msg?.purpose);
+  const candidates = [msg?.property_type, msg?.category, purposeLabel];
+  const compactTitle = candidates.find((value) => value && value !== 'أخرى');
+  return compactTitle || 'عقار';
+};
+
+export const truncateCardMessage = (message, maxLength = 70) => {
+  const text = String(message || '').trim();
+  if (!text) return 'لا يوجد وصف';
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
@@ -798,12 +818,26 @@ function App() {
 
                       <div className="card-index">#{index + 1}</div>
 
-                      <div className="card-title">
-                        {buildCardTitle(msg)}
-                      </div>
+                      <img
+                        className="card-image"
+                        src={getPropertyImageUrl(msg)}
+                        alt={buildCompactCardTitle(msg, formatPurpose)}
+                        loading="lazy"
+                        onError={(e) => {
+                          if (e.currentTarget.dataset.fallbackApplied !== 'true') {
+                            e.currentTarget.dataset.fallbackApplied = 'true';
+                            e.currentTarget.src = FALLBACK_PROPERTY_IMAGE;
+                          }
+                        }}
+                      />
+
+                      <div className="card-title">{buildCompactCardTitle(msg, formatPurpose)}</div>
+                      {msg.region && msg.region !== 'أخرى' && (
+                        <div className="card-region">📍 {msg.region}</div>
+                      )}
 
                       <div className="card-message">
-                        {msg.message.length > 150 ? msg.message.substring(0, 150) + '...' : msg.message}
+                        {truncateCardMessage(msg.message)}
                       </div>
 
                       <div className="card-footer">
