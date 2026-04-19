@@ -197,7 +197,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
     }
 
     const confirmed = window.confirm(
-      'هل أنت متأكد من حذف الرسائل المكررة؟\n\nسيتم حذف الرسائل التي لها نفس:\n- اسم المرسل\n- رقم الموبايل\n- نص الرسالة\n\nهذا الإجراء لا يمكن التراجع عنه!'
+      'هل أنت متأكد من حذف الرسائل المكررة؟\n\nسيتم حذف الرسائل التي لها نفس:\n- اسم الوسيط\n- رقم الموبايل\n- نص الرسالة\n\nهذا الإجراء لا يمكن التراجع عنه!'
     );
 
     if (!confirmed) return;
@@ -816,7 +816,7 @@ function AdminDashboard({ onClose, onImportSuccess }) {
                 <span className="import-value import-success">{importResult.stats?.imported || 0}</span>
               </div>
               <div className="import-stat">
-                <span className="import-label">المرسلين الجدد:</span>
+                <span className="import-label">الوسطاء الجدد:</span>
                 <span className="import-value">{importResult.stats?.sendersCreated || 0}</span>
               </div>
               {importResult.stats?.errors > 0 && (

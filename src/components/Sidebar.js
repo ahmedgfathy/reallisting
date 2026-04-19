@@ -63,7 +63,7 @@ function Sidebar({ activeView, onViewChange, user, onLogout, stats, onShowLogin 
           </div>
           <div className="sidebar-stat">
             <span className="sidebar-stat-value">{stats.totalSenders || 0}</span>
-            <span className="sidebar-stat-label">مرسل</span>
+            <span className="sidebar-stat-label">وسيط</span>
           </div>
         </div>
       )}
