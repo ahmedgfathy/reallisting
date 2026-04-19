@@ -1,7 +1,7 @@
 import React from 'react';
 import './SettingsPage.css';
 
-function SettingsPage({ user, isAdmin, onShowAdminDashboard }) {
+function SettingsPage({ user, isAdmin, onOpenImportTools }) {
   return (
     <div className="settings-page">
       <h1 className="settings-title">الإعدادات</h1>
@@ -49,11 +49,11 @@ function SettingsPage({ user, isAdmin, onShowAdminDashboard }) {
         <div className="settings-section">
           <h2 className="settings-section-title">إدارة المنصة والاستيراد</h2>
           <div className="settings-admin-actions">
-            <button className="settings-admin-btn" onClick={onShowAdminDashboard}>
+            <button className="settings-admin-btn" onClick={onOpenImportTools}>
               <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
                 <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
               </svg>
-              فتح أدوات الاستيراد ولوحة التحكم
+              فتح أدوات الاستيراد
             </button>
           </div>
         </div>
