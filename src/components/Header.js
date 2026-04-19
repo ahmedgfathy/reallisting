@@ -3,8 +3,8 @@ import './Header.css';
 
 const viewTitles = {
   dashboard: 'لوحة التحكم',
-  listings: 'الإعلانات',
-  import: 'الاستيراد',
+  listings: 'العقارات',
+  leads: 'العملاء المحتملون',
   review: 'المراجعة',
   duplicates: 'المكررات',
   settings: 'الإعدادات'
