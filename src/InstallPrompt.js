@@ -7,18 +7,12 @@ function InstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    let promptTimeoutId;
+    let beforeInstallPromptHandler;
+
     // Check if already installed
     if (window.matchMedia('(display-mode: standalone)').matches) {
       return; // App is already installed
-    }
-
-    // Check if dismissed recently (within 24 hours)
-    const dismissed = localStorage.getItem('pwaPromptDismissed');
-    if (dismissed) {
-      const dismissedTime = parseInt(dismissed, 10);
-      if (Date.now() - dismissedTime < 24 * 60 * 60 * 1000) {
-        return;
-      }
     }
 
     // Detect iOS
@@ -27,21 +21,28 @@ function InstallPrompt() {
 
     if (isIOSDevice) {
       // Show iOS install instructions after 3 seconds
-      setTimeout(() => setShowPrompt(true), 3000);
-      return;
+      promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 3000);
+    } else {
+      // For Android/Chrome
+      beforeInstallPromptHandler = (e) => {
+        e.preventDefault();
+        setDeferredPrompt(e);
+        if (promptTimeoutId) {
+          window.clearTimeout(promptTimeoutId);
+        }
+        promptTimeoutId = window.setTimeout(() => setShowPrompt(true), 2000);
+      };
+
+      window.addEventListener('beforeinstallprompt', beforeInstallPromptHandler);
     }
 
-    // For Android/Chrome
-    const handler = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setTimeout(() => setShowPrompt(true), 2000);
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
+      if (beforeInstallPromptHandler) {
+        window.removeEventListener('beforeinstallprompt', beforeInstallPromptHandler);
+      }
+      if (promptTimeoutId) {
+        window.clearTimeout(promptTimeoutId);
+      }
     };
   }, []);
 
@@ -61,7 +62,6 @@ function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwaPromptDismissed', Date.now().toString());
   };
 
   if (!showPrompt) return null;
