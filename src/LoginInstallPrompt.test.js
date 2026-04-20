@@ -34,6 +34,8 @@ describe('Login page updates', () => {
     expect(container.textContent).toContain('اسم المستخدم');
     const usernameInput = container.querySelector('#username');
     expect(usernameInput?.getAttribute('placeholder')).toBe('أدخل اسم المستخدم');
+    expect(usernameInput?.getAttribute('dir')).toBeNull();
+    expect(usernameInput?.getAttribute('style')).toBeNull();
   });
 });
 

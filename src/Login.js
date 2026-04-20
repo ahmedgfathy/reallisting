@@ -63,8 +63,6 @@ function Login({ onLogin }) {
               placeholder="أدخل اسم المستخدم"
               required
               autoComplete="username"
-              dir="ltr"
-              style={{ textAlign: 'left' }}
             />
           </div>
           <div className="form-group">
