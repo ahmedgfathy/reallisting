@@ -48,7 +48,10 @@ module.exports = async (req, res) => {
     return res.status(403).json({ error: 'Forbidden - Admin access required' });
   }
 
-  const path = req.query.path || req.url.split('?')[0].replace('/api/admin', '');
+  const rawPath = req.query.path;
+  const path = typeof rawPath === 'string'
+    ? rawPath
+    : req.url.split('?')[0].replace('/api/admin', '');
 
   // GET ALL USERS
   if ((path === 'users' || path === '/users') && req.method === 'GET') {
@@ -145,7 +148,7 @@ module.exports = async (req, res) => {
   }
 
   // DELETE MESSAGES
-  if (path.includes('messages') && (req.method === 'DELETE' || req.method === 'POST')) {
+  if ((path === 'messages' || path === '/messages') && (req.method === 'DELETE' || req.method === 'POST')) {
     try {
       const body = await parseBody(req);
       const { messageIds, ids } = body || {};
@@ -156,7 +159,7 @@ module.exports = async (req, res) => {
             .filter(Boolean))]
         : [];
 
-      if (!targetIds || !Array.isArray(targetIds) || targetIds.length === 0) {
+      if (targetIds.length === 0) {
         return res.status(400).json({ error: 'Invalid message IDs' });
       }
 
@@ -164,7 +167,9 @@ module.exports = async (req, res) => {
       const deletedCount = result.deletedCount;
 
       if (deletedCount > targetIds.length) {
-        return res.status(500).json({ error: 'Delete safety check failed' });
+        return res.status(500).json({
+          error: `Deleted more rows than requested. Expected at most ${targetIds.length}, but deleted ${deletedCount}.`
+        });
       }
 
       if (deletedCount === 0) {
