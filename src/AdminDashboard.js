@@ -157,7 +157,7 @@ function parseWhatsAppText(text) {
     } else if (currentMessage && line.trim()) {
       // If a line starts with a timestamp but failed parsing, don't append it to
       // the previous listing message (prevents system/noise events from polluting cards).
-      const looksLikeNewTimestampedLine = /^\[?[\d/. \-]+[,،]\s*[\d:\s]+(?:[AP]M?|[مص])?/i.test(line.trim());
+      const looksLikeNewTimestampedLine = /^\[?[\d/. -]+[,،]\s*[\d:\s]+(?:[AP]M?|[مص])?/i.test(line.trim());
       if (!looksLikeNewTimestampedLine && !isWhatsAppSystemMessage(line)) {
         currentMessage.message += '\n' + line;
       }

@@ -40,7 +40,7 @@ export const sanitizeListingMessageContent = (message) => {
   const text = String(message)
     .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, ' ')
     .replace(/(?:\+?20|0020|0)?1\d{9}|(?:\+?966|00966|0)?5\d{8}/g, ' ')
-    .replace(/(?:للتواصل|اتصال|واتساب|whatsapp|phone|tel)\s*[:\-]?\s*/gi, ' ')
+    .replace(/(?:للتواصل|اتصال|واتساب|whatsapp|phone|tel)\s*[:-]?\s*/gi, ' ')
     .replace(/~\s*[^\n\r]{2,40}/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
