@@ -716,27 +716,28 @@ function App() {
   // API error is handled inline inside AppShell (not as a full-page takeover)
 
 
+  // Render the public landing page outside AppShell (no sidebar/header chrome)
+  if (activeView === 'dashboard' && !isAuthenticated) {
+    return (
+      <>
+        <PublicHero
+          onLoginClick={handleShowLogin}
+          stats={stats}
+          messages={messages}
+          onViewChange={handleViewChange}
+        />
+        {showLoginModal && (
+          <Login
+            onLogin={handleLogin}
+            onClose={() => setShowLoginModal(false)}
+          />
+        )}
+      </>
+    );
+  }
+
   const renderPageContent = () => {
     if (activeView === 'dashboard') {
-      if (!isAuthenticated) {
-        return (
-          <PublicHero
-            onLoginClick={handleShowLogin}
-            stats={stats}
-            messages={messages}
-            onSearch={(term) => {
-              setSearch(term);
-              setPage(1);
-              setActiveView('listings');
-            }}
-            onFilterByType={(type) => {
-              setPropertyType(type);
-              setPage(1);
-              setActiveView('listings');
-            }}
-          />
-        );
-      }
       return (
         <DashboardPage
           stats={stats}
