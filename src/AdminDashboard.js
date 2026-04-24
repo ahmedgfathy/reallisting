@@ -60,6 +60,29 @@ function normalizeImportedDate(messageDate, originalYear) {
   return normalizedDate;
 }
 
+function isWhatsAppSystemMessage(text) {
+  const normalized = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const noisePatterns = [
+    /security code/,
+    /tap to learn more/,
+    /end-to-end encrypted/,
+    /verification code/,
+    /\botp\b/,
+    /joined using this group's invite link/,
+    /this message was deleted/,
+    /missed (voice|video) call/,
+    /رمز التحقق/,
+    /كود التفعيل/,
+    /تم تغيير رمز الامان/,
+    /تم تغيير كود الامان/,
+    /مشفرة من طرف الى طرف/,
+    /انضم باستخدام رابط الدعوة/,
+    /تم حذف هذه الرسالة/,
+    /مكالمة (صوتية|فيديو) فائتة/
+  ];
+  return noisePatterns.some((pattern) => pattern.test(normalized));
+}
+
 function parseWhatsAppText(text) {
   // Remove invisible Unicode directional/formatting characters that WhatsApp
   // (especially Arabic locale) embeds in exported files (LRM, RLM, BOM, etc.)
@@ -86,6 +109,11 @@ function parseWhatsAppText(text) {
       if (currentMessage) parsedMessages.push(currentMessage);
 
       const [, date, time, sender, messageText] = match;
+
+      if (isWhatsAppSystemMessage(`${sender} ${messageText}`)) {
+        currentMessage = null;
+        continue;
+      }
 
       let messageDate;
       try {
@@ -127,7 +155,12 @@ function parseWhatsAppText(text) {
         date: messageDate.toISOString()
       };
     } else if (currentMessage && line.trim()) {
-      currentMessage.message += '\n' + line;
+      // If a line starts with a timestamp but failed parsing, don't append it to
+      // the previous listing message (prevents system/noise events from polluting cards).
+      const looksLikeNewTimestampedLine = /^\[?[\d/. \-]+[,،]\s*[\d:\s]+(?:[AP]M?|[مص])?/i.test(line.trim());
+      if (!looksLikeNewTimestampedLine && !isWhatsAppSystemMessage(line)) {
+        currentMessage.message += '\n' + line;
+      }
     }
   }
 

@@ -3,6 +3,7 @@ import {
   getPropertyImageUrl,
   buildCompactCardTitle,
   buildCardHeaderMeta,
+  sanitizeListingMessageContent,
   truncateCardMessage,
   calculateHasMorePages
 } from './App';
@@ -34,6 +35,10 @@ describe('property card helpers', () => {
     expect(truncateCardMessage('نص قصير')).toBe('نص قصير');
     expect(truncateCardMessage('')).toBe('لا يوجد وصف');
     expect(truncateCardMessage('1234567890', 5)).toBe('12345...');
+  });
+
+  it('sanitizes phones and noisy contact labels from message content', () => {
+    expect(sanitizeListingMessageContent('شقة للبيع للتواصل 01012345678')).toBe('شقة للبيع');
   });
 
   it('calculates pagination continuation safely', () => {

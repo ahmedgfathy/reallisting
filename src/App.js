@@ -34,9 +34,22 @@ export const buildCardHeaderMeta = (msg) => {
   return values.length > 0 ? values.join(' | ') : 'عقار';
 };
 
+export const sanitizeListingMessageContent = (message) => {
+  if (message === null || message === undefined) return '';
+
+  const text = String(message)
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, ' ')
+    .replace(/(?:\+?20|0020|0)?1\d{9}|(?:\+?966|00966|0)?5\d{8}/g, ' ')
+    .replace(/(?:للتواصل|اتصال|واتساب|whatsapp|phone|tel)\s*[:\-]?\s*/gi, ' ')
+    .replace(/~\s*[^\n\r]{2,40}/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text;
+};
+
 export const truncateCardMessage = (message, maxLength = 70) => {
-  if (message === null || message === undefined) return 'لا يوجد وصف';
-  const text = String(message).trim();
+  const text = sanitizeListingMessageContent(message);
   if (!text) return 'لا يوجد وصف';
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
@@ -1189,7 +1202,7 @@ function App() {
               <div className="detail-section">
                 <h3>💬 نص الإعلان</h3>
                 <div className="detail-message">
-                  {selectedUnit.message}
+                  {sanitizeListingMessageContent(selectedUnit.message) || 'لا يوجد وصف'}
                 </div>
               </div>
 
