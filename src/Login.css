@@ -140,6 +140,68 @@
 }
 
 /* ==========================================
+   Modal Mode
+   ========================================== */
+
+.login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgba(8, 18, 31, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  direction: rtl;
+  animation: loginOverlayFadeIn 0.22s ease;
+}
+
+@keyframes loginOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.login-modal-container {
+  width: 100%;
+  max-width: 420px;
+  animation: loginModalSlideUp 0.25s ease;
+}
+
+@keyframes loginModalSlideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-modal-close-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.login-modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Make the header position: relative so the close btn can be absolute inside it */
+.login-modal-container .login-header {
+  position: relative;
+}
+
+/* ==========================================
    Modern Theme Override
    ========================================== */
 
