@@ -16,7 +16,7 @@
   "scripts": {
     "start": "react-scripts start",
     "server": "node server.js",
-    "dev": "concurrently -k \"npm run server\" \"npm start\"",
+    "dev": "concurrently -k \"node server.js\" \"react-scripts start\"",
     "db:dump": "node scripts/db-dump.js",
     "build": "react-scripts build",
     "test": "react-scripts test",

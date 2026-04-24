@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
 import PublicHero from './pages/PublicHero';
 import './theme-v2.css';
+import './public-redesign.css';
 
 export const FALLBACK_PROPERTY_IMAGE = '/logo192.png';
 
@@ -38,6 +39,54 @@ export const truncateCardMessage = (message, maxLength = 70) => {
   if (!text) return 'لا يوجد وصف';
   return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 };
+
+const normalizeTextDigits = (value) => {
+  return String(value || '')
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06F0-\u06F9]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+};
+
+const toFiniteNumber = (value) => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+
+  const normalized = normalizeTextDigits(value)
+    .replace(/[,\s،]/g, '')
+    .replace(/[^\d.]/g, '');
+
+  if (!normalized) return null;
+
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const extractFirstMatchNumber = (message, regex) => {
+  const normalized = normalizeTextDigits(message || '');
+  const match = normalized.match(regex);
+  if (!match?.[1]) return null;
+  return toFiniteNumber(match[1]);
+};
+
+const getListingSnapshot = (msg) => {
+  const metadata = msg?.ai_metadata || {};
+  const text = msg?.message || '';
+
+  const price = toFiniteNumber(metadata.price);
+  const area = toFiniteNumber(metadata.area) ?? extractFirstMatchNumber(text, /([0-9]{2,5})\s*(?:متر|م2|م²|sqm)/i);
+  const bedrooms = toFiniteNumber(metadata.bedrooms) ?? extractFirstMatchNumber(text, /([0-9]{1,2})\s*(?:غرف|غرفة|نوم)/i);
+  const bathrooms = toFiniteNumber(metadata.bathrooms) ?? extractFirstMatchNumber(text, /([0-9]{1,2})\s*(?:حمام|حمامات)/i);
+
+  return {
+    area,
+    bathrooms,
+    bedrooms,
+    district: metadata.district || '',
+    price
+  };
+};
+
+const HOME_VIDEO_ID = 'FqpOAnBB5Tk';
+const HOME_VIDEO_SRC = `https://www.youtube-nocookie.com/embed/${HOME_VIDEO_ID}?autoplay=1&mute=1&controls=0&loop=1&playlist=${HOME_VIDEO_ID}&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`;
 
 export const calculateHasMorePages = ({ page, limit, total, totalPages, currentPageSize, hasMore }) => {
   const safePage = Number(page);
@@ -102,7 +151,8 @@ function App() {
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
 
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState('listings');
+  const isPublicListingsView = !isAuthenticated && activeView === 'listings';
 
   const handleViewChange = (view) => {
     setActiveView(view);
@@ -260,6 +310,7 @@ function App() {
             const userData = JSON.parse(storedUser);
             setIsAuthenticated(true);
             setUser(userData);
+            setActiveView('dashboard');
           } catch (parseErr) {
             console.error('Failed to parse stored user, clearing auth:', parseErr);
             clearAuthState();
@@ -280,6 +331,7 @@ function App() {
         if (response.ok && data.authenticated) {
           setIsAuthenticated(true);
           setUser(data.user);
+          setActiveView('dashboard');
         } else {
           // Server successfully validated request but token is invalid
           clearAuthState();
@@ -299,6 +351,7 @@ function App() {
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
     setUser(userData);
+    setActiveView('dashboard');
     setShowLoginModal(false);
   };
 
@@ -319,6 +372,12 @@ function App() {
       setShowAdminDashboard(false);
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated && activeView !== 'listings') {
+      setActiveView('listings');
+    }
+  }, [activeView, authLoading, isAuthenticated]);
 
   useEffect(() => {
     if (activeView === 'brokers') {
@@ -743,187 +802,266 @@ function App() {
     }
 
     // Default: listings view
+    const featuredListing = messages.find((item) => getPropertyImageUrl(item) !== FALLBACK_PROPERTY_IMAGE);
+    const featuredHeroImage = featuredListing ? getPropertyImageUrl(featuredListing) : '';
+
     return (
-      <div className="main-content">
-        {!isAuthenticated && (
-          <PublicHero onLoginClick={handleShowLogin} stats={stats} />
+      <div className={`main-content ${isPublicListingsView ? 'public-market-content' : ''}`}>
+        {isPublicListingsView && (
+          <>
+            <div className="public-home-video-bg" aria-hidden="true">
+              <iframe
+                src={HOME_VIDEO_SRC}
+                title="Public home background video"
+                loading="lazy"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen={false}
+                referrerPolicy="strict-origin-when-cross-origin"
+                tabIndex={-1}
+              />
+            </div>
+            <div className="public-home-video-overlay" aria-hidden="true" />
+          </>
         )}
+
+        {isPublicListingsView && (
+          <PublicHero onLoginClick={handleShowLogin} stats={stats} featuredImage={featuredHeroImage} />
+        )}
+
         {error && messages.length === 0 && (
           <div className="api-error-banner">
             <span>⚠️ تعذّر الاتصال بالخادم — يرجى التحقق من تشغيل الـ API أو إعادة المحاولة لاحقاً.</span>
           </div>
         )}
-        <div className="controls">
-          <input
-            type="text"
-            placeholder="البحث بالاسم أو رقم الموبايل أو الرسالة..."
-            value={search}
-            onChange={handleSearch}
-            className="search-input"
-          />
-          <div className="mobile-btn-row">
-            <button onClick={handleRefresh} className="refresh-btn">
-              🔄 تحديث
-            </button>
-            <button onClick={handleReset} className="reset-btn">
-              ✖ مسح
-            </button>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
-            >
-              {showFilters ? '🔼 فلاتر' : '🔽 فلاتر'}
-              {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
-            </button>
+
+        <section className={`market-search-wrap ${isPublicListingsView ? 'public' : ''}`}>
+          <div className={`controls ${isPublicListingsView ? 'market-controls' : ''}`}>
+            <input
+              type="text"
+              placeholder="ابحث بالمنطقة أو نوع العقار أو نص الإعلان..."
+              value={search}
+              onChange={handleSearch}
+              className="search-input"
+            />
+            <div className="mobile-btn-row">
+              <button onClick={handleRefresh} className="refresh-btn">
+                🔄 تحديث
+              </button>
+              <button onClick={handleReset} className="reset-btn">
+                ✖ مسح
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`filter-toggle-btn ${activeFiltersCount > 0 ? 'has-active-filters' : ''}`}
+              >
+                {showFilters ? '🔼 الفلاتر' : '🔽 الفلاتر'}
+                {activeFiltersCount > 0 && <span className="filter-badge">{activeFiltersCount}</span>}
+              </button>
+            </div>
+            {isAdmin && selectedMessages.size > 0 && (
+              <button onClick={handleDeleteSelected} className="delete-btn">
+                🗑️ حذف المحدد ({selectedMessages.size})
+              </button>
+            )}
           </div>
-          {isAdmin && selectedMessages.size > 0 && (
-            <button onClick={handleDeleteSelected} className="delete-btn">
-              🗑️ حذف المحدد ({selectedMessages.size})
-            </button>
-          )}
-        </div>
 
-        <div className={`filters ${showFilters ? 'filters-open' : ''}`}>
-          <label className="filter-label">نوع الإعلان:</label>
-          <select value={category} onChange={handleCategoryChange} className="filter-select">
-            <option value="الكل">الكل</option>
-            {availableCategories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
+          <div className={`filters ${showFilters ? 'filters-open' : ''} ${isPublicListingsView ? 'market-filters' : ''}`}>
+            <label className="filter-label">نوع الإعلان:</label>
+            <select value={category} onChange={handleCategoryChange} className="filter-select">
+              <option value="الكل">الكل</option>
+              {availableCategories.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
 
-          <label className="filter-label">نوع العقار:</label>
-          <select value={propertyType} onChange={handlePropertyTypeChange} className="filter-select">
-            <option value="الكل">الكل</option>
-            {availablePropertyTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+            <label className="filter-label">نوع العقار:</label>
+            <select value={propertyType} onChange={handlePropertyTypeChange} className="filter-select">
+              <option value="الكل">الكل</option>
+              {availablePropertyTypes.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
 
-          <label className="filter-label">المنطقة:</label>
-          <select value={region} onChange={handleRegionChange} className="filter-select">
-            <option value="الكل">الكل</option>
-            {regions.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
+            <label className="filter-label">المنطقة:</label>
+            <select value={region} onChange={handleRegionChange} className="filter-select">
+              <option value="الكل">الكل</option>
+              {regions.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
 
-          <label className="filter-label">الغرض:</label>
-          <select value={purpose} onChange={handlePurposeChange} className="filter-select">
-            <option value="الكل">الكل</option>
-            {availablePurposes.map(p => (
-              <option key={p} value={p}>{p === 'بيع' ? 'للبيع' : p === 'إيجار' ? 'للإيجار' : p}</option>
-            ))}
-          </select>
+            <label className="filter-label">الغرض:</label>
+            <select value={purpose} onChange={handlePurposeChange} className="filter-select">
+              <option value="الكل">الكل</option>
+              {availablePurposes.map((p) => (
+                <option key={p} value={p}>{p === 'بيع' ? 'للبيع' : p === 'إيجار' ? 'للإيجار' : p}</option>
+              ))}
+            </select>
 
-          <div className="results-count">
-            <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
+            <div className="results-count">
+              <span>📋 عدد النتائج: <strong>{filteredCount}</strong></span>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {loading && messages.length === 0 ? (
-          <div className="loading">جاري تحميل الوحدات...</div>
-        ) : (
-          <>
-            <div className="grid-container">
-              {isAdmin && messages.length > 0 && (
-                <div className="grid-select-all">
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={messages.length > 0 && selectedMessages.size === messages.length}
-                      onChange={handleSelectAll}
-                    />
-                    تحديد الكل
-                  </label>
-                </div>
-              )}
+        <section id="market-listings" className={`market-results ${isPublicListingsView ? 'public' : ''}`}>
+          <div className="market-results-head">
+            <h2>عقارات متاحة الآن</h2>
+            <p>تصفح أحدث الإعلانات المنشورة من الوسطاء في لحظتها</p>
+          </div>
 
-              {messages.length === 0 ? (
-                <div className="no-data-grid">
-                  لا توجد رسائل. أضف ملفات محادثات واتساب إلى مجلد data-source.
-                </div>
-              ) : (
-                <div className="properties-grid">
-                  {messages.map((msg, index) => (
-                    <div
-                      key={msg.id}
-                      className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
-                      onClick={() => openUnitDetail(msg)}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      {isAdmin && (
-                        <div className="card-checkbox" onClick={(e) => e.stopPropagation()}>
-                          <input
-                            type="checkbox"
-                            checked={selectedMessages.has(msg.id)}
-                            onChange={() => handleSelectMessage(msg.id)}
-                          />
-                        </div>
-                      )}
-
-                      <div className="card-header">
-                        <div className="card-header-meta">{buildCardHeaderMeta(msg)}</div>
-                        <div className="card-index">#{index + 1}</div>
-                      </div>
-
-                      <img
-                        className="card-image"
-                        src={getPropertyImageUrl(msg)}
-                        alt={`${buildCompactCardTitle(msg, formatPurpose)}${msg.region && msg.region !== 'أخرى' ? ` - ${msg.region}` : ''}`}
-                        loading="lazy"
-                        onError={(e) => {
-                          if (e.currentTarget.dataset.fallbackApplied !== 'true') {
-                            e.currentTarget.dataset.fallbackApplied = 'true';
-                            e.currentTarget.src = FALLBACK_PROPERTY_IMAGE;
-                          }
-                        }}
+          {loading && messages.length === 0 ? (
+            <div className="loading">جاري تحميل الوحدات...</div>
+          ) : (
+            <>
+              <div className="grid-container">
+                {isAdmin && messages.length > 0 && (
+                  <div className="grid-select-all">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={messages.length > 0 && selectedMessages.size === messages.length}
+                        onChange={handleSelectAll}
                       />
+                      تحديد الكل
+                    </label>
+                  </div>
+                )}
 
-                      <div className="card-message">
-                        {truncateCardMessage(msg.message)}
-                      </div>
+                {messages.length === 0 ? (
+                  <div className="no-data-grid">
+                    لا توجد رسائل. أضف ملفات محادثات واتساب إلى مجلد data-source.
+                  </div>
+                ) : (
+                  <div className="properties-grid">
+                    {messages.map((msg, index) => {
+                      const listingSnapshot = getListingSnapshot(msg);
+                      const formattedPrice = listingSnapshot.price ? `${listingSnapshot.price.toLocaleString('ar-EG')} ج.م` : 'السعر عند التواصل';
+                      const formattedArea = listingSnapshot.area ? `${listingSnapshot.area.toLocaleString('ar-EG')} م²` : 'المساحة غير متاحة';
+                      const formattedBeds = listingSnapshot.bedrooms ? `${listingSnapshot.bedrooms.toLocaleString('ar-EG')} غرف` : 'الغرف غير متاحة';
+                      const formattedBaths = listingSnapshot.bathrooms ? `${listingSnapshot.bathrooms.toLocaleString('ar-EG')} حمام` : 'الحمامات غير متاحة';
+                      const whatsappHref = buildWhatsAppHref(msg.sender_mobile, msg.sender_name, msg);
+                      const purposeLabel = msg?.purpose && msg.purpose !== 'أخرى'
+                        ? formatPurpose(msg.purpose)
+                        : (msg.category && msg.category !== 'أخرى' ? msg.category : 'عقار');
 
-                      <div className="card-footer">
-                        <div className="card-contact">
-                          {isUserActive ? (
-                            <>
-                              {msg.sender_mobile && msg.sender_mobile !== 'N/A' && (
-                                <a href={`tel:${msg.sender_mobile}`} className="card-phone" dir="ltr">
-                                  📱 {msg.sender_mobile}
-                                </a>
-                              )}
-                            </>
-                          ) : (
-                            <span className="card-name">🔒 اشترك لرؤية رقم الوسيط</span>
+                      return (
+                        <article
+                          key={msg.id}
+                          className={`property-card ${selectedMessages.has(msg.id) && isAdmin ? 'selected-card' : ''}`}
+                          onClick={() => openUnitDetail(msg)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {isAdmin && (
+                            <div className="card-checkbox" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type="checkbox"
+                                checked={selectedMessages.has(msg.id)}
+                                onChange={() => handleSelectMessage(msg.id)}
+                              />
+                            </div>
                           )}
-                        </div>
-                        <div className="card-date">
-                          🗓️ {msg.date_of_creation}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
-            <div ref={loaderRef} className="infinite-loader">
-              {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
-              {!loadingMore && hasMore && (
-                <button
-                  type="button"
-                  className="load-more-btn"
-                  aria-label="تحميل المزيد من العقارات"
-                  onClick={() => setPage(prev => prev + 1)}
-                >
-                  تحميل المزيد
-                </button>
-              )}
-              {!hasMore && messages.length > 0 && <span>تم عرض كل النتائج.</span>}
-            </div>
-          </>
-        )}
+                          <div className="card-header">
+                            <div className="card-header-meta">{buildCardHeaderMeta(msg)}</div>
+                            <div className="card-index">#{index + 1}</div>
+                          </div>
+
+                          <div className="card-image-wrap">
+                            <img
+                              className="card-image"
+                              src={getPropertyImageUrl(msg)}
+                              alt={`${buildCompactCardTitle(msg, formatPurpose)}${msg.region && msg.region !== 'أخرى' ? ` - ${msg.region}` : ''}`}
+                              loading="lazy"
+                              onError={(e) => {
+                                if (e.currentTarget.dataset.fallbackApplied !== 'true') {
+                                  e.currentTarget.dataset.fallbackApplied = 'true';
+                                  e.currentTarget.src = FALLBACK_PROPERTY_IMAGE;
+                                }
+                              }}
+                            />
+                            <span className="card-purpose-badge">{purposeLabel}</span>
+                            <span className="card-price-badge">{formattedPrice}</span>
+                          </div>
+
+                          <div className="card-body">
+                            <h3 className="card-title">{buildCompactCardTitle(msg, formatPurpose)}</h3>
+                            {(msg.region && msg.region !== 'أخرى') || listingSnapshot.district ? (
+                              <p className="card-region">📍 {listingSnapshot.district || msg.region}</p>
+                            ) : null}
+
+                            <div className="card-specs">
+                              <span>{formattedArea}</span>
+                              <span>{formattedBeds}</span>
+                              <span>{formattedBaths}</span>
+                            </div>
+
+                            <div className="card-message">
+                              {truncateCardMessage(msg.message, 125)}
+                            </div>
+                          </div>
+
+                          <div className="card-footer">
+                            <div className="card-contact">
+                              {isUserActive ? (
+                                <div className="card-contact-buttons">
+                                  {msg.sender_mobile && msg.sender_mobile !== 'N/A' ? (
+                                    <a
+                                      href={`tel:${msg.sender_mobile}`}
+                                      className="card-phone"
+                                      dir="ltr"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      📞 اتصال
+                                    </a>
+                                  ) : (
+                                    <span className="card-name">📵 رقم الهاتف غير متاح</span>
+                                  )}
+
+                                  {whatsappHref ? (
+                                    <a
+                                      href={whatsappHref}
+                                      className="card-whatsapp"
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      واتساب
+                                    </a>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <span className="card-name">🔒 سجل دخولك لعرض وسائل التواصل</span>
+                              )}
+                              <div className="card-date">
+                                🗓️ {msg.date_of_creation}
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div ref={loaderRef} className="infinite-loader">
+                {loadingMore && hasMore && <span>جاري جلب المزيد...</span>}
+                {!loadingMore && hasMore && (
+                  <button
+                    type="button"
+                    className="load-more-btn"
+                    aria-label="تحميل المزيد من العقارات"
+                    onClick={() => setPage((prev) => prev + 1)}
+                  >
+                    تحميل المزيد
+                  </button>
+                )}
+                {!hasMore && messages.length > 0 && <span>تم عرض كل النتائج.</span>}
+              </div>
+            </>
+          )}
+        </section>
       </div>
     );
   };
@@ -937,6 +1075,7 @@ function App() {
       stats={stats}
       isAuthenticated={isAuthenticated}
       onShowLogin={handleShowLogin}
+      isPublicLayout={isPublicListingsView}
     >
       {renderPageContent()}
 
