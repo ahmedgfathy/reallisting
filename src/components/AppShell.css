@@ -5,6 +5,10 @@
   background: var(--bg-app);
 }
 
+.app-shell.public-layout {
+  display: block;
+}
+
 .app-sidebar {
   width: var(--sidebar-width);
   flex-shrink: 0;
@@ -24,10 +28,19 @@
   min-height: 100vh;
 }
 
+.app-main.public-layout {
+  margin-right: 0;
+  width: 100%;
+}
+
 .app-content {
   flex: 1;
   padding: 24px;
   padding-top: 16px;
+}
+
+.app-content.public-layout {
+  padding: 0;
 }
 
 .app-bottom-nav {
