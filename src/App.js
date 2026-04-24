@@ -718,6 +718,16 @@ function App() {
 
   const renderPageContent = () => {
     if (activeView === 'dashboard') {
+      if (!isAuthenticated) {
+        return (
+          <PublicHero
+            onLoginClick={handleShowLogin}
+            stats={stats}
+            messages={messages}
+            onViewChange={handleViewChange}
+          />
+        );
+      }
       return (
         <DashboardPage
           stats={stats}
@@ -745,9 +755,6 @@ function App() {
     // Default: listings view
     return (
       <div className="main-content">
-        {!isAuthenticated && (
-          <PublicHero onLoginClick={handleShowLogin} stats={stats} />
-        )}
         {error && messages.length === 0 && (
           <div className="api-error-banner">
             <span>⚠️ تعذّر الاتصال بالخادم — يرجى التحقق من تشغيل الـ API أو إعادة المحاولة لاحقاً.</span>
