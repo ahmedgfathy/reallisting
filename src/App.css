@@ -1856,9 +1856,10 @@ body {
 }
 
 .detail-info-grid {
+  --detail-gap: 8px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--detail-gap);
 }
 
 .detail-info-item {
@@ -1871,8 +1872,8 @@ body {
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
   transition: all 0.2s ease;
   flex: 1;
-  min-width: calc(50% - 4px);
-  max-width: calc(50% - 4px);
+  min-width: calc(50% - var(--detail-gap) / 2);
+  max-width: calc(50% - var(--detail-gap) / 2);
 }
 
 .detail-info-item:hover {
