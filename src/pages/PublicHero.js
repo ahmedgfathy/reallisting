@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './PublicHero.css';
 
+const INTERNET_SLIDES = [
+  'https://images.pexels.com/photos/7587880/pexels-photo-7587880.jpeg?cs=srgb&dl=pexels-artbovich-7587880.jpg&fm=jpg',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80',
+  'https://images.pexels.com/photos/7587882/pexels-photo-7587882.jpeg?cs=srgb&dl=pexels-artbovich-7587882.jpg&fm=jpg'
+];
+
 function PublicHero({ onLoginClick, stats, featuredImage }) {
-  const internetSlides = [
-    'https://images.pexels.com/photos/7587880/pexels-photo-7587880.jpeg?cs=srgb&dl=pexels-artbovich-7587880.jpg&fm=jpg',
-    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1800&q=80',
-    'https://images.pexels.com/photos/7587882/pexels-photo-7587882.jpeg?cs=srgb&dl=pexels-artbovich-7587882.jpg&fm=jpg'
-  ];
   const safeFeaturedImage = typeof featuredImage === 'string' ? featuredImage.trim() : '';
   const slides = useMemo(() => {
-    return [safeFeaturedImage, ...internetSlides].filter((src, index, arr) => src && arr.indexOf(src) === index);
+    return [safeFeaturedImage, ...INTERNET_SLIDES].filter((src, index, arr) => src && arr.indexOf(src) === index);
   }, [safeFeaturedImage]);
   const [activeSlide, setActiveSlide] = useState(0);
 
