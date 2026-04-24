@@ -7,6 +7,7 @@ import InstallPrompt from './InstallPrompt';
 import AppShell from './components/AppShell';
 import DashboardPage from './pages/DashboardPage';
 import SettingsPage from './pages/SettingsPage';
+import PublicHero from './pages/PublicHero';
 import './theme-v2.css';
 
 export const FALLBACK_PROPERTY_IMAGE = '/logo192.png';
@@ -96,6 +97,7 @@ function App() {
   const detailRef = useRef(null);
   const touchStartX = useRef(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const isAdmin = user?.role === 'admin';
   const isUserActive = Boolean(user?.isActive || isAdmin);
@@ -297,6 +299,7 @@ function App() {
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
     setUser(userData);
+    setShowLoginModal(false);
   };
 
   const handleLogout = () => {
@@ -308,7 +311,7 @@ function App() {
   };
 
   const handleShowLogin = () => {
-    setIsAuthenticated(false);
+    setShowLoginModal(true);
   };
 
   useEffect(() => {
@@ -710,15 +713,6 @@ function App() {
     );
   }
 
-  // Force login screen when user is not authenticated
-  if (!isAuthenticated) {
-    return (
-      <Login
-        onLogin={handleLogin}
-      />
-    );
-  }
-
   // API error is handled inline inside AppShell (not as a full-page takeover)
 
 
@@ -751,6 +745,9 @@ function App() {
     // Default: listings view
     return (
       <div className="main-content">
+        {!isAuthenticated && (
+          <PublicHero onLoginClick={handleShowLogin} stats={stats} />
+        )}
         {error && messages.length === 0 && (
           <div className="api-error-banner">
             <span>⚠️ تعذّر الاتصال بالخادم — يرجى التحقق من تشغيل الـ API أو إعادة المحاولة لاحقاً.</span>
@@ -1259,6 +1256,13 @@ function App() {
             <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z" />
           </svg>
         </button>
+      )}
+
+      {showLoginModal && (
+        <Login
+          onLogin={handleLogin}
+          onClose={() => setShowLoginModal(false)}
+        />
       )}
     </AppShell>
   );
