@@ -1100,6 +1100,18 @@ function App() {
     );
   };
 
+  const selectedUnitMetadata = selectedUnit?.ai_metadata && typeof selectedUnit.ai_metadata === 'object'
+    ? selectedUnit.ai_metadata
+    : {};
+  const selectedUnitKeywords = Array.isArray(selectedUnitMetadata.keywords)
+    ? selectedUnitMetadata.keywords.filter((kw) => typeof kw === 'string' && kw.trim())
+    : (typeof selectedUnitMetadata.keywords === 'string'
+      ? selectedUnitMetadata.keywords.split(/[،,]/).map((kw) => kw.trim()).filter(Boolean)
+      : []);
+  const selectedUnitSenderName = typeof selectedUnit?.sender_name === 'string'
+    ? selectedUnit.sender_name
+    : String(selectedUnit?.sender_name || '');
+
   return (
     <AppShell
       activeView={activeView}
@@ -1166,32 +1178,32 @@ function App() {
                 </div>
               </div>
 
-              {selectedUnit.ai_metadata && (selectedUnit.ai_metadata.area || selectedUnit.ai_metadata.price || selectedUnit.ai_metadata.district || (selectedUnit.ai_metadata.keywords && selectedUnit.ai_metadata.keywords.length > 0)) && (
+              {(selectedUnitMetadata.area || selectedUnitMetadata.price || selectedUnitMetadata.district || selectedUnitKeywords.length > 0) && (
                 <div className="detail-section ai-extraction">
                   <h3>✨ استخراج ذكي (AI)</h3>
                   <div className="ai-metadata-grid">
-                    {selectedUnit.ai_metadata.district && (
+                    {selectedUnitMetadata.district && (
                       <div className="ai-meta-item">
                         <span className="ai-meta-label">المكان بالتفصيل</span>
-                        <span className="ai-meta-value">{selectedUnit.ai_metadata.district}</span>
+                        <span className="ai-meta-value">{selectedUnitMetadata.district}</span>
                       </div>
                     )}
-                    {selectedUnit.ai_metadata.area && (
+                    {selectedUnitMetadata.area && (
                       <div className="ai-meta-item">
                         <span className="ai-meta-label">المساحة</span>
-                        <span className="ai-meta-value">{selectedUnit.ai_metadata.area} م²</span>
+                        <span className="ai-meta-value">{selectedUnitMetadata.area} م²</span>
                       </div>
                     )}
-                    {selectedUnit.ai_metadata.price && (
+                    {selectedUnitMetadata.price && (
                       <div className="ai-meta-item">
                         <span className="ai-meta-label">السعر</span>
-                        <span className="ai-meta-value">{Number(selectedUnit.ai_metadata.price).toLocaleString('ar-EG')} ج.م</span>
+                        <span className="ai-meta-value">{Number(selectedUnitMetadata.price).toLocaleString('ar-EG')} ج.م</span>
                       </div>
                     )}
                   </div>
-                  {selectedUnit.ai_metadata.keywords && selectedUnit.ai_metadata.keywords.length > 0 && (
+                  {selectedUnitKeywords.length > 0 && (
                     <div className="ai-keywords-list">
-                      {selectedUnit.ai_metadata.keywords.map((kw, i) => (
+                      {selectedUnitKeywords.map((kw, i) => (
                         <span key={i} className="ai-keyword-tag">#{kw}</span>
                       ))}
                     </div>
@@ -1211,14 +1223,14 @@ function App() {
                 <div className="detail-contact">
                   {isUserActive ? (
                     <div className="contact-info-card">
-                      {selectedUnit.sender_name && (
+                      {selectedUnitSenderName && (
                         <div className="sender-profile">
                           <div className="sender-avatar">
-                            {selectedUnit.sender_name.charAt(0)}
+                            {selectedUnitSenderName.charAt(0)}
                           </div>
                           <div className="sender-details">
                             <span className="sender-label">الوسيط</span>
-                            <span className="sender-name" dir={/^[+\d\s()-]{7,}$/.test((selectedUnit.sender_name || '').trim()) ? 'ltr' : undefined}>{selectedUnit.sender_name}</span>
+                            <span className="sender-name" dir={/^[+\d\s()-]{7,}$/.test(selectedUnitSenderName.trim()) ? 'ltr' : undefined}>{selectedUnitSenderName}</span>
                           </div>
                         </div>
                       )}
