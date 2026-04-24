@@ -9,11 +9,18 @@
 /* ========== Hero Banner ========== */
 .public-hero {
   width: 100%;
+  direction: rtl;
+  font-family: 'Cairo', sans-serif;
+}
+
+/* ── Hero ────────────────────────────────────────── */
+.landing-hero {
+  position: relative;
   background:
-    radial-gradient(circle at top right, rgba(199, 139, 55, 0.30), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(31, 143, 104, 0.18), transparent 30%),
-    linear-gradient(145deg, #10273b 0%, #1b4058 55%, #255969 100%);
-  padding: 36px 20px 32px;
+    radial-gradient(circle at top right, rgba(199, 139, 55, 0.32), transparent 35%),
+    radial-gradient(circle at bottom left, rgba(31, 143, 104, 0.22), transparent 35%),
+    linear-gradient(150deg, #0e2233 0%, #183650 55%, #1d4d62 100%);
+  padding: 40px 20px 36px;
   text-align: center;
 }
 
