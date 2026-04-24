@@ -11,9 +11,10 @@ const viewTitles = {
 };
 
 function Header({ activeView, user, onLogout, isAuthenticated, onShowLogin }) {
-  const title = (!isAuthenticated && activeView === 'dashboard')
+  const title = !isAuthenticated && activeView === 'dashboard'
     ? 'كونتابو'
     : (viewTitles[activeView] || 'كونتابو');
+
   return (
     <header className="mobile-header">
       <div className="mobile-header-title">

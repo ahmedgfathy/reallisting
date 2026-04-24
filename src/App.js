@@ -724,7 +724,16 @@ function App() {
             onLoginClick={handleShowLogin}
             stats={stats}
             messages={messages}
-            onViewChange={handleViewChange}
+            onSearch={(term) => {
+              setSearch(term);
+              setPage(1);
+              setActiveView('listings');
+            }}
+            onFilterByType={(type) => {
+              setPropertyType(type);
+              setPage(1);
+              setActiveView('listings');
+            }}
           />
         );
       }
