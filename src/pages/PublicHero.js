@@ -29,9 +29,8 @@ function PublicHero({ onLoginClick, stats, messages, onViewChange }) {
 
   const recentProperties = messages ? messages.slice(0, 8) : [];
 
-  const handleBrowseAll = () => {
-    if (onViewChange) onViewChange('listings');
-    else onLoginClick();
+  const handlePillClick = (typeValue) => {
+    if (onFilterByType) onFilterByType(typeValue);
   };
 
   const handleSearch = (e) => {

@@ -3,7 +3,8 @@ import {
   getPropertyImageUrl,
   buildCompactCardTitle,
   buildCardHeaderMeta,
-  truncateCardMessage
+  truncateCardMessage,
+  calculateHasMorePages
 } from './App';
 
 describe('property card helpers', () => {

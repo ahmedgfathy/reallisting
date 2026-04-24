@@ -117,7 +117,6 @@
     linear-gradient(155deg, #0d2237 0%, var(--color-primary, #163b57) 50%, var(--color-primary-light, #1f6882) 100%);
   padding: 60px 20px 72px;
   text-align: center;
-  overflow: hidden;
 }
 
 .pf-hero-bg {
@@ -930,6 +929,10 @@
   }
 
   .pf-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-recent-grid {
     grid-template-columns: 1fr;
   }
 }
