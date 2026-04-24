@@ -10,6 +10,7 @@ import SettingsPage from './pages/SettingsPage';
 import PublicHero from './pages/PublicHero';
 import './theme-v2.css';
 import './public-redesign.css';
+import './design-overhaul.css';
 
 export const FALLBACK_PROPERTY_IMAGE = '/logo192.png';
 
