@@ -1099,7 +1099,6 @@ function App() {
 
               <div className="detail-section detail-meta">
                 <span>🗓️ {selectedUnit.date_of_creation}</span>
-                {selectedUnit.source_file && <span>📁 {selectedUnit.source_file}</span>}
               </div>
             </div>
 
