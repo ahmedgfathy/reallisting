@@ -1,0 +1,44 @@
+{
+  "short_name": "كونتابو",
+  "name": "كونتابو | Contaboo",
+  "description": "كونتابو - منصة عربية حديثة للإعلانات والوسطاء العقاريين",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#163b57",
+  "background_color": "#f4eee2",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "business",
+    "lifestyle"
+  ],
+  "prefer_related_applications": false
+}
